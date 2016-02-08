@@ -9,7 +9,7 @@
 % var2Read (Recommended)= Variable to be read (use 'ncdump' to check variable names)
 % yearZero (Optional) = Lower year of the data to be read
 % yearN (Optional) = Higher year of the data to be read
-function [] = climatology(dirName,var2Read,yearZero,yearN)
+function [out] = climatology(dirName,var2Read,yearZero,yearN)
     if nargin < 1
         error('climatology: dirName is a required input')
     end
@@ -37,6 +37,7 @@ function [] = climatology(dirName,var2Read,yearZero,yearN)
     if(path.charAt(path.length-1) ~= '/')
         path = path.concat('/');
     end
+    out = [];
     if(length(dirName)>1)
         save_path = java.lang.String(dirName(2));
         if(length(dirName)>2)
@@ -71,7 +72,7 @@ function [] = climatology(dirName,var2Read,yearZero,yearN)
                 end
                 if(yearC > 0)
                     % Subrutine to writte the data in new Netcdf file
-                    writeFile(fileT,var2Read,yearC,months,save_path,monthsName,path_log);
+                    out = cat(3,out,writeFile(fileT,var2Read,yearC,months,save_path,monthsName,path_log));
                 end
             catch
                 continue;
@@ -93,89 +94,91 @@ function [] = climatology(dirName,var2Read,yearZero,yearN)
     end
 end
 
-function [] = writeFile(fileT,var2Read,yearC,months,path,monthsName,path_log)
+function [out] = writeFile(fileT,var2Read,yearC,months,path,monthsName,path_log)
     % Catching data from original file
-    latDataSet = nc_varget(char(fileT),'lat'); 
-    lonDataSet = nc_varget(char(fileT),'lon');
-    timeDataSet = nc_varget(char(fileT),var2Read);
-    lPos = 0;
-    newName = strcat('[CIGEFI] ',num2str(yearC),'.nc');
-    h = waitbar(0,'Initializing data writing ...');
-    for m=1:1:length(months)
-        fPos = lPos + 1;
-        if(leapyear(yearC)&& m ==2 && length(timeDataSet(:,1,1))==366)
-            lPos = months(m) + fPos; % Leap year
-        else
-            lPos = months(m) + fPos - 1;
-        end
-        if(m==1) % New file configuration
-            if ~exist(char(path),'dir')
-                mkdir(char(path));
-            end
-            newFile = char(path.concat(newName));
-            nc_create_empty(newFile,'netcdf4-classic');
-
-            % Adding file dimensions
-            nc_add_dimension(newFile,'lat',length(latDataSet));
-            nc_add_dimension(newFile,'lon',length(lonDataSet));
-            nc_add_dimension(newFile,'time',0); % 0 means UNLIMITED dimension
-
-            % Global params
-            nc_attput(newFile,nc_global,'parent_experiment',nc_attget(char(fileT),nc_global,'parent_experiment'));
-            nc_attput(newFile,nc_global,'parent_experiment_id',nc_attget(char(fileT),nc_global,'parent_experiment_id'));
-            nc_attput(newFile,nc_global,'parent_experiment_rip',nc_attget(char(fileT),nc_global,'parent_experiment_rip'));
-            nc_attput(newFile,nc_global,'institution',nc_attget(char(fileT),nc_global,'institution'));
-            nc_attput(newFile,nc_global,'realm',nc_attget(char(fileT),nc_global,'realm'));
-            nc_attput(newFile,nc_global,'modeling_realm',nc_attget(char(fileT),nc_global,'modeling_realm'));
-            nc_attput(newFile,nc_global,'version',nc_attget(char(fileT),nc_global,'version'));
-            nc_attput(newFile,nc_global,'downscalingModel',nc_attget(char(fileT),nc_global,'downscalingModel'));
-            nc_attput(newFile,nc_global,'experiment_id',nc_attget(char(fileT),nc_global,'experiment_id'));
-            nc_attput(newFile,nc_global,'frequency','monthly');
-            nc_attput(newFile,nc_global,'Year',num2str(yearC)); % nc_attput(FILE,VARIABLE,TITLE,CONTENT)
-            nc_attput(newFile,nc_global,'data_analysis_institution','CIGEFI - Universidad de Costa Rica');
-            nc_attput(newFile,nc_global,'data_analysis_date',char(datetime('today')));
-            nc_attput(newFile,nc_global,'data_analysis_contact','Roberto Villegas D: roberto.villegas@ucr.ac.cr');
-
-            % Adding file variables
-            monthlyData.Name = var2Read;
-            monthlyData.Datatype = 'single';
-            monthlyData.Dimension = {'time','lat', 'lon'};
-            nc_addvar(newFile,monthlyData);
-
-            timeData.Name = 'time';
-            timeData.Dimension = {'time'};
-            nc_addvar(newFile,timeData);
-
-            latData.Name = 'lat';
-            latData.Dimension = {'lat'};
-            nc_addvar(newFile,latData);
-
-            lonData.Name = 'lon';
-            lonData.Dimension = {'lon'};
-            nc_addvar(newFile,lonData);
-
-            % Writing the data into file
-            nc_varput(newFile,'lat',latDataSet);
-            nc_varput(newFile,'lon',lonDataSet);
-        end
-        for i=1:1:length(latDataSet)
-            for j=1:1:length(lonDataSet)
-                meanOut(m,i,j) = mean(timeDataSet(fPos:lPos,i,j)); %#ok<AGROW>
-            end
-            if isequal(mod(i,50),1)
-                perc = 100*(i*length(lonDataSet)/(length(lonDataSet)*length(latDataSet)));%(length(latDataSet)-i+1)*length(lonDataSet);
-                waitbar(perc/100,h,strcat(monthsName(m),sprintf(' data written %d%% along...',round(perc))));
-                %waitbar(perc/100,h,sprintf('Data written %d%% along...',round(perc)));
-            end
-        end
-        % Writing the data into file
-        nc_varput(newFile,var2Read,meanOut);
-        waitbar(1,h,strcat(monthsName(m),' data saved.'));
-        disp(strcat('Data saved:  ',monthsName(m),' - ',num2str(yearC),' - Days: ',num2str(fPos),' - ',num2str(lPos)));
-    end
-    fid = fopen(strcat(char(path_log),'log.txt'), 'at');
-    fprintf(fid, '%s\n',char(fileT));
-    fclose(fid);
-    %disp(strcat('Archivo guardado: ',char(fileT)));
-    close(h);
+%     latDataSet = nc_varget(char(fileT),'lat'); 
+%     lonDataSet = nc_varget(char(fileT),'lon');
+%     timeDataSet = nc_varget(char(fileT),var2Read);
+    out = mean(nc_varget(char(fileT),var2Read),3);
+%     lPos = 0;
+%     newName = strcat('[CIGEFI] ',num2str(yearC),'.nc');
+%     h = waitbar(0,'Initializing data writing ...');
+%     for m=1:1:length(months)
+%         fPos = lPos + 1;
+%         if(leapyear(yearC)&& m ==2 && length(timeDataSet(:,1,1))==366)
+%             lPos = months(m) + fPos; % Leap year
+%         else
+%             lPos = months(m) + fPos - 1;
+%         end
+%         if(m==1) % New file configuration
+%             if ~exist(char(path),'dir')
+%                 mkdir(char(path));
+%             end
+%             newFile = char(path.concat(newName));
+%             nc_create_empty(newFile,'netcdf4-classic');
+% 
+%             % Adding file dimensions
+%             nc_add_dimension(newFile,'lat',length(latDataSet));
+%             nc_add_dimension(newFile,'lon',length(lonDataSet));
+%             nc_add_dimension(newFile,'time',0); % 0 means UNLIMITED dimension
+% 
+%             % Global params
+%             nc_attput(newFile,nc_global,'parent_experiment',nc_attget(char(fileT),nc_global,'parent_experiment'));
+%             nc_attput(newFile,nc_global,'parent_experiment_id',nc_attget(char(fileT),nc_global,'parent_experiment_id'));
+%             nc_attput(newFile,nc_global,'parent_experiment_rip',nc_attget(char(fileT),nc_global,'parent_experiment_rip'));
+%             nc_attput(newFile,nc_global,'institution',nc_attget(char(fileT),nc_global,'institution'));
+%             nc_attput(newFile,nc_global,'realm',nc_attget(char(fileT),nc_global,'realm'));
+%             nc_attput(newFile,nc_global,'modeling_realm',nc_attget(char(fileT),nc_global,'modeling_realm'));
+%             nc_attput(newFile,nc_global,'version',nc_attget(char(fileT),nc_global,'version'));
+%             nc_attput(newFile,nc_global,'downscalingModel',nc_attget(char(fileT),nc_global,'downscalingModel'));
+%             nc_attput(newFile,nc_global,'experiment_id',nc_attget(char(fileT),nc_global,'experiment_id'));
+%             nc_attput(newFile,nc_global,'frequency','monthly');
+%             nc_attput(newFile,nc_global,'Year',num2str(yearC)); % nc_attput(FILE,VARIABLE,TITLE,CONTENT)
+%             nc_attput(newFile,nc_global,'data_analysis_institution','CIGEFI - Universidad de Costa Rica');
+%             nc_attput(newFile,nc_global,'data_analysis_date',char(datetime('today')));
+%             nc_attput(newFile,nc_global,'data_analysis_contact','Roberto Villegas D: roberto.villegas@ucr.ac.cr');
+% 
+%             % Adding file variables
+%             monthlyData.Name = var2Read;
+%             monthlyData.Datatype = 'single';
+%             monthlyData.Dimension = {'time','lat', 'lon'};
+%             nc_addvar(newFile,monthlyData);
+% 
+%             timeData.Name = 'time';
+%             timeData.Dimension = {'time'};
+%             nc_addvar(newFile,timeData);
+% 
+%             latData.Name = 'lat';
+%             latData.Dimension = {'lat'};
+%             nc_addvar(newFile,latData);
+% 
+%             lonData.Name = 'lon';
+%             lonData.Dimension = {'lon'};
+%             nc_addvar(newFile,lonData);
+% 
+%             % Writing the data into file
+%             nc_varput(newFile,'lat',latDataSet);
+%             nc_varput(newFile,'lon',lonDataSet);
+%         end
+%         for i=1:1:length(latDataSet)
+%             for j=1:1:length(lonDataSet)
+%                 meanOut(m,i,j) = mean(timeDataSet(fPos:lPos,i,j)); %#ok<AGROW>
+%             end
+%             if isequal(mod(i,50),1)
+%                 perc = 100*(i*length(lonDataSet)/(length(lonDataSet)*length(latDataSet)));%(length(latDataSet)-i+1)*length(lonDataSet);
+%                 waitbar(perc/100,h,strcat(monthsName(m),sprintf(' data written %d%% along...',round(perc))));
+%                 %waitbar(perc/100,h,sprintf('Data written %d%%
+%                 %along...',round(perc)));
+%             end
+%         end
+%         % Writing the data into file
+%         nc_varput(newFile,var2Read,meanOut);
+%         waitbar(1,h,strcat(monthsName(m),' data saved.'));
+%         disp(strcat('Data saved:  ',monthsName(m),' - ',num2str(yearC),' - Days: ',num2str(fPos),' - ',num2str(lPos)));
+%     end
+%     fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+%     fprintf(fid, '%s\n',char(fileT));
+%     fclose(fid);
+%     %disp(strcat('Archivo guardado: ',char(fileT)));
+%     close(h);
 end
