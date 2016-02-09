@@ -73,7 +73,7 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
                         continue;
                     end
                 end
-                if(yearC > 0 && var2Read ~= 'tasmax')
+                if(yearC > 0 && strcmp(var2Read,'tasmax')==0)
                     frecuency = nc_attget(char(fileT),nc_global,'frequency');
                     units = nc_attget(char(fileT),var2Read,'units');
                     % Subrutine to writte the data in new Netcdf file
@@ -105,7 +105,6 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
     end
     if(~isempty(out))
         out = squeeze(out(1,:,:));
-        tic;
         switch(var2Read)
             case 'pr'
                 units = 'kg / (m^2 s)';
@@ -115,8 +114,8 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
             otherwise
                 PlotData(out,'',char(path));
         end
-        toc;
-        save(strcat(var2Read,'.dat'),'out'); 
+        fileT = path.concat(strcat(var2Read,'.dat'));
+        save(char(fileT),'out'); 
     end
 end
 
@@ -136,13 +135,13 @@ function [out] = readFileTemp(fileT,var2Read,yearC,path_log)
     try
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
         fileT2 = fileT2.concat('/tasmax_day/');
-        fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('tasmin_day/')+1));
+        fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
         if(exist(char(fileT2),'file'))
             min = nc_varget(char(fileT),var2Read);
             max = nc_varget(char(fileT2),'tasmax');
-            data = (min+max)/2;
-            data2 = mean(cat(1,min,max),1);
-            out = mean(data,1);
+%             data = (min+max)/2;
+%             data2 = mean(cat(1,min,max),1);
+            out = mean(cat(1,min,max),1);
             disp(strcat('Data saved: ',num2str(yearC)));
             fid = fopen(strcat(char(path_log),'log.txt'), 'at');
             fprintf(fid, '%s\n',char(fileT));
