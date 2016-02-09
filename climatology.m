@@ -139,9 +139,10 @@ function [out] = readFileTemp(fileT,var2Read,yearC,path_log)
         if(exist(char(fileT2),'file'))
             min = nc_varget(char(fileT),var2Read);
             max = nc_varget(char(fileT2),'tasmax');
-%             data = (min+max)/2;
+%             data = cat(1,min,max);
+            data = (min+max)/2;
 %             data2 = mean(cat(1,min,max),1);
-            out = mean(cat(1,min,max),1);
+            out = mean(data,1);
             disp(strcat('Data saved: ',num2str(yearC)));
             fid = fopen(strcat(char(path_log),'log.txt'), 'at');
             fprintf(fid, '%s\n',char(fileT));
