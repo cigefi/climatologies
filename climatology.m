@@ -31,12 +31,14 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
         yearN = yearTemp;
     end
     dirData = dir(char(dirName(1)));  % Get the data for the current directory
-    months = [31,28,31,30,31,30,31,31,30,31,30,31]; % Reference to the number of days per month
-    monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
+%     months = [31,28,31,30,31,30,31,31,30,31,30,31]; % Reference to the number of days per month
+%     monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
     path = java.lang.String(dirName(1));
     if(path.charAt(path.length-1) ~= '/')
         path = path.concat('/');
     end
+    experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
+    experimentName = experimentParent.substring(experimentParent.lastIndexOf('/')+1);
     out = [];
     if(length(dirName)>1)
         save_path = java.lang.String(dirName(2));
@@ -54,7 +56,8 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
 	end
 	if(path_log.charAt(path_log.length-1) ~= '/')
 		path_log = path_log.concat('/');
-	end
+    end
+    fprintf('Processing: %s\n',char(experimentName));
     for f = 3:length(dirData)
         fileT = path.concat(dirData(f).name);
         if(fileT.substring(fileT.lastIndexOf('.')+1).equalsIgnoreCase('nc'))
@@ -70,9 +73,17 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
                         continue;
                     end
                 end
-                if(yearC > 0)
+                if(yearC > 0 && var2Read ~= 'tasmax')
+                    frecuency = nc_attget(char(fileT),nc_global,'frequency');
+                    units = nc_attget(char(fileT),var2Read,'units');
                     % Subrutine to writte the data in new Netcdf file
-                    out = cat(3,out,writeFile(fileT,var2Read,yearC,months,save_path,monthsName,path_log));
+                    switch var2Read
+                        case 'pr'
+                            out = mean(cat(1,out,readFile(fileT,var2Read,yearC,path_log)),1);
+                        otherwise
+                            out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,path_log)),1);
+                    end
+                    %out = cat(1,out,writeFile(fileT,var2Read,yearC,months,save_path,monthsName,path_log));
                 end
             catch
                 continue;
@@ -92,93 +103,92 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
             end
         end
     end
+    if(~isempty(out))
+        out = squeeze(out(1,:,:));
+        tic;
+        switch(var2Read)
+            case 'pr'
+                units = 'kg / (m^2 s)';
+                PlotData(out,strcat('Precipitation (',units,{' '},frecuency,')'),char(path));
+            case 'tasmin'
+                PlotData(out,strcat('Temperature (',units,{' '},frecuency,')'),char(path));
+            otherwise
+                PlotData(out,'',char(path));
+        end
+        toc;
+        save(strcat(var2Read,'.dat'),'out'); 
+    end
 end
 
-function [out] = writeFile(fileT,var2Read,yearC,months,path,monthsName,path_log)
-    % Catching data from original file
-%     latDataSet = nc_varget(char(fileT),'lat'); 
-%     lonDataSet = nc_varget(char(fileT),'lon');
-%     timeDataSet = nc_varget(char(fileT),var2Read);
-    out = mean(nc_varget(char(fileT),var2Read),3);
-%     lPos = 0;
-%     newName = strcat('[CIGEFI] ',num2str(yearC),'.nc');
-%     h = waitbar(0,'Initializing data writing ...');
-%     for m=1:1:length(months)
-%         fPos = lPos + 1;
-%         if(leapyear(yearC)&& m ==2 && length(timeDataSet(:,1,1))==366)
-%             lPos = months(m) + fPos; % Leap year
-%         else
-%             lPos = months(m) + fPos - 1;
-%         end
-%         if(m==1) % New file configuration
-%             if ~exist(char(path),'dir')
-%                 mkdir(char(path));
-%             end
-%             newFile = char(path.concat(newName));
-%             nc_create_empty(newFile,'netcdf4-classic');
-% 
-%             % Adding file dimensions
-%             nc_add_dimension(newFile,'lat',length(latDataSet));
-%             nc_add_dimension(newFile,'lon',length(lonDataSet));
-%             nc_add_dimension(newFile,'time',0); % 0 means UNLIMITED dimension
-% 
-%             % Global params
-%             nc_attput(newFile,nc_global,'parent_experiment',nc_attget(char(fileT),nc_global,'parent_experiment'));
-%             nc_attput(newFile,nc_global,'parent_experiment_id',nc_attget(char(fileT),nc_global,'parent_experiment_id'));
-%             nc_attput(newFile,nc_global,'parent_experiment_rip',nc_attget(char(fileT),nc_global,'parent_experiment_rip'));
-%             nc_attput(newFile,nc_global,'institution',nc_attget(char(fileT),nc_global,'institution'));
-%             nc_attput(newFile,nc_global,'realm',nc_attget(char(fileT),nc_global,'realm'));
-%             nc_attput(newFile,nc_global,'modeling_realm',nc_attget(char(fileT),nc_global,'modeling_realm'));
-%             nc_attput(newFile,nc_global,'version',nc_attget(char(fileT),nc_global,'version'));
-%             nc_attput(newFile,nc_global,'downscalingModel',nc_attget(char(fileT),nc_global,'downscalingModel'));
-%             nc_attput(newFile,nc_global,'experiment_id',nc_attget(char(fileT),nc_global,'experiment_id'));
-%             nc_attput(newFile,nc_global,'frequency','monthly');
-%             nc_attput(newFile,nc_global,'Year',num2str(yearC)); % nc_attput(FILE,VARIABLE,TITLE,CONTENT)
-%             nc_attput(newFile,nc_global,'data_analysis_institution','CIGEFI - Universidad de Costa Rica');
-%             nc_attput(newFile,nc_global,'data_analysis_date',char(datetime('today')));
-%             nc_attput(newFile,nc_global,'data_analysis_contact','Roberto Villegas D: roberto.villegas@ucr.ac.cr');
-% 
-%             % Adding file variables
-%             monthlyData.Name = var2Read;
-%             monthlyData.Datatype = 'single';
-%             monthlyData.Dimension = {'time','lat', 'lon'};
-%             nc_addvar(newFile,monthlyData);
-% 
-%             timeData.Name = 'time';
-%             timeData.Dimension = {'time'};
-%             nc_addvar(newFile,timeData);
-% 
-%             latData.Name = 'lat';
-%             latData.Dimension = {'lat'};
-%             nc_addvar(newFile,latData);
-% 
-%             lonData.Name = 'lon';
-%             lonData.Dimension = {'lon'};
-%             nc_addvar(newFile,lonData);
-% 
-%             % Writing the data into file
-%             nc_varput(newFile,'lat',latDataSet);
-%             nc_varput(newFile,'lon',lonDataSet);
-%         end
-%         for i=1:1:length(latDataSet)
-%             for j=1:1:length(lonDataSet)
-%                 meanOut(m,i,j) = mean(timeDataSet(fPos:lPos,i,j)); %#ok<AGROW>
-%             end
-%             if isequal(mod(i,50),1)
-%                 perc = 100*(i*length(lonDataSet)/(length(lonDataSet)*length(latDataSet)));%(length(latDataSet)-i+1)*length(lonDataSet);
-%                 waitbar(perc/100,h,strcat(monthsName(m),sprintf(' data written %d%% along...',round(perc))));
-%                 %waitbar(perc/100,h,sprintf('Data written %d%%
-%                 %along...',round(perc)));
-%             end
-%         end
-%         % Writing the data into file
-%         nc_varput(newFile,var2Read,meanOut);
-%         waitbar(1,h,strcat(monthsName(m),' data saved.'));
-%         disp(strcat('Data saved:  ',monthsName(m),' - ',num2str(yearC),' - Days: ',num2str(fPos),' - ',num2str(lPos)));
-%     end
-%     fid = fopen(strcat(char(path_log),'log.txt'), 'at');
-%     fprintf(fid, '%s\n',char(fileT));
-%     fclose(fid);
-%     %disp(strcat('Archivo guardado: ',char(fileT)));
-%     close(h);
+function [out] = readFile(fileT,var2Read,yearC,path_log)
+    try
+        out = mean(nc_varget(char(fileT),var2Read),1);
+        disp(strcat('Data saved: ',num2str(yearC)));
+        fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+        fprintf(fid, '%s\n',char(fileT));
+        fclose(fid);
+    catch
+        out = [];
+    end
+end
+
+function [out] = readFileTemp(fileT,var2Read,yearC,path_log)
+    try
+        fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
+        fileT2 = fileT2.concat('/tasmax_day/');
+        fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('tasmin_day/')+1));
+        if(exist(char(fileT2),'file'))
+            min = nc_varget(char(fileT),var2Read);
+            max = nc_varget(char(fileT2),'tasmax');
+            data = (min+max)/2;
+            data2 = mean(cat(1,min,max),1);
+            out = mean(data,1);
+            disp(strcat('Data saved: ',num2str(yearC)));
+            fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+            fprintf(fid, '%s\n',char(fileT));
+            fclose(fid);
+        end
+    catch
+        out = [];
+    end
+end
+
+function [] = PlotData(data2D,label,path)
+    disp('Generating map');
+    % Extend the map to the longitude (360) and latitude (0) field
+    A=data2D(:,1);
+    data2Dh=[data2D,A];
+    
+    % New map
+    longitud = linspace(0,360,length(data2D(1,:))+1);
+    latitud = linspace(-90,90,length(data2D(:,1)));
+    
+    [longrat,latgrat]=meshgrat(longitud,latitud);
+    testi=data2Dh;
+
+    p=10;%p=round(latitud(2)-latitud(1));%[25:15:30];
+    f = figure('visible', 'off');
+    hold on;
+    worldmap([-90 90],[-180 180])
+    mlabel('off')
+    plabel('off')
+    framem('on')
+    set(gcf,'Color',[1,1,1]);
+    %colormap(parula);
+    colormap(jet);
+    try
+        [c,h]=contourfm(latgrat,longrat,testi',p,'LineStyle','none');
+        hi = worldhi([-90 90],[-180 180]);
+        for i=1:length(hi)
+            plotm(hi(i).lat,hi(i).long,'k')
+        end
+        cb = colorbar('southoutside');
+        cb.Label.String = label;
+        print(strcat(path,'SurfacePlot'),'-depsc','-tiff')
+        close(f);
+        disp('Map saved');
+    catch
+        close(f);
+        disp('Map not saved');
+    end
 end
