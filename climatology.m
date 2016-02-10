@@ -1,28 +1,38 @@
 % Function climatology
 %
-% Prototype: climatology(dirName,var2Read,yearZero,yearN)
-%            climatology(dirName,var2Read)
-%            climatology(dirName)
+% Prototype: climatology(dirName,type, var2Read,yearZero,yearN)
+%            climatology(dirName,type, var2Read)
+%            climatology(dirName,type)
+%
 %
 % dirName = Path of the directory that contents the files and path for the
 % processing files
 % var2Read (Recommended)= Variable to be read (use 'ncdump' to check variable names)
 % yearZero (Optional) = Lower year of the data to be read
 % yearN (Optional) = Higher year of the data to be read
-function [out] = climatology(dirName,var2Read,yearZero,yearN)
+function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     if nargin < 1
         error('climatology: dirName is a required input')
     end
-    if nargin < 2 % Validates if the var2Read param is received
-        temp = java.lang.String(dirName(1)).split('/');
-        temp = temp(end).split('_');
-        var2Read = char(temp(1)); % Default value is taken from the path
-    end
-    if nargin < 3 % Validates if the yearZero param is received
-        yearZero = 0; % Default value
-    end
-    if nargin < 4 % Validates if the yearN param is received
-        yearN = 0; % Default value
+    switch nargin
+        case 1 % Validates if the type param is received
+            type = 'daily';
+            temp = java.lang.String(dirName(1)).split('/');
+            temp = temp(end).split('_');
+            var2Read = char(temp(1)); % Default value is taken from the path
+            yearZero = 0; % Default value
+            yearN = 0; % Default value
+        case 2 % Validates if the var2Read param is received
+            temp = java.lang.String(dirName(1)).split('/');
+            temp = temp(end).split('_');
+            var2Read = char(temp(1)); % Default value is taken from the path
+            yearZero = 0; % Default value
+            yearN = 0; % Default value
+        case 3 % Validates if the yearZero param is received
+            yearZero = 0; % Default value
+            yearN = 0; % Default value
+        case 4 % Validates if the yearN param is received
+            yearN = 0;
     end
     
     if(yearZero > yearN) % Validates if the yearZero is higher than yearN
@@ -31,8 +41,9 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
         yearN = yearTemp;
     end
     dirData = dir(char(dirName(1)));  % Get the data for the current directory
-%     months = [31,28,31,30,31,30,31,31,30,31,30,31]; % Reference to the number of days per month
-%     monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
+    months = [31,28,31,30,31,30,31,31,30,31,30,31]; % Reference to the number of days per month
+    monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
+    seasonsName = {'Spring','Summer','Fall','Winter'};
     path = java.lang.String(dirName(1));
     if(path.charAt(path.length-1) ~= '/')
         path = path.concat('/');
@@ -74,14 +85,33 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
                     end
                 end
                 if(yearC > 0 && strcmp(var2Read,'tasmax')==0)
-                    frecuency = nc_attget(char(fileT),nc_global,'frequency');
-                    units = nc_attget(char(fileT),var2Read,'units');
+%                     frecuency = nc_attget(char(fileT),nc_global,'frequency');
+%                     units = nc_attget(char(fileT),var2Read,'units');
                     % Subrutine to writte the data in new Netcdf file
-                    switch var2Read
-                        case 'pr'
-                            out = mean(cat(1,out,readFile(fileT,var2Read,yearC,path_log)),1);
-                        otherwise
-                            out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,path_log)),1);
+                    switch type
+                        case 'daily'
+                            switch var2Read
+                                case 'pr'
+                                    out = mean(cat(1,out,readFile(fileT,var2Read,yearC,path_log)),1);
+                                otherwise
+                                    out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,path_log)),1);
+                            end
+                        case 'monthly'
+                            switch var2Read
+                                case 'pr'
+                                    n_year = readFileMonthly(fileT,var2Read,yearC,path_log,months,monthsName);
+                                otherwise
+                                    n_year = readFileMonthlyTemp(fileT,var2Read,yearC,path_log);
+                            end
+                            if(~isempty(n_year))
+                                if(~isempty(out))
+                                    out = (out + n_year)/2;
+                                else
+                                    out = n_year;
+                                end
+                            end
+                        case 'seasonal'
+                            disp('In progress...');
                     end
                     %out = cat(1,out,writeFile(fileT,var2Read,yearC,months,save_path,monthsName,path_log));
                 end
@@ -90,49 +120,147 @@ function [out] = climatology(dirName,var2Read,yearZero,yearN)
             end
         else
             if isequal(dirData(f).isdir,1)
-                  newPath = char(path.concat(dirData(f).name));
-                if nargin < 2 % Validates if the var2Read param is received
-                    climatology({[newPath],[char(save_path.concat(dirData(f).name))],[char(path_log)]});
-                elseif nargin < 3 % Validates if the yearZero param is received
-                    climatology({[newPath],[char(save_path.concat(dirData(f).name))],[char(path_log)]},var2Read);
-                elseif nargin < 4 % Validates if the yearN param is received
-                    climatology({[newPath],[char(save_path.concat(dirData(f).name))],[char(path_log)]},var2Read,yearZero)
-                else
-                    climatology({[newPath],[char(save_path.concat(dirData(f).name))],[char(path_log)]},var2Read,yearZero,yearN)
+                newPath = char(path.concat(dirData(f).name));
+                switch nargin
+                    case 1 
+                        climatology({[newPath],[char(save_path.concat(dirData(f).name))],[char(path_log)]});
+                    case 2 % Validates if the type param is received
+                        climatology({[newPath],[char(save_path.concat(dirData(f).name))],[char(path_log)]},type);
+                    case 3 % Validates if the var2Read param is received
+                        climatology({[newPath],[char(save_path.concat(dirData(f).name))],[char(path_log)]},type,var2Read);
+                    case 4 % Validates if the yearZero param is received
+                        climatology({[newPath],[char(save_path.concat(dirData(f).name))],[char(path_log)]},type,var2Read,yearZero);
+                    otherwise
+                        climatology({[newPath],[char(save_path.concat(dirData(f).name))],[char(path_log)]},type,var2Read,yearZero,yearN);      
                 end
             end
         end
     end
     if(~isempty(out))
-        out = squeeze(out(1,:,:));
-        switch(var2Read)
-            case 'pr'
-                units = 'kg / (m^2 s)';
-                PlotData(out,strcat('Precipitation (',units,{' '},frecuency,')'),char(path));
-            case 'tasmin'
-                PlotData(out,strcat('Temperature (',units,{' '},frecuency,')'),char(path));
-            otherwise
-                PlotData(out,'',char(path));
+        switch type
+            case 'daily'
+                out = squeeze(out(1,:,:));
+                switch(var2Read)
+                    case 'pr'
+                        units = 'mm';
+                        frequency = 'day';
+                        PlotData(out,strcat('Precipitation (',units,{' '},frequency,')'),char(path),char(experimentName));
+                    case 'tasmin'
+                        units = '°C';
+                        frequency = 'day';
+                        PlotData(out,strcat('Temperature (',units,{' '},frequency,')'),char(path),char(experimentName));
+                    otherwise
+                        PlotData(out,'',char(path));
+                end
+                fileT = path.concat(strcat(var2Read,'.dat'));
+                save(char(fileT),'out'); 
+            case 'monthly'
+                for m=1:1:12
+                    disp(strcat('Processing',{' '},monthsName(m)));
+                    c_month = squeeze(out(m,:,:));
+                    switch(var2Read)
+                        case 'pr'
+                            units = 'mm';
+                            frequency = 'day';
+                            PlotData(c_month,strcat('Precipitation (',units,{' '},frequency,')'),char(path),strcat(char(experimentName),'-',monthsName(m)));
+                        case 'tasmin'
+                            units = '°C';
+                            frequency = 'day';
+                            PlotData(c_month,strcat('Temperature (',units,{' '},frequency,')'),char(path),strcat(char(experimentName),'-',monthsName(m)));
+                        otherwise
+                            PlotData(c_month,'',char(path),strcat(char(experimentName),'-',monthsName(m)));
+                    end
+                    fileT = path.concat(strcat(monthsName(m),'.dat'));
+                    save(char(fileT),'c_month'); 
+                end
+            case 'seasonal'
+                disp('In progress...');
         end
-        fileT = path.concat(strcat(var2Read,'.dat'));
-        save(char(fileT),'out'); 
     end
 end
 
 function [out] = readFile(fileT,var2Read,yearC,path_log)
     try
-        out = mean(nc_varget(char(fileT),var2Read),1);
+        scale = 84600;
+        data = nc_varget(char(fileT),var2Read);
+        out = mean(scale.*data,1);
         disp(strcat('Data saved: ',num2str(yearC)));
         fid = fopen(strcat(char(path_log),'log.txt'), 'at');
-        fprintf(fid, '%s\n',char(fileT));
+        fprintf(fid, '[SAVED] %s\n',char(fileT));
         fclose(fid);
     catch
         out = [];
+        fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+        fprintf(fid, '[ERROR] %s\n',char(fileT));
+        fclose(fid);
+    end
+end
+
+function [out] = readFileMonthly(fileT,var2Read,yearC,path_log,months,monthsName)
+    try
+        scale = 84600;
+        data = nc_varget(char(fileT),var2Read);
+        data = scale.*data;
+        lPos = 0;
+        out = [];
+        for m=1:1:length(months)
+            fPos = lPos + 1;
+            if(leapyear(yearC)&& m==2 && length(data(:,1,1))==366)
+                lPos = months(m) + fPos; % Leap year
+            else
+                lPos = months(m) + fPos -1;
+            end
+            out = cat(1,out,mean(data(fPos:lPos,:,:),1));
+            disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
+        end
+        fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+        fprintf(fid, '[SAVED] %s\n',char(fileT));
+        fclose(fid);
+    catch
+        out = [];
+        fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+        fprintf(fid, '[ERROR] %s\n',char(fileT));
+        fclose(fid);
+    end
+end
+
+function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,path_log,months,monthsName)
+    try
+        scale = 273.15;
+        fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
+        fileT2 = fileT2.concat('/tasmax_day/');
+        fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
+        if(exist(char(fileT2),'file'))
+            min = nc_varget(char(fileT),var2Read);
+            max = nc_varget(char(fileT2),'tasmax');
+            lPos = 0;
+            out = [];
+            for m=1:1:length(months)
+                fPos = lPos + 1;
+                if(leapyear(yearC)&& m==2 && length(min(:,1,1))==366 && length(max(:,1,1))==366)
+                    lPos = months(m) + fPos; % Leap year
+                else
+                    lPos = months(m) + fPos -1;
+                end
+                data = (min(fPos:lPos,:,:)+max(fPos:lPos,:,:))/2;
+                out = cat(1,out,mean(data-scale,1));
+                disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
+            end
+            fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+            fprintf(fid, '[SAVED] %s\n',char(fileT));
+            fclose(fid);
+        end
+    catch
+        out = [];
+        fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+        fprintf(fid, '[ERROR] %s\n',char(fileT));
+        fclose(fid);
     end
 end
 
 function [out] = readFileTemp(fileT,var2Read,yearC,path_log)
     try
+        scale = 273.15;
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
         fileT2 = fileT2.concat('/tasmax_day/');
         fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
@@ -142,18 +270,21 @@ function [out] = readFileTemp(fileT,var2Read,yearC,path_log)
 %             data = cat(1,min,max);
             data = (min+max)/2;
 %             data2 = mean(cat(1,min,max),1);
-            out = mean(data,1);
+            out = mean(data-scale,1);
             disp(strcat('Data saved: ',num2str(yearC)));
             fid = fopen(strcat(char(path_log),'log.txt'), 'at');
-            fprintf(fid, '%s\n',char(fileT));
+            fprintf(fid, '[SAVED] %s\n',char(fileT));
             fclose(fid);
         end
     catch
         out = [];
+        fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+        fprintf(fid, '[ERROR] %s\n',char(fileT));
+        fclose(fid);
     end
 end
 
-function [] = PlotData(data2D,label,path)
+function [] = PlotData(data2D,label,path,name)
     disp('Generating map');
     % Extend the map to the longitude (360) and latitude (0) field
     A=data2D(:,1);
@@ -184,7 +315,7 @@ function [] = PlotData(data2D,label,path)
         end
         cb = colorbar('southoutside');
         cb.Label.String = label;
-        print(strcat(path,'SurfacePlot'),'-depsc','-tiff')
+        print(strcat(path,char(name)),'-depsc','-tiff')
         close(f);
         disp('Map saved');
     catch
