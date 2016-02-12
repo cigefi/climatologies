@@ -254,7 +254,9 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,path_log,months,months
                 else
                     lPos = months(m) + fPos -1;
                 end
-                data = (min(fPos:lPos,:,:)+max(fPos:lPos,:,:))/2;
+                t_min = min(fPos:lPos,:,:);
+                t_max = max(fPos:lPos,:,:);
+                data = (t_min+t_max)/2;
                 out = cat(1,out,mean(data-scale,1));
                 disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
             end
