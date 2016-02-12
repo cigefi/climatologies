@@ -162,7 +162,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         frequency = 'day';
                         PlotData(out,strcat('Precipitation (',units,{' '},frequency,')'),char(path),char(experimentName));
                     case 'tasmin'
-                        units = 'Â°C';
+                        units = '°C';
                         frequency = 'day';
                         PlotData(out,strcat('Temperature (',units,{' '},frequency,')'),char(path),char(experimentName));
                     otherwise
@@ -180,7 +180,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             frequency = 'day';
                             PlotData(currentMonth,strcat('Precipitation (',units,{' '},frequency,')'),char(path),strcat(char(experimentName),'-',monthsName(m)));
                         case 'tasmin'
-                            units = 'Â°C';
+                            units = '°C';
                             frequency = 'day';
                             PlotData(currentMonth,strcat('Temperature (',units,{' '},frequency,')'),char(path),strcat(char(experimentName),'-',monthsName(m)));
                         otherwise
