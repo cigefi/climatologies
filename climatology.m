@@ -43,7 +43,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     dirData = dir(char(dirName(1)));  % Get the data for the current directory
     months = [31,28,31,30,31,30,31,31,30,31,30,31]; % Reference to the number of days per month
     monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
-    seasonsName = {'Spring','Summer','Fall','Winter'};
+    seasonsName = {'Winter','Spring','Summer','Fall'};
     path = java.lang.String(dirName(1));
     if(path.charAt(path.length-1) ~= '/')
         path = path.concat('/');
@@ -51,6 +51,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
     experimentName = experimentParent.substring(experimentParent.lastIndexOf('/')+1);
     out = [];
+    last_december = []; % Temp var to save the data of the previous December
     if(length(dirName)>1)
         save_path = java.lang.String(dirName(2));
         if(length(dirName)>2)
@@ -101,7 +102,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                 case 'pr'
                                     n_year = readFileMonthly(fileT,var2Read,yearC,path_log,months,monthsName);
                                 otherwise
-                                    n_year = readFileMonthlyTemp(fileT,var2Read,yearC,path_log);
+                                    n_year = readFileMonthlyTemp(fileT,var2Read,yearC,path_log,months,monthsName);
                             end
                             if(~isempty(n_year))
                                 if(~isempty(out))
@@ -111,9 +112,20 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                 end
                             end
                         case 'seasonal'
-                            disp('In progress...');
+                            switch var2Read
+                                case 'pr'
+                                    [n_year,last_december] = readFileSeasonal(fileT,var2Read,yearC,path_log,months,seasonsName,last_december);
+                                otherwise
+                                    [n_year,last_december] = readFileSeasonalTemp(fileT,var2Read,yearC,path_log,months,seasonsName,last_december);
+                            end
+                            if(~isempty(n_year))
+                                if(~isempty(out))
+                                    out = (out + n_year)/2;
+                                else
+                                    out = n_year;
+                                end
+                            end
                     end
-                    %out = cat(1,out,writeFile(fileT,var2Read,yearC,months,save_path,monthsName,path_log));
                 end
             catch
                 continue;
@@ -250,6 +262,35 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,path_log,months,months
             fprintf(fid, '[SAVED] %s\n',char(fileT));
             fclose(fid);
         end
+    catch
+        out = [];
+        fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+        fprintf(fid, '[ERROR] %s\n',char(fileT));
+        fclose(fid);
+    end
+end
+
+function [out] = readFileSeasonal(fileT,var2Read,yearC,path_log,months,seasonsName,last_december)
+    try
+        scale = 84600;
+        data = nc_varget(char(fileT),var2Read);
+        data = scale.*data;
+        lPos = 0;
+        out = [];
+        season_map = [2 5 8 11];
+        for s=1:1:length(seasonsName)
+            fPos = lPos + 1;
+            if(leapyear(yearC)&& m==2 && length(data(:,1,1))==366)
+                lPos = months(m) + fPos; % Leap year
+            else
+                lPos = months(m) + fPos -1;
+            end
+            out = cat(1,out,mean(data(fPos:lPos,:,:),1));
+            disp(strcat('Data saved: ',seasonsName(s),{' - '},num2str(yearC)));
+        end
+        fid = fopen(strcat(char(path_log),'log.txt'), 'at');
+        fprintf(fid, '[SAVED] %s\n',char(fileT));
+        fclose(fid);
     catch
         out = [];
         fid = fopen(strcat(char(path_log),'log.txt'), 'at');
