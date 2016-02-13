@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Climatologies by cigefi</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Climatologies</h1>
+        <h2></h2>
+        <a href="https://github.com/cigefi/climatologies" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="climatologies" class="anchor" href="#climatologies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Climatologies</h1>
+
+<p>This script is capable of reading recursively a bunch of netcdf files and generate 3 types of climatologies: daily, monthly, and seasonal.
+The unique requirement for the data is to be organized in the following structure:<br>
+[EXPERIMENT NAME]<br>
+------ [MONITORING DATA]<br>
+        ------ ####.nc<br></p>
+
+<p>To obtain this file structure, you can use <a href="https://github.com/cigefi/fileManager/">fileOrganize.sh</a> script.</p>
+
+<h3>
+<a id="daily-default-mode" class="anchor" href="#daily-default-mode" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Daily (default mode)</h3>
+
+<h5>
+<a id="input" class="anchor" href="#input" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Input</h5>
+
+<ul>
+<li>(Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)</li>
+<li>(Optional) type: daily</li>
+<li>(Optional) var2Read: Variable to be read (use 'ncdump -h' command from bash to get the variable names</li>
+<li>(Optional) yearZero: Lower year of the data to be read (integer)</li>
+<li>(Optional) yearN: Higher year of the data to be readed (integer)</li>
+</ul>
+
+<h5>
+<a id="output-3-files" class="anchor" href="#output-3-files" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Output (3 files)</h5>
+
+<ul>
+<li>log file: File that contains the list of property processed .nc files and the errors</li>
+<li>[Experiment-Name]-[var2Read].dat file: File that contains a 2-Dimensional structure with the values point by point</li>
+<li>[Experiment-Name].eps file: File that contains a plot of the data in high resolution</li>
+</ul>
+
+<h5>
+<a id="function-invocation" class="anchor" href="#function-invocation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Function invocation</h5>
+
+<p>Reads all the .nc files from <em>SOURCE_PATH</em> and generates daily climatology</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]})</pre></div>
+
+<p>Same as above</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>)</pre></div>
+
+<p>Reads all the .nc files wich contain the variable <em>pr</em> from <em>SOURCE_PATH</em> and generates daily climatology</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
+
+<p>Same as above, plus the maximum data to be read is from the year 1950</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
+
+<p>Same as above, but the data to be read is from the range 1950 to 2000</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
+
+<h3>
+<a id="monthly" class="anchor" href="#monthly" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Monthly</h3>
+
+<h5>
+<a id="input-1" class="anchor" href="#input-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Input</h5>
+
+<ul>
+<li>(Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)</li>
+<li>(Optional) type: monthly</li>
+<li>(Optional) var2Read: Variable to be read (use 'ncdump -h' command from bash to get the variable names</li>
+<li>(Optional) yearZero: Lower year of the data to be read (integer)</li>
+<li>(Optional) yearN: Higher year of the data to be readed (integer)</li>
+</ul>
+
+<h5>
+<a id="output-25-files" class="anchor" href="#output-25-files" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Output (25 files)</h5>
+
+<ul>
+<li>log file: File that contains the list of property processed .nc files and the errors</li>
+<li>[Experiment-Name]-[Month].dat file: File that contains a 2-Dimensional structure with the values point by point</li>
+<li>[Experiment-Name]-[Month].eps file: File that contains a plot of the data in high resolution</li>
+</ul>
+
+<h5>
+<a id="function-invocation-1" class="anchor" href="#function-invocation-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Function invocation</h5>
+
+<p>Reads all the .nc files from <em>SOURCE_PATH</em> and generates monthly climatology</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>)</pre></div>
+
+<p>Reads all the .nc files wich contain the variable <em>pr</em> from <em>SOURCE_PATH</em> and generates monthly climatology</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
+
+<p>Same as above, plus the maximum data to be read is from the year 1950</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
+
+<p>Same as above, but the data to be read is from the range 1950 to 2000</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
+
+<h3>
+<a id="seasonal" class="anchor" href="#seasonal" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Seasonal</h3>
+
+<h5>
+<a id="input-2" class="anchor" href="#input-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Input</h5>
+
+<ul>
+<li>(Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)</li>
+<li>(Optional) type: seasonal</li>
+<li>(Optional) var2Read: Variable to be read (use 'ncdump -h' command from bash to get the variable names</li>
+<li>(Optional) yearZero: Lower year of the data to be read (integer)</li>
+<li>(Optional) yearN: Higher year of the data to be readed (integer)</li>
+</ul>
+
+<h5>
+<a id="output-10-files" class="anchor" href="#output-10-files" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Output (10 files)</h5>
+
+<ul>
+<li>log file: File that contains the list of property processed .nc files and the errors</li>
+<li>[Experiment-Name]-[Season].dat file: File that contains a 2-Dimensional structure with the values point by point</li>
+<li>[Experiment-Name]-[Season].eps file: File that contains a plot of the data in high resolution</li>
+</ul>
+
+<h5>
+<a id="function-invocation-2" class="anchor" href="#function-invocation-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Function invocation</h5>
+
+<p>Reads all the .nc files from <em>SOURCE_PATH</em> and generates seasonal climatology</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>)</pre></div>
+
+<p>Reads all the .nc files wich contain the variable <em>pr</em> from <em>SOURCE_PATH</em> and generates seasonal climatology</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
+
+<p>Same as above, plus the maximum data to be read is from the year 1950</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
+
+<p>Same as above, but the data to be read is from the range 1950 to 2000</p>
+
+<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
+
+<h3>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h3>
+
+<p>CIGEFI Centre for Geophysical Research<br>
+Universidad de Costa Rica ©2016</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/cigefi/climatologies/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/cigefi/climatologies/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/cigefi/climatologies"></a> is maintained by <a href="https://github.com/cigefi">cigefi</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
