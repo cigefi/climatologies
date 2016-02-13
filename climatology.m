@@ -51,8 +51,12 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     if(path.charAt(path.length-1) ~= '/')
         path = path.concat('/');
     end
+    try
     experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
     experimentName = experimentParent.substring(experimentParent.lastIndexOf('/')+1);
+    catch
+        experimentName = '[CIGEFI]'; % Dafault value
+    end
     out = [];
     lastDecember = []; % Temp var to save the data of the previous December
     if(length(dirName)>1)
