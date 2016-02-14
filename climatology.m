@@ -100,6 +100,9 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     if(~processing)
                         fprintf('Processing: %s\n',char(experimentName));
                         processing = 1;
+                        if(exist(strcat(char(logPath),'log.txt'),'file'))
+                            delete(strcat(char(logPath),'log.txt'));
+                        end
                     end
                     % Subrutine to writte the data in new Netcdf file
                     switch type
