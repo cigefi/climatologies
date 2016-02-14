@@ -1,34 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <meta charset="UTF-8">
+    <title>Climatologies by cigefi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <title>Climatologies by cigefi</title>
   </head>
-
   <body>
-    <header>
-      <div class="inner">
-        <h1>Climatologies</h1>
-        <h2></h2>
-        <a href="https://github.com/cigefi/climatologies" class="button"><small>View project on</small> GitHub</a>
-      </div>
-    </header>
+    <section class="page-header">
+      <h1 class="project-name">Climatologies</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/cigefi/climatologies" class="btn">View on GitHub</a>
+      <a href="https://github.com/cigefi/climatologies/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/cigefi/climatologies/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+    <section class="main-content">
+      <h1>
 <a id="climatologies" class="anchor" href="#climatologies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Climatologies</h1>
 
 <p>This script is capable of reading recursively a bunch of netcdf files and generate 3 types of climatologies: daily, monthly, and seasonal.
@@ -67,23 +58,23 @@ The unique requirement for the data is to be organized in the following structur
 
 <p>Reads all the .nc files from <em>SOURCE_PATH</em> and generates daily climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]})</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>})</pre></div>
 
 <p>Same as above</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>)</pre></div>
 
 <p>Reads all the .nc files wich contain the variable <em>pr</em> from <em>SOURCE_PATH</em> and generates daily climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
 
 <p>Same as above, plus the maximum data to be read is from the year 1950</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
 
 <p>Same as above, but the data to be read is from the range 1950 to 2000</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
 
 <h3>
 <a id="monthly" class="anchor" href="#monthly" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Monthly</h3>
@@ -113,19 +104,19 @@ The unique requirement for the data is to be organized in the following structur
 
 <p>Reads all the .nc files from <em>SOURCE_PATH</em> and generates monthly climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>)</pre></div>
 
 <p>Reads all the .nc files wich contain the variable <em>pr</em> from <em>SOURCE_PATH</em> and generates monthly climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
 
 <p>Same as above, plus the maximum data to be read is from the year 1950</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
 
 <p>Same as above, but the data to be read is from the range 1950 to 2000</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
 
 <h3>
 <a id="seasonal" class="anchor" href="#seasonal" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Seasonal</h3>
@@ -155,43 +146,33 @@ The unique requirement for the data is to be organized in the following structur
 
 <p>Reads all the .nc files from <em>SOURCE_PATH</em> and generates seasonal climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>)</pre></div>
 
 <p>Reads all the .nc files wich contain the variable <em>pr</em> from <em>SOURCE_PATH</em> and generates seasonal climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
 
 <p>Same as above, plus the maximum data to be read is from the year 1950</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
 
 <p>Same as above, but the data to be read is from the range 1950 to 2000</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({[SOURCE_PATH],[SAVE_PATH]},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
 
 <h3>
 <a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h3>
 
 <p>CIGEFI Centre for Geophysical Research<br>
 Universidad de Costa Rica ©2016</p>
-        </section>
 
-        <aside id="sidebar">
-          <a href="https://github.com/cigefi/climatologies/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/cigefi/climatologies/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/cigefi/climatologies">Climatologies</a> is maintained by <a href="https://github.com/cigefi">cigefi</a>.</span>
 
-          <p class="repo-owner"><a href="https://github.com/cigefi/climatologies"></a> is maintained by <a href="https://github.com/cigefi">cigefi</a>.</p>
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
 
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
-    </div>
+    </section>
 
   
   </body>
