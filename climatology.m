@@ -16,7 +16,9 @@
 function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     if nargin < 1
         error('climatology: dirName is a required input')
-    end
+    else
+        dirName = strrep(dirName,'\','/'); % Clean dirName var
+    end 
     switch nargin
         case 1 % Validates if the type param is received
             type = 'daily';
@@ -94,8 +96,6 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     end
                 end
                 if(yearC > 0 && strcmp(var2Read,'tasmax')==0)
-%                     frecuency = nc_attget(char(fileT),nc_global,'frequency');
-%                     units = nc_attget(char(fileT),var2Read,'units');
                     % Subrutine to writte the data in new Netcdf file
                     switch type
                         case 'daily'
