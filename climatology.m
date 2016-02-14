@@ -183,7 +183,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     otherwise
                         PlotData(out,'',char(savePath));
                 end
-                fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
+                fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.mat'));
                 save(char(fileT),'out'); 
             case 'monthly'
                 for m=1:1:12
@@ -201,7 +201,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         otherwise
                             PlotData(currentMonth,'',char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                     end
-                    fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
+                    fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.mat'));
                     save(char(fileT),'currentMonth'); 
                 end
             case 'seasonal'
@@ -228,7 +228,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         otherwise
                             PlotData(currentSeason,'',char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                     end
-                    fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
+                    fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.mat'));
                     save(char(fileT),'currentSeason'); 
                 end
         end
