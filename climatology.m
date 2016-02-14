@@ -242,7 +242,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         out = mean(scale.*data,1);
         disp(strcat('Data saved: ',num2str(yearC)));
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-        fprintf(fid, '[SAVED] %s\n',char(fileT));
+        fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
         fclose(fid);
     catch exception
         out = [];
@@ -271,7 +271,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
             disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
         end
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-        fprintf(fid, '[SAVED] %s\n',char(fileT));
+        fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
         fclose(fid);
     catch exception
         out = [];
@@ -311,7 +311,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
                 disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
             end
             fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-            fprintf(fid, '[SAVED] %s\n',char(fileT));
+            fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
             fclose(fid);
         else
             out = [];
@@ -366,7 +366,7 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
         fPos = lPos + 1;
         lastDecember = mean(data(fPos:days,:,:),1);
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-        fprintf(fid, '[SAVED] %s\n',char(fileT));
+        fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
         fclose(fid);
     catch exception
         out = [];
@@ -417,7 +417,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             fPos = lPos + 1;
             lastDecember = mean(data(fPos:days,:,:),1);
             fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-            fprintf(fid, '[SAVED] %s\n',char(fileT));
+            fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
             fclose(fid);
         else
             out = [];
@@ -453,7 +453,7 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
             out = mean(data-scale,1);
             disp(strcat('Data saved: ',num2str(yearC)));
             fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-            fprintf(fid, '[SAVED] %s\n',char(fileT));
+            fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
             fclose(fid);
         else
             out = [];
