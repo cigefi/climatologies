@@ -104,6 +104,11 @@ Same as above, but the data to be read is from the range 1950 to 2000
 climatology({'SOURCE_PATH','SAVE_PATH'},'seasonal','pr',1950,2000)
 ```
 
+#### Read saved data
+To read the data from .dat files, you can use the command:
+```matlab
+data = dlmread('MyData.dat');
+```
 ### License
 CIGEFI Centre for Geophysical Research<br/>
 Universidad de Costa Rica &copy;2016
