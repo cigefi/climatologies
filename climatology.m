@@ -79,7 +79,8 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
 	if(logPath.charAt(logPath.length-1) ~= '/')
         logPath = logPath.concat('/');
     end
-    fprintf('Processing: %s\n',char(experimentName));
+    %fprintf('Processing: %s\n',char(experimentName));
+    processing = 0;
     for f = 3:length(dirData)
         fileT = path.concat(dirData(f).name);
         if(fileT.substring(fileT.lastIndexOf('.')+1).equalsIgnoreCase('nc'))
@@ -96,6 +97,10 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     end
                 end
                 if(yearC > 0 && strcmp(var2Read,'tasmax')==0)
+                    if(~processing)
+                        fprintf('Processing: %s\n',char(experimentName));
+                        processing = 1;
+                    end
                     % Subrutine to writte the data in new Netcdf file
                     switch type
                         case 'daily'
@@ -135,7 +140,10 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             end
                     end
                 end
-            catch
+            catch exception
+                fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
+                fclose(fid);
                 continue;
             end
         else
@@ -239,7 +247,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
     catch exception
         out = [];
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-        fprintf(fid, '[ERROR] %s\n %s\n',char(fileT),char(exception.message));
+        fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
     end
 end
@@ -268,7 +276,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
     catch exception
         out = [];
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-        fprintf(fid, '[ERROR] %s\n %s\n',char(fileT),char(exception.message));
+        fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
     end
 end
@@ -308,13 +316,18 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
         else
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-            fprintf(fid, '[ERROR] %s does not exists\n',char(fileT2));
+            fprintf(fid, '[ERROR][%s] %s does not exist\n\n',char(datetime('now')),char(fileT2));
             fclose(fid);
         end
     catch exception
         out = [];
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-        fprintf(fid, '[ERROR] %s\n %s\n',char(fileT),char(exception.message));
+        switch(exception.identifier)
+            case 'MATLAB:Java:GenericException'
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),'The param var2Read does not exist into the .nc file');
+            otherwise
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
+        end
         fclose(fid);
     end
 end
@@ -359,7 +372,7 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
         out = [];
         lastDecember = [];
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-        fprintf(fid, '[ERROR] %s\n %s\n',char(fileT),char(exception.message));
+        fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
     end
 end
@@ -410,14 +423,19 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             out = [];
             lastDecember = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-            fprintf(fid, '[ERROR] %s does not exists\n',char(fileT2));
+            fprintf(fid, '[ERROR][%s] %s does not exist\n\n',char(datetime('now')),char(fileT2));
             fclose(fid);
         end
     catch exception
         out = [];
         lastDecember = [];
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-        fprintf(fid, '[ERROR] %s\n %s\n',char(fileT),char(exception.message));
+        switch(exception.identifier)
+            case 'MATLAB:Java:GenericException'
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),'The param var2Read does not exist into the .nc file');
+            otherwise
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
+        end
         fclose(fid);
     end
 end
@@ -440,13 +458,18 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
         else
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-            fprintf(fid, '[ERROR] %s does not exists\n',char(fileT2));
+            fprintf(fid, '[ERROR][%s] %s does not exist\n\n',char(datetime('now')),char(fileT2));
             fclose(fid);
         end
     catch exception
         out = [];
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
-        fprintf(fid, '[ERROR] %s\n %s\n',char(fileT),char(exception.message));
+        switch(exception.identifier)
+            case 'MATLAB:Java:GenericException'
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),'The param var2Read does not exist into the .nc file');
+            otherwise
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
+        end
         fclose(fid);
     end
 end
