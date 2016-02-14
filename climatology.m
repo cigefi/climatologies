@@ -175,16 +175,16 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     case 'pr'
                         units = 'mm';
                         frequency = 'day';
-                        PlotData(out,strcat('Precipitation (',units,{' '},frequency,')'),char(savePath),char(experimentName));
+                        PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
                     case 'tasmin'
                         units = '°C';
                         frequency = 'day';
-                        PlotData(out,strcat('Temperature (',units,{' '},frequency,')'),char(savePath),char(experimentName));
+                        PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
                     otherwise
                         PlotData(out,'',char(savePath));
                 end
-                fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.mat'));
-                save(char(fileT),'out'); 
+                fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
+                dlmwrite(char(fileT),out);
             case 'monthly'
                 for m=1:1:12
                     disp(strcat('Processing',{' '},monthsName(m)));
@@ -193,16 +193,16 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         case 'pr'
                             units = 'mm';
                             frequency = 'day';
-                            PlotData(currentMonth,strcat('Precipitation (',units,{' '},frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                            PlotData(currentMonth,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                         case 'tasmin'
                             units = '°C';
                             frequency = 'day';
-                            PlotData(currentMonth,strcat('Temperature (',units,{' '},frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                            PlotData(currentMonth,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                         otherwise
                             PlotData(currentMonth,'',char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                     end
-                    fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.mat'));
-                    save(char(fileT),'currentMonth'); 
+                    fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
+                    dlmwrite(char(fileT),currentMonth);
                 end
             case 'seasonal'
                 for s=1:1:4
@@ -220,16 +220,16 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         case 'pr'
                             units = 'mm';
                             frequency = 'day';
-                            PlotData(currentSeason,strcat('Precipitation (',units,{' '},frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
+                            PlotData(currentSeason,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                         case 'tasmin'
                             units = '°C';
                             frequency = 'day';
-                            PlotData(currentSeason,strcat('Temperature (',units,{' '},frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
+                            PlotData(currentSeason,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                         otherwise
                             PlotData(currentSeason,'',char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                     end
-                    fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.mat'));
-                    save(char(fileT),'currentSeason'); 
+                    fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
+                    dlmwrite(char(fileT),currentSeason);
                 end
         end
     end
