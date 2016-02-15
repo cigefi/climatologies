@@ -23,23 +23,23 @@ To obtain this file structure, you can use [fileOrganize.sh](https://github.com/
 ##### Function invocation
 Reads all the .nc files from _SOURCE_PATH_ and generates daily climatology
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'})
+climatology({SOURCE_PATH,SAVE_PATH});
 ```
 Same as above
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'daily')
+climatology({SOURCE_PATH,SAVE_PATH},'daily');
 ```
 Reads all the .nc files wich contain the variable _pr_ from _SOURCE_PATH_ and generates daily climatology
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'daily','pr')
+climatology({SOURCE_PATH,SAVE_PATH},'daily','pr');
 ```
 Same as above, plus the maximum data to be read is from the year 1950
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'daily','pr',1950)
+climatology({SOURCE_PATH,SAVE_PATH},'daily','pr',1950);
 ```
 Same as above, but the data to be read is from the range 1950 to 2000
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'daily','pr',1950,2000)
+climatology({SOURCE_PATH,SAVE_PATH},'daily','pr',1950,2000);
 ```
 
 ### Monthly
@@ -58,19 +58,19 @@ climatology({'SOURCE_PATH','SAVE_PATH'},'daily','pr',1950,2000)
 ##### Function invocation
 Reads all the .nc files from _SOURCE_PATH_ and generates monthly climatology
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'monthly')
+climatology({SOURCE_PATH,SAVE_PATH},'monthly');
 ```
 Reads all the .nc files wich contain the variable _pr_ from _SOURCE_PATH_ and generates monthly climatology
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'monthly','pr')
+climatology({{SOURCE_PATH,SAVE_PATH},'monthly','pr');
 ```
 Same as above, plus the maximum data to be read is from the year 1950
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'monthly','pr',1950)
+climatology({SOURCE_PATH,SAVE_PATH},'monthly','pr',1950);
 ```
 Same as above, but the data to be read is from the range 1950 to 2000
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'monthly','pr',1950,2000)
+climatology({SOURCE_PATH,SAVE_PATH},'monthly','pr',1950,2000);
 ```
 
 ### Seasonal
@@ -89,19 +89,19 @@ climatology({'SOURCE_PATH','SAVE_PATH'},'monthly','pr',1950,2000)
 ##### Function invocation
 Reads all the .nc files from _SOURCE_PATH_ and generates seasonal climatology
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'seasonal')
+climatology({SOURCE_PATH,SAVE_PATH},'seasonal');
 ```
 Reads all the .nc files wich contain the variable _pr_ from _SOURCE_PATH_ and generates seasonal climatology
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'seasonal','pr')
+climatology({SOURCE_PATH,SAVE_PATH},'seasonal','pr');
 ```
 Same as above, plus the maximum data to be read is from the year 1950
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'seasonal','pr',1950)
+climatology({SOURCE_PATH,SAVE_PATH},'seasonal','pr',1950);
 ```
 Same as above, but the data to be read is from the range 1950 to 2000
 ```matlab
-climatology({'SOURCE_PATH','SAVE_PATH'},'seasonal','pr',1950,2000)
+climatology({SOURCE_PATH,SAVE_PATH},'seasonal','pr',1950,2000);
 ```
 
 #### Read saved data
