@@ -43,15 +43,16 @@ else:
     #keys = keys.sort()
     for y in files.keys():
         #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
-        nYear = readFile(files[y],'tasmin',y,logPath)
+        nYear = readFile(files[y],'pr',y,logPath)
         if out.size == 0:
             out = nYear
         elif nYear.size > 0:
-            np.savetxt(savePath+str(y)+'.csv',np.squeeze(out), delimiter=',')
-            out = np.mean(np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2),axis=2)
+            #np.savetxt(savePath+str(y)+'.csv',np.squeeze(out), delimiter=',')
+            out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
     if out.size != 0:
-        np.savetxt(savePath+'data.csv',np.squeeze(out), delimiter=',')
-        plotData(np.squeeze(out),'Precipitation (mm/day)','','test')
+        out = np.mean(out,axis=2)
+        np.savetxt(savePath+'data.dat',out, delimiter=',')
+        plotData(np.squeeze(out),'Precipitation (mm/day)',savePath,'test')
     else:
         print 'No data read'
     #dataSet.close()

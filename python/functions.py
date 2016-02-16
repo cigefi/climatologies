@@ -134,6 +134,8 @@ def plotData(data2D,label,path,name):
     lon, lat = np.meshgrid(lon,lat)
 
     try:
+        # Turn interactive plotting off
+        plt.ioff()
         fig = plt.figure()
         ax = fig.add_axes([0.05,0.05,0.9,0.9])
         # create Basemap instance.
@@ -155,6 +157,7 @@ def plotData(data2D,label,path,name):
         cb.ax.set_xlabel(label)
         plt.savefig(path+name+'.png', format='png', dpi=1000)
         #plt.show()
+        plt.close(fig)
         print 'Map saved'
     except:
         print str(sys.exc_info()[1])
