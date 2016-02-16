@@ -43,16 +43,19 @@ else:
     #keys = keys.sort()
     for y in files.keys():
         #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
-        nYear = readFile(files[y],'tasmin',y,logPath)
+        nYear = readFile(files[y],'pr',y,logPath)
         if out.size == 0:
             out = nYear
         elif nYear.size > 0:
             #np.savetxt(savePath+str(y)+'.csv',np.squeeze(out), delimiter=',')
             try:
-                out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
+                if out.ndim < 3:
+                    out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
+                else:
+                    out = np.concatenate((out[...],nYear[...,None]),axis=2)
             except:
                 e = sys.exc_info()[1]
-                fid = open(logPath+'log.txt', 'a+')
+                fid = open(logPath+'log.txt', 'w+')
                 fid.write('[ERROR]['+str('datetime.now()')+'] '+files[y]+' '+str(e)+'\n\n')
                 fid.close()  
                 print str(e)
