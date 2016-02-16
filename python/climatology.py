@@ -37,9 +37,8 @@ else:
     #logPath = dirName
     #savePath = dirName
     out = np.array([])
-    print 'dirName: '+dirName
-    print '\nsavePath: '+savePath
     files = listFiles(dirName);
+    print files
     for y in files.keys():
         #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
         nYear = readFile(files[y],'pr',y,logPath);
