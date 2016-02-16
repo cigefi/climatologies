@@ -26,7 +26,7 @@ def listFiles(path):
                     fList[d.split('.')[0]] = listFiles(path+"/"+d) # Creates a dictionary with the list of files
                 else:
                     fList[d.split('.')[0]] = listFiles(path+d)
-        except WindowsError:
+        except:
             if not path.endswith('/'):
                 fList[d.split('.')[0]] = path+"/"+d
             else:
