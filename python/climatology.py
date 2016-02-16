@@ -38,7 +38,7 @@ else:
     #savePath = dirName
     out = np.array([])
     files = listFiles(dirName)
-    print files
+    #print files
     #keys = files.keys().sort()
     #keys = keys.sort()
     try:

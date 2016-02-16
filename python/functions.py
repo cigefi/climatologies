@@ -4,7 +4,6 @@ Created on Sun Feb 14 22:28:39 2016
 
 @author: ville
 """
-from datetime import datetime
 from calendar import isleap as isLeap
 import os
 import netCDF4 as nc
@@ -12,9 +11,9 @@ import numpy as np
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 
-from pylab import *
+#from pylab import *
 import sys
-from scipy import ndimage
+#from scipy import ndimage
 
 def listFiles(path):
     dirs = os.listdir(path) # List all the subfolders inside the root path
@@ -41,7 +40,7 @@ def readFile(fileName,var2Read,yearC,logPath):
         out = np.mean(dataSet.variables[var2Read][:],axis=0)*scale
         print 'Data saved: %s' % str(yearC)
         fid = open(logPath+'log.txt', 'a+')
-        fid.write('[SAVED] '+fileName+'\n\n')
+        fid.write('[SAVED] '+fileName+'\n')
         fid.close()
         dataSet.close()
     except:
@@ -73,7 +72,7 @@ def readFileMonthly(fileName,var2Read,yearC,logPath,months,monthsName):
                 out = np.dstack((out,np.mean(newMonth,axis=0)))
             print 'Data saved: %s - %s' % (monthsName[m],yearC)
         fid = open(logPath+'log.txt', 'a+')
-        fid.write('[SAVED] '+fileName+'\n\n')
+        fid.write('[SAVED] '+fileName+'\n')
         fid.close()
         dataSet.close()
     except:
@@ -99,7 +98,7 @@ def readFileTemp(fileName,var2Read,yearC,logPath):
             out = np.mean(data-scale,axis=0)
             print 'Data saved: %s' % yearC
             fid = open(logPath+'log.txt', 'a+')
-            fid.write('[SAVED] '+fileName+'\n\n')
+            fid.write('[SAVED] '+fileName+'\n')
             fid.close()
         else:
             fid = open(logPath+'log.txt', 'a+')
@@ -134,28 +133,29 @@ def plotData(data2D,label,path,name):
     lon, lat = np.meshgrid(lon,lat)
 
     try:
-        # Turn interactive plotting off
-        plt.ioff()
+        plt.ioff() # Turn interactive plotting off
+        plt.switch_backend('agg') # Changing backend
         fig = plt.figure()
         ax = fig.add_axes([0.05,0.05,0.9,0.9])
         # create Basemap instance.
-        m = Basemap(projection='robin',resolution='c',lat_0=-90,lon_0=0)
-        m.drawcountries(linewidth=0.3) # draw countries
-        m.drawcoastlines(linewidth=0.3) # draw coastlines        
+        m = Basemap(projection='robin',resolution='h',lat_0=-90,lon_0=0)
+        m.drawcountries(linewidth=0.4) # draw countries
+        m.drawcoastlines(linewidth=0.4) # draw coastlines 
+        #np.loadtxt(open('/home/bthillo/Downloads/test/Historical/python/data.dat','rb'),delimiter=',')
         # draw line around map projection limb.
         # color background of map projection region.
         # missing values over land will show up this color.
         #m.drawmapboundary(fill_color='0.3')
 
         #data2D, lon, lat = m.transform_scalar(data2D, lon, lat, 180, 90, returnxy=True)
-        newMap = m.contourf(lon,lat,data2D,cmap=plt.cm.jet,latlon=True)
+        #newMap = m.contourf(lon,lat,data2D,cmap=plt.cm.jet,latlon=True)
         #newMap = m.interp(data2D,lon,lat)
         #newMap = m.imshow(data2D, cmap=plt.cm.jet, aspect='equal', interpolation='gaussian')      
-        #newMap = m.pcolormesh(lon,lat,data2D,edgecolors='none',cmap=plt.cm.jet,latlon=True)
+        newMap = m.pcolormesh(lon,lat,data2D,edgecolors='none',cmap=plt.cm.jet,latlon=True)
         # add colorbar
         cb = m.colorbar(newMap,"bottom", size="5%", pad="3%")
         cb.ax.set_xlabel(label)
-        plt.savefig(path+name+'.png', format='png', dpi=1000)
+        plt.savefig(path+name+'.svg', format='svg', dpi=1000)
         #plt.show()
         plt.close(fig)
         print 'Map saved'
