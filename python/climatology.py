@@ -38,14 +38,17 @@ else:
     #savePath = dirName
     out = np.array([])
     files = listFiles(dirName);
-    print files
+    print savePath
     for y in files.keys():
         #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
-        nYear = readFile(files[y],'pr',y,logPath);
+        nYear = readFile(files[y],'tasmin',y,logPath);
         if out.size == 0:
             out = nYear;
         else:
             out = (out + nYear)/2
-    plotData(out,'Precipitation (mm/day)','','test')
+    if out.size != 0:
+        plotData(out,'Precipitation (mm/day)','','test')
+    else:
+        print 'No data read'
     #dataSet.close()
     #fu.plotD(out)
