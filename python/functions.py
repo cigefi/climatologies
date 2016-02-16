@@ -153,8 +153,8 @@ def plotData(data2D,label,path,name):
         # add colorbar
         cb = m.colorbar(newMap,"bottom", size="5%", pad="3%")
         cb.ax.set_xlabel(label)
-        plt.savefig(name+'.png', format='png', dpi=1000)
-        plt.show()
+        plt.savefig(path+name+'.png', format='png', dpi=1000)
+        #plt.show()
         print 'Map saved'
     except:
         print str(sys.exc_info()[1])

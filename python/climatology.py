@@ -4,48 +4,47 @@ import numpy as np
 #import matplotlib.pyplot as plt
 #import os
 import sys
-import functions as fu
+from functions import *
 import netCDF4 as nc
 months = [31,28,31,30,31,30,31,31,30,31,30,31]# Reference to the number of days per month
 monthsName = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
-if len(sys.argv) < 1:
+if len(sys.argv) < 2:
     # Mensaje de error si se recibe más o menos de 1 parámetro
     print 'ERROR, dirName is a required input'
 else:
-    #if len(sys.argv) == 2:    
-    #    dirName = sys.argv[1]
-    #    savePath = sys.argv[1]
-    #    logPath = sys.argv[1]
-    #    print dirName
-    #elif len(sys.argv) == 3:
-    #    dirName = sys.argv[1]
-    #    savePath = sys.argv[2]
-    #    logPath = sys.argv[2]        
-    #    print dirName
-    #    print savePath
-    #elif len(sys.argv) == 4:
-    #    dirName = sys.argv[1]
-    #    savePath = sys.argv[2]
-    #    logPath = sys.argv[3]     
-    #    print dirName
-    #    print savePath
-    dirName = 'D:/cigefi/BCSD_historical_r1i1p1_ACCESS1-0/pr_day/'
+    if len(sys.argv) == 2:    
+        dirName = sys.argv[1]
+        savePath = sys.argv[1]
+        logPath = sys.argv[1]
+        print dirName
+    elif len(sys.argv) == 3:
+        dirName = sys.argv[1]
+        savePath = sys.argv[2]
+        logPath = sys.argv[2]        
+        print dirName
+        print savePath
+    elif len(sys.argv) == 4:
+        dirName = sys.argv[1]
+        savePath = sys.argv[2]
+        logPath = sys.argv[3]     
+        print dirName
+        print savePath
+    #dirName = 'D:/cigefi/BCSD_historical_r1i1p1_ACCESS1-0/pr_day/'
     #scale = 273.15
     #dataSet = nc.Dataset(dirName,'r')
     #out = np.mean(dataSet.variables['pr'][:],axis=0)*86400#-scale
-    logPath = dirName
-    savePath = dirName
+    #logPath = dirName
+    #savePath = dirName
     out = np.array([])
     files = fu.listFiles(dirName);
     for y in files.keys():
-        nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
-        #nYear = fu.readFile(files[y],'pr',y,logPath);
+        #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
+        nYear = readFile(files[y],'pr',y,logPath);
         if out.size == 0:
             out = nYear;
         else:
             out = (out + nYear)/2
-    fu.plotData(out,'Precipitation (mm/day)','','test')
+    plotData(out,'Precipitation (mm/day)','','test')
     #dataSet.close()
     #fu.plotD(out)
-
