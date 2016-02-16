@@ -43,11 +43,11 @@ else:
         #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
         nYear = readFile(files[y],'tasmin',y,logPath);
         if out.size == 0:
-            out = nYear;
+            out = nYear
         else:
-            out = np.mean(np.dstack((out,nYear)),axis=0)
+            out = np.mean(np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=3),axis=3)
     if out.size != 0:
-        plotData(out,'Precipitation (mm/day)','','test')
+        plotData(np.squeeze(out),'Precipitation (mm/day)','','test')
     else:
         print 'No data read'
     #dataSet.close()
