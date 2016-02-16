@@ -48,7 +48,14 @@ else:
             out = nYear
         elif nYear.size > 0:
             #np.savetxt(savePath+str(y)+'.csv',np.squeeze(out), delimiter=',')
-            out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
+            try:
+                out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
+            except:
+                e = sys.exc_info()[1]
+                fid = open(logPath+'log.txt', 'a+')
+                fid.write('[ERROR]['+str('datetime.now()')+'] '+fileName+' '+str(e)+'\n\n')
+                fid.close()  
+                print str(e)
     if out.size != 0:
         out = np.mean(out,axis=2)
         np.savetxt(savePath+'data.dat',out, delimiter=',')
