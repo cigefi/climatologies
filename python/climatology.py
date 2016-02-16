@@ -46,7 +46,7 @@ else:
         nYear = readFile(files[y],'tasmin',y,logPath)
         if out.size == 0:
             out = nYear
-        else:
+        elif nYear.size > 0:
             out = np.mean(np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2),axis=2)
     if out.size != 0:
         plotData(np.squeeze(out),'Precipitation (mm/day)','','test')
