@@ -47,9 +47,10 @@ else:
         if out.size == 0:
             out = nYear
         elif nYear.size > 0:
+            np.savetxt(savePath+str(y)+'.csv',np.squeeze(out), delimiter=',')
             out = np.mean(np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2),axis=2)
     if out.size != 0:
-        savetxt(savePath+'data.csv',np.squeeze(out), delimiter=',')
+        np.savetxt(savePath+'data.csv',np.squeeze(out), delimiter=',')
         plotData(np.squeeze(out),'Precipitation (mm/day)','','test')
     else:
         print 'No data read'
