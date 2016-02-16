@@ -58,23 +58,23 @@ The unique requirement for the data is to be organized in the following structur
 
 <p>Reads all the .nc files from <em>SOURCE_PATH</em> and generates daily climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>})</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH});</pre></div>
 
 <p>Same as above</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>);</pre></div>
 
 <p>Reads all the .nc files wich contain the variable <em>pr</em> from <em>SOURCE_PATH</em> and generates daily climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>);</pre></div>
 
 <p>Same as above, plus the maximum data to be read is from the year 1950</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>);</pre></div>
 
 <p>Same as above, but the data to be read is from the range 1950 to 2000</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>daily<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>);</pre></div>
 
 <h3>
 <a id="monthly" class="anchor" href="#monthly" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Monthly</h3>
@@ -104,19 +104,19 @@ The unique requirement for the data is to be organized in the following structur
 
 <p>Reads all the .nc files from <em>SOURCE_PATH</em> and generates monthly climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>);</pre></div>
 
 <p>Reads all the .nc files wich contain the variable <em>pr</em> from <em>SOURCE_PATH</em> and generates monthly climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({{SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>);</pre></div>
 
 <p>Same as above, plus the maximum data to be read is from the year 1950</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>);</pre></div>
 
 <p>Same as above, but the data to be read is from the range 1950 to 2000</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>monthly<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>);</pre></div>
 
 <h3>
 <a id="seasonal" class="anchor" href="#seasonal" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Seasonal</h3>
@@ -146,19 +146,26 @@ The unique requirement for the data is to be organized in the following structur
 
 <p>Reads all the .nc files from <em>SOURCE_PATH</em> and generates seasonal climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>);</pre></div>
 
 <p>Reads all the .nc files wich contain the variable <em>pr</em> from <em>SOURCE_PATH</em> and generates seasonal climatology</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>);</pre></div>
 
 <p>Same as above, plus the maximum data to be read is from the year 1950</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>);</pre></div>
 
 <p>Same as above, but the data to be read is from the range 1950 to 2000</p>
 
-<div class="highlight highlight-source-matlab"><pre>climatology({<span class="pl-s"><span class="pl-pds">'</span>SOURCE_PATH<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>SAVE_PATH<span class="pl-pds">'</span></span>},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>)</pre></div>
+<div class="highlight highlight-source-matlab"><pre>climatology({SOURCE_PATH,SAVE_PATH},<span class="pl-s"><span class="pl-pds">'</span>seasonal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>pr<span class="pl-pds">'</span></span>,<span class="pl-c1">1950</span>,<span class="pl-c1">2000</span>);</pre></div>
+
+<h4>
+<a id="read-saved-data" class="anchor" href="#read-saved-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Read saved data</h4>
+
+<p>To read the data from .dat files, you can use the command:</p>
+
+<div class="highlight highlight-source-matlab"><pre>data = <span class="pl-k">dlmread</span>(<span class="pl-s"><span class="pl-pds">'</span>MyData.dat<span class="pl-pds">'</span></span>);</pre></div>
 
 <h3>
 <a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h3>
