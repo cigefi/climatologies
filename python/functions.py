@@ -95,8 +95,8 @@ def readFileTemp(fileName,var2Read,yearC,logPath):
             dataSet2 = nc.Dataset(fileName2,'r')            
             tasmin = dataSet.variables[var2Read][:]
             tasmax = dataSet2.variables['tasmax'][:]
-            data = (tasmin+tasmax)/2;
-            out = np.mean(data-scale,axis=0);
+            data = (tasmin+tasmax)/2
+            out = np.mean(data-scale,axis=0)
             print 'Data saved: %s' % yearC
             fid = open(logPath+'log.txt', 'a+')
             fid.write('[SAVED]['+str('datetime.now()')+'] '+fileName+'\n\n')
