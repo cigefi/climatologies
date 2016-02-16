@@ -39,9 +39,9 @@ else:
     out = np.array([])
     files = listFiles(dirName)
     print files
-    keys = files.keys()
-    keys = keys.sort()
-    for y in keys:
+    #keys = files.keys().sort()
+    #keys = keys.sort()
+    for y in files.keys():
         #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
         nYear = readFile(files[y],'tasmin',y,logPath)
         if out.size == 0:
