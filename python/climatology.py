@@ -43,7 +43,7 @@ else:
     #keys = keys.sort()
     for y in files.keys():
         #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
-        nYear = readFile(files[y],'pr',y,logPath)
+        nYear = readFile(files[y],'tasmin',y,logPath)
         if out.size == 0:
             out = nYear
         elif nYear.size > 0:
