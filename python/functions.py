@@ -23,14 +23,14 @@ def listFiles(path):
         try:
             if d.split('.')[1] =='nc':
                 if not path.endswith('/'):
-                    fList[d.split('.')[0]] = listFiles(path+"/"+d) # Creates a dictionary with the list of files
+                    fList[int(d.split('.')[0])] = listFiles(path+"/"+d) # Creates a dictionary with the list of files
                 else:
-                    fList[d.split('.')[0]] = listFiles(path+d)
+                    fList[int(d.split('.')[0])] = listFiles(path+d)
         except:
             if not path.endswith('/'):
-                fList[d.split('.')[0]] = path+"/"+d
+                fList[int(d.split('.')[0])] = path+"/"+d
             else:
-                fList[d.split('.')[0]] = path+d    
+                fList[int(d.split('.')[0])] = path+d    
     return fList
     
 def readFile(fileName,var2Read,yearC,logPath):
