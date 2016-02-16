@@ -41,6 +41,11 @@ else:
     print files
     #keys = files.keys().sort()
     #keys = keys.sort()
+    try:
+        os.remove(logPath+'log.txt')
+    except:
+        pass
+        
     for y in files.keys():
         #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
         nYear = readFile(files[y],'pr',y,logPath)
@@ -55,14 +60,14 @@ else:
                     out = np.concatenate((out[...],nYear[...,None]),axis=2)
             except:
                 e = sys.exc_info()[1]
-                fid = open(logPath+'log.txt', 'w+')
+                fid = open(logPath+'log.txt', 'a+')
                 fid.write('[ERROR]['+str('datetime.now()')+'] '+files[y]+' '+str(e)+'\n\n')
                 fid.close()  
                 print str(e)
     if out.size != 0:
         out = np.mean(out,axis=2)
         np.savetxt(savePath+'data.dat',out, delimiter=',')
-        plotData(np.squeeze(out),'Precipitation (mm/day)',savePath,'test')
+        plotData(out,'Precipitation (mm/day)',savePath,'test')
     else:
         print 'No data read'
     #dataSet.close()

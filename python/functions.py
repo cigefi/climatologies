@@ -40,14 +40,14 @@ def readFile(fileName,var2Read,yearC,logPath):
         dataSet = nc.Dataset(fileName,'r')
         out = np.mean(dataSet.variables[var2Read][:],axis=0)*scale
         print 'Data saved: %s' % str(yearC)
-        fid = open(logPath+'log.txt', 'w+')
-        fid.write('[SAVED]['+str('datetime.now()')+'] '+fileName+'\n\n')
+        fid = open(logPath+'log.txt', 'a+')
+        fid.write('[SAVED]['+str(datetime.now())+'] '+fileName+'\n\n')
         fid.close()
         dataSet.close()
     except:
         e = sys.exc_info()[1]
-        fid = open(logPath+'log.txt', 'w+')
-        fid.write('[ERROR]['+str('datetime.now()')+'] '+fileName+' '+str(e)+'\n\n')
+        fid = open(logPath+'log.txt', 'a+')
+        fid.write('[ERROR]['+str(datetime.now())+'] '+fileName+' '+str(e)+'\n\n')
         fid.close()
         #dataSet.close()
     return out
@@ -72,14 +72,14 @@ def readFileMonthly(fileName,var2Read,yearC,logPath,months,monthsName):
             else:
                 out = np.dstack((out,np.mean(newMonth,axis=0)))
             print 'Data saved: %s - %s' % (monthsName[m],yearC)
-        fid = open(logPath+'log.txt', 'w+')
-        fid.write('[SAVED]['+str('datetime.now()')+'] '+fileName+'\n\n')
+        fid = open(logPath+'log.txt', 'a+')
+        fid.write('[SAVED]['+str(datetime.now())+'] '+fileName+'\n\n')
         fid.close()
         dataSet.close()
     except:
         e = sys.exc_info()[1]
-        fid = open(logPath+'log.txt', 'w+')
-        fid.write('[ERROR]['+str('datetime.now()')+'] '+fileName+' '+str(e)+'\n\n')
+        fid = open(logPath+'log.txt', 'a+')
+        fid.write('[ERROR]['+str(datetime.now())+'] '+fileName+' '+str(e)+'\n\n')
         fid.close()
         #dataSet.close()
     return out
@@ -98,17 +98,17 @@ def readFileTemp(fileName,var2Read,yearC,logPath):
             data = (tasmin+tasmax)/2
             out = np.mean(data-scale,axis=0)
             print 'Data saved: %s' % yearC
-            fid = open(logPath+'log.txt', 'w+')
-            fid.write('[SAVED]['+str('datetime.now()')+'] '+fileName+'\n\n')
+            fid = open(logPath+'log.txt', 'a+')
+            fid.write('[SAVED]['+str(datetime.now())+'] '+fileName+'\n\n')
             fid.close()
         else:
-            fid = open(logPath+'log.txt', 'w+')
-            fid.write('[ERROR]['+str('datetime.now()')+'] '+fileName+' does not exist\n\n')
+            fid = open(logPath+'log.txt', 'a+')
+            fid.write('[ERROR]['+str(datetime.now())+'] '+fileName+' does not exist\n\n')
             fid.close()
     except:
         e = sys.exc_info()[1]
-        fid = open(logPath+'log.txt', 'w+')
-        fid.write('[ERROR]['+str('datetime.now()')+'] '+fileName+' '+str(e)+'\n\n')
+        fid = open(logPath+'log.txt', 'a+')
+        fid.write('[ERROR]['+str(datetime.now())+'] '+fileName+' '+str(e)+'\n\n')
         fid.close()
     return out    
     
