@@ -38,14 +38,14 @@ else:
     #savePath = dirName
     out = np.array([])
     files = listFiles(dirName);
-    print savePath
+    print files
     for y in files.keys():
         #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
         nYear = readFile(files[y],'tasmin',y,logPath);
         if out.size == 0:
             out = nYear;
         else:
-            out = (out + nYear)/2
+            out = np.mean(np.dstack((out,nYear)),axis=0)
     if out.size != 0:
         plotData(out,'Precipitation (mm/day)','','test')
     else:
