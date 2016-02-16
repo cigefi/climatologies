@@ -61,7 +61,7 @@ else:
             except:
                 e = sys.exc_info()[1]
                 fid = open(logPath+'log.txt', 'a+')
-                fid.write('[ERROR]['+str('datetime.now()')+'] '+files[y]+' '+str(e)+'\n\n')
+                fid.write('[ERROR] '+files[y]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
                 fid.close()  
                 print str(e)
     if out.size != 0:
