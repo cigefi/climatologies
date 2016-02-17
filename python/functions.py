@@ -15,6 +15,10 @@ import matplotlib.pyplot as plt
 import sys
 #from scipy import ndimage
 
+def getExperiment(filePath):
+    path = filePath.split('/')
+    return path[-3]
+    
 def listFiles(path):
     dirs = os.listdir(path) # List all the subfolders inside the root path
     fList = {}
