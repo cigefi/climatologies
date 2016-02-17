@@ -15,6 +15,124 @@ import matplotlib.pyplot as plt
 import sys
 #from scipy import ndimage
 
+months = [31,28,31,30,31,30,31,31,30,31,30,31]# Reference to the number of days per month
+monthsName = ['January','February','March','April','May','June','July','August','September','October','November','December']
+
+def generate(params):
+    if len(params) < 2:    
+        dirName = params[0]
+        savePath = params[0]
+        logPath = params[0]
+        cType = 'daily'
+        var2Read = ''
+        yearZero = 0
+        yearN = 0
+    elif len(params) < 3:
+        dirName = params[0]
+        savePath = params[1]
+        logPath = params[1]
+        cType = 'daily'
+        var2Read = ''
+        yearZero = 0
+        yearN = 0     
+    elif len(params) < 4:
+        dirName = params[0]
+        savePath = params[1]
+        logPath = params[2]
+        cType = 'daily'
+        var2Read = ''
+        yearZero = 0
+        yearN = 0 
+    elif len(params) < 5:
+        dirName = params[0]
+        savePath = params[1]
+        logPath = params[2]
+        cType = params[3]
+        var2Read = ''
+        yearZero = 0
+        yearN = 0 
+    elif len(params) < 6:
+        dirName = params[0]
+        savePath = params[1]
+        logPath = params[2]
+        cType = params[3]
+        var2Read = params[4]
+        yearZero = 0
+        yearN = 0
+    elif len(params) < 7:
+        dirName = params[0]
+        savePath = params[1]
+        logPath = params[2]
+        cType = params[3]
+        var2Read = params[4]
+        yearZero = params[6]
+        yearN = 0 
+    else:
+        dirName = params[0]
+        savePath = params[1]
+        logPath = params[2]
+        cType = params[3]
+        var2Read = params[4]
+        yearZero = params[5]
+        yearN = params[6]
+        
+    # Fix path's
+    dirName = dirName.replace('\\','/')
+    savePath = savePath.replace('\\','/')
+    logPath = logPath.replace('\\','/')
+    
+    if not dirName.endswith('/'):
+        dirName += '/'
+    if not savePath.endswith('/'):
+        savePath += '/'
+    if not logPath.endswith('/'):
+        logPath += '/'
+    #dirName = 'D:/cigefi/BCSD_historical_r1i1p1_ACCESS1-0/pr_day/'
+    #scale = 273.15
+    #dataSet = nc.Dataset(dirName,'r')
+    #out = np.mean(dataSet.variables['pr'][:],axis=0)*86400#-scale
+    #logPath = dirName
+    #savePath = dirName
+    out = np.array([])
+    files = listFiles(dirName)
+    #print files
+    #keys = files.keys().sort()
+    #keys = keys.sort()
+    try:
+        os.remove(logPath+'log.txt')
+    except:
+        pass
+    
+    nYear = out = np.array([]);
+    for f in files.keys():
+        if(os.path.isdir(files[f])):
+            print 'Processing folder %s' % files[f]
+            params = [files[f]]
+            generate(params)
+        print 'File %s' % files[f]
+        #nYear = fu.readFileMonthly(files[f],'pr',f,logPath,months,monthsName)
+        #nYear = readFile(files[f],'pr',f,logPath)
+        if out.size == 0:
+            out = nYear
+        elif nYear.size > 0:
+            #np.savetxt(savePath+str(f)+'.csv',np.squeeze(out), delimiter=',')
+            try:
+                if out.ndim < 3:
+                    out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
+                else:
+                    out = np.concatenate((out[...],nYear[...,None]),axis=2)
+            except:
+                e = sys.exc_info()[1]
+                fid = open(logPath+'log.txt', 'a+')
+                fid.write('[ERROR] '+files[f]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
+                fid.close()  
+                print str(e)
+    if out.size != 0:
+        out = np.mean(out,axis=2)
+        np.savetxt(savePath+'data.dat',out, delimiter=',')
+        plotData(out,'Precipitation (mm/day)',savePath,'test')
+    else:
+        print 'No data read'
 def getExperiment(filePath):
     path = filePath.split('/')
     return path[-3]
@@ -26,14 +144,14 @@ def listFiles(path):
         try:
             if d.split('.')[1] =='nc':
                 if not path.endswith('/'):
-                    fList[int(d.split('.')[0])] = listFiles(path+"/"+d) # Creates a dictionary with the list of files
+                    fList[(d.split('.')[0])] = listFiles(path+"/"+d) # Creates a dictionary with the list of files
                 else:
-                    fList[int(d.split('.')[0])] = listFiles(path+d)
+                    fList[(d.split('.')[0])] = listFiles(path+d)
         except:
             if not path.endswith('/'):
-                fList[int(d.split('.')[0])] = path+"/"+d
+                fList[(d.split('.')[0])] = path+"/"+d
             else:
-                fList[int(d.split('.')[0])] = path+d    
+                fList[(d.split('.')[0])] = path+d    
     return fList
     
 def readFile(fileName,var2Read,yearC,logPath):

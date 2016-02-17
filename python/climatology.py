@@ -6,8 +6,6 @@ import numpy as np
 import sys
 from functions import *
 import netCDF4 as nc
-months = [31,28,31,30,31,30,31,31,30,31,30,31]# Reference to the number of days per month
-monthsName = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
 if len(sys.argv) < 2:
     # Mensaje de error si se recibe más o menos de 1 parámetro
@@ -69,7 +67,11 @@ else:
         var2Read = sys.argv[5]
         yearZero = sys.argv[6]
         yearN = sys.argv[7]
-        
+    # Fix path's
+    dirName = dirName.replace('\\','/')
+    savePath = savePath.replace('\\','/')
+    logPath = logPath.replace('\\','/')
+    
     if not dirName.endswith('/'):
         dirName += '/'
     if not savePath.endswith('/'):
@@ -91,14 +93,20 @@ else:
         os.remove(logPath+'log.txt')
     except:
         pass
-        
-    for y in files.keys():
-        #nYear = fu.readFileMonthly(files[y],'pr',y,logPath,months,monthsName)
-        nYear = readFile(files[y],'pr',y,logPath)
+    
+    nYear = out = np.array([]);
+    for f in files.keys():
+        if(os.path.isdir(files[f])):
+            print 'Processing folder %s' % files[f]
+            params = [files[f]]
+            generate(params)
+        print 'File %s' % files[f]
+        #nYear = fu.readFileMonthly(files[f],'pr',f,logPath,months,monthsName)
+        #nYear = readFile(files[f],'pr',f,logPath)
         if out.size == 0:
             out = nYear
         elif nYear.size > 0:
-            #np.savetxt(savePath+str(y)+'.csv',np.squeeze(out), delimiter=',')
+            #np.savetxt(savePath+str(f)+'.csv',np.squeeze(out), delimiter=',')
             try:
                 if out.ndim < 3:
                     out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
@@ -107,7 +115,7 @@ else:
             except:
                 e = sys.exc_info()[1]
                 fid = open(logPath+'log.txt', 'a+')
-                fid.write('[ERROR] '+files[y]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
+                fid.write('[ERROR] '+files[f]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
                 fid.close()  
                 print str(e)
     if out.size != 0:
