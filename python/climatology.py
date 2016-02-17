@@ -96,31 +96,6 @@ else:
     
     nYear = out = np.array([]);
     for f in files.keys():
-        if(os.path.isdir(files[f])):
-            print 'Processing folder %s' % files[f]
+        if os.path.isdir(files[f]):
             params = [files[f]]
             generate(params)
-        print 'File %s' % files[f]
-        #nYear = fu.readFileMonthly(files[f],'pr',f,logPath,months,monthsName)
-        #nYear = readFile(files[f],'pr',f,logPath)
-        if out.size == 0:
-            out = nYear
-        elif nYear.size > 0:
-            #np.savetxt(savePath+str(f)+'.csv',np.squeeze(out), delimiter=',')
-            try:
-                if out.ndim < 3:
-                    out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
-                else:
-                    out = np.concatenate((out[...],nYear[...,None]),axis=2)
-            except:
-                e = sys.exc_info()[1]
-                fid = open(logPath+'log.txt', 'a+')
-                fid.write('[ERROR] '+files[f]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
-                fid.close()  
-                print str(e)
-    if out.size != 0:
-        out = np.mean(out,axis=2)
-        np.savetxt(savePath+'data.dat',out, delimiter=',')
-        plotData(out,'Precipitation (mm/day)',savePath,'test')
-    else:
-        print 'No data read'

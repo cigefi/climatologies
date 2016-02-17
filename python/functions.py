@@ -87,35 +87,76 @@ def generate(params):
         savePath += '/'
     if not logPath.endswith('/'):
         logPath += '/'
-    #dirName = 'D:/cigefi/BCSD_historical_r1i1p1_ACCESS1-0/pr_day/'
-    #scale = 273.15
-    #dataSet = nc.Dataset(dirName,'r')
-    #out = np.mean(dataSet.variables['pr'][:],axis=0)*86400#-scale
-    #logPath = dirName
-    #savePath = dirName
+
     out = np.array([])
     files = listFiles(dirName)
-    #print files
-    #keys = files.keys().sort()
-    #keys = keys.sort()
+
     try:
         os.remove(logPath+'log.txt')
     except:
         pass
     
+    temp = os.path.dirname(dirName)
+    temp = temp.split('/')
+    if len(temp) > 1:
+        experimentName = temp[-2]
     nYear = out = np.array([]);
     for f in files.keys():
+        print 'Processing folder %s %s' % (files[f],experimentName)
         if(os.path.isdir(files[f])):
-            print 'Processing folder %s' % files[f]
             params = [files[f]]
             generate(params)
-        print 'File %s' % files[f]
-        #nYear = fu.readFileMonthly(files[f],'pr',f,logPath,months,monthsName)
-        #nYear = readFile(files[f],'pr',f,logPath)
+        else:
+            if(cType.lower() == 'daily'): # Daily climatology
+                if(var2Read == 'pr'):
+                    print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    #nYear = readFile(files[f],'pr',f,logPath)
+                elif(var2Read == 'tasmin'):
+                    print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    #nYear = readFileTemp(files[f],'pr',f,logPath)
+                else:
+                    continue
+                if out.size == 0:
+                    out = nYear
+                elif nYear.size > 0:
+                    try:
+                        if out.ndim < 3:
+                            out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
+                        else:
+                            out = np.concatenate((out[...],nYear[...,None]),axis=2)
+                    except:
+                        e = sys.exc_info()[1]
+                        fid = open(logPath+'log.txt', 'a+')
+                        fid.write('[ERROR] '+files[f]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
+                        fid.close()  
+                        print str(e)
+                    
+            elif(cType.lower() == 'monthly'): # Monthly climatology
+                print 'File %s - %s - %s' % (files[f],var2Read,cType)
+            else: # Seasonal climatology
+                print 'File %s - %s - %s' % (files[f],var2Read,cType)
+    if out.size != 0:
+        out = np.mean(out,axis=2)
+        np.savetxt(savePath+'data.dat',out, delimiter=',')
+        plotData(out,'Precipitation (mm/day)',savePath,'test')
+    else:
+        print 'No data read'
+        
+def read(files,f,var2Read,cType):
+    out = np.array([])
+    nYear = np.array([])
+    if(cType.lower() == 'daily'): # Daily climatology
+        if(var2Read == 'pr'):
+            print 'File %s - %s - %s' % (files[f],var2Read,cType)
+            #nYear = readFile(files[f],'pr',f,logPath)
+        elif(var2Read == 'tasmin'):
+            print 'File %s - %s - %s' % (files[f],var2Read,cType)
+            #nYear = readFileTemp(files[f],'pr',f,logPath)
+        else:
+            return [out,nYear]
         if out.size == 0:
             out = nYear
         elif nYear.size > 0:
-            #np.savetxt(savePath+str(f)+'.csv',np.squeeze(out), delimiter=',')
             try:
                 if out.ndim < 3:
                     out = np.concatenate((out[...,np.newaxis],nYear[...,np.newaxis]),axis=2)
@@ -127,12 +168,13 @@ def generate(params):
                 fid.write('[ERROR] '+files[f]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
                 fid.close()  
                 print str(e)
-    if out.size != 0:
-        out = np.mean(out,axis=2)
-        np.savetxt(savePath+'data.dat',out, delimiter=',')
-        plotData(out,'Precipitation (mm/day)',savePath,'test')
-    else:
-        print 'No data read'
+            
+    elif(cType.lower() == 'monthly'): # Monthly climatology
+        print 'File %s - %s - %s' % (files[f],var2Read,cType)
+    else: # Seasonal climatology
+        print 'File %s - %s - %s' % (files[f],var2Read,cType)
+    return [out,nYear]
+    
 def getExperiment(filePath):
     path = filePath.split('/')
     return path[-3]
