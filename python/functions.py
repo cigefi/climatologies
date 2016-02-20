@@ -105,7 +105,7 @@ def generate(params,pType = 1):
         if not os.path.exists(savePath):
             os.mkdir(savePath)
         
-        if(cType.lower() == 'pr'):
+        if(cType.lower() == 'daily'):
             out = np.mean(out,axis=2)
             np.savetxt(savePath+'data.dat',out, delimiter=',')
             plotData(out,'Precipitation (mm/day)',savePath,'test')
@@ -268,12 +268,16 @@ def readFileMonthly(fileName,var2Read,yearC,logPath):
             else:
                 lPos = months[m] + fPos
             newMonth = np.mean(data[fPos:lPos,:,:],axis=0)
-            if m == 0:
-                out = newMonth
+            if out.ndim < 3:
+                out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
+            else:
+                out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
+            #if m == 0:
+            #    out = newMonth
                 #out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
                 #out = np.dstack((np.mean(newMonth,axis=0)))
-            else:
-                out = np.concatenate((out[...],newMonth[...,np.newaxis]),axis=2)
+            #else:
+            #    out = np.concatenate((out[...],newMonth[...,np.newaxis]),axis=2)
                 #out = np.dstack((out,np.mean(newMonth,axis=0)))
             print 'Data saved: %s - %s' % (monthsName[m],yearC)
         fid = open(logPath+'log.txt', 'a+')
