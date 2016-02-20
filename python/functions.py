@@ -2,7 +2,7 @@
 """
 Created on Sun Feb 14 22:28:39 2016
 
-@author: ville
+@author: ROberto Villegas-Diaz
 """
 from calendar import isleap as isLeap
 import os
@@ -55,7 +55,6 @@ def generate(params,pType = 1):
                     nYear = readFile(files[f],'pr',f,logPath)
                 elif(var2Read == 'tasmin'):
                     continue
-                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
                     #nYear = readFileTemp(files[f],'pr',f,logPath)
                 else:
                     continue
@@ -76,10 +75,10 @@ def generate(params,pType = 1):
                     
             elif(cType.lower() == 'monthly'): # Monthly climatology
                 if(var2Read == 'pr'):
+                    print 'File %s - %s - %s' % (files[f],var2Read,cType)
                     nYear = readFileMonthly(files[f],var2Read,f,logPath)
                 elif(var2Read == 'tasmin'):
-                    continue                    
-                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    print 'File %s - %s - %s' % (files[f],var2Read,cType)
                     #nYear = readFileTemp(files[f],'pr',f,logPath)
                 else:
                     continue
@@ -94,7 +93,6 @@ def generate(params,pType = 1):
                         fid.write('[ERROR] '+files[f]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
                         fid.close()  
                         print str(e)
-                #print 'File %s - %s - %s' % (files[f],var2Read,cType)
             else: # Seasonal climatology
                 print 'File %s - %s - %s' % (files[f],var2Read,cType)
     if out.size != 0:

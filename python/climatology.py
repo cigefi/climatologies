@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
-import numpy as np
-#from mpl_toolkits.basemap import Basemap
-#import matplotlib.pyplot as plt
-#import os
 import sys
-from functions import *
-import netCDF4 as nc
+from functions import generate, packParams
 
 if len(sys.argv) < 2:
     # Mensaje de error si se recibe más o menos de 1 parámetro
