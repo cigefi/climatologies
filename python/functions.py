@@ -142,6 +142,8 @@ def generate(params,pType = 1):
             if(var2Read == 'pr'):
                 for s in range(4):
                     season = out[:,:,s]
+                    if s == 0:
+                        season = (season+lastDec)/2
                     newName = getExperiment(files.values()[0])+'-'+seasonsName[i]
                     print 'Ploting data %' % seasonsName[s]
                     np.savetxt(savePath+newName+'.dat',season, delimiter=',')
@@ -334,7 +336,7 @@ def readFileSeasonal(fileName,var2Read,yearC,logPath,lastDec):
                 init = 0
             lPos += 1
             for m in range(init,seasonMap[s]):    
-                if(isLeap(int(yearC)) and s == 0 and days==366):
+                if(isLeap(int(yearC)) and s == 0 and days==366 and m==1):
                     lPos += months[m] + 1# Leap year
                 else:
                     lPos += months[m]
