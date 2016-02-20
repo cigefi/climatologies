@@ -138,6 +138,14 @@ def generate(params,pType = 1):
                 print 'Ploting data %' % monthsName[i]
                 np.savetxt(savePath+newName+'.dat',month, delimiter=',')
                 plotData(month,'Precipitation (mm/day)',savePath,newName)
+        else:
+            if(var2Read == 'pr'):
+                for s in range(4):
+                    season = out[:,:,s]
+                    newName = getExperiment(files.values()[0])+'-'+seasonsName[i]
+                    print 'Ploting data %' % seasonsName[i]
+                    np.savetxt(savePath+newName+'.dat',season, delimiter=',')
+                    plotData(season,'Precipitation (mm/day)',savePath,newName)
     else:
         print 'No data read'
         
