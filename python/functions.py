@@ -36,7 +36,6 @@ def generate(params,pType = 1):
     out = np.array([])
     files = listFiles(dirName)
     
-    print params
     try:
         if not os.path.exists(logPath):
             os.mkdir(logPath)
@@ -80,8 +79,8 @@ def generate(params,pType = 1):
                     
             elif(cType.lower() == 'monthly'): # Monthly climatology
                 if(var2Read == 'pr'):
-                    print 'File %s - %s - %s' % (files[f],var2Read,cType)
-                    #nYear = readFileMonthly(files[f],var2Read,f,logPath)
+                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    nYear = readFileMonthly(files[f],var2Read,f,logPath)
                 elif(var2Read == 'tasmin'):
                     continue                    
                     #print 'File %s - %s - %s' % (files[f],var2Read,cType)
