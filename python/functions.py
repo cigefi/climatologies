@@ -49,6 +49,13 @@ def generate(params,pType = 1):
         if(os.path.isdir(files[f])):
             generate(packParams(params,files[f]))
         else:
+            if yearN > 0:
+                if int(f) > yearN:
+                    continue
+            elif yearZero > 0:
+                if int(f) < yearZero:
+                    continue
+                
             if(cType.lower() == 'daily'): # Daily climatology
                 #print 'File %s - %s - %s' % (files[f],getVar2Read(files[f]),cType)
                 if(var2Read == 'pr'):
@@ -106,7 +113,7 @@ def generate(params,pType = 1):
         elif(cType.lower() == 'monthly'):
             for i in range(12):
                 month = out[:,:,i]
-                newName = getExperiment(files[0])+'-'+monthsName[i]
+                newName = getExperiment(files.values()[0])+'-'+monthsName[i]
                 np.savetxt(savePath+newName+'.dat',month, delimiter=',')
                 plotData(month,'Precipitation (mm/day)',savePath,newName)
     else:
