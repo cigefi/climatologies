@@ -17,6 +17,7 @@ import sys
 
 months = [31,28,31,30,31,30,31,31,30,31,30,31]# Reference to the number of days per month
 monthsName = ['January','February','March','April','May','June','July','August','September','October','November','December']
+seasonsName = ['Winter','Spring','Summer','Fall']
 
 def generate(params,pType = 1):
     dirName,savePath,logPath,cType,var2Read,yearZero,yearN = unpackParams(params)
@@ -43,7 +44,9 @@ def generate(params,pType = 1):
     except:
         pass
     
-    nYear = out = np.array([]);
+    nYear = np.array([])
+    out = np.array([])
+    lastDec = np.array([])
     for f in sorted(files): #files.keys()
         #print 'Processing folder %s %s' % (files[f],getExperiment(files[f]))
         if(os.path.isdir(files[f])):
@@ -101,7 +104,25 @@ def generate(params,pType = 1):
                         fid.close()  
                         print str(e)
             else: # Seasonal climatology
-                print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                if(var2Read == 'pr'):
+                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    nYear, lastDec = readFileSeasonal(files[f],var2Read,f,logPath,lastDec)
+                elif(var2Read == 'tasmin'):
+                    print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    #nYear = readFileTemp(files[f],'pr',f,logPath)
+                else:
+                    continue
+                if out.size == 0:
+                    out = nYear
+                elif nYear.size > 0:
+                    try:
+                        out = (nYear+out)/2
+                    except:
+                        e = sys.exc_info()[1]
+                        fid = open(logPath+'log.txt', 'a+')
+                        fid.write('[ERROR] '+files[f]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
+                        fid.close()  
+                        print str(e)
     if out.size != 0:
         if not os.path.exists(savePath):
             os.mkdir(savePath)
@@ -114,6 +135,7 @@ def generate(params,pType = 1):
             for i in range(12):
                 month = out[:,:,i]
                 newName = getExperiment(files.values()[0])+'-'+monthsName[i]
+                print 'Ploting data %' % monthsName[i]
                 np.savetxt(savePath+newName+'.dat',month, delimiter=',')
                 plotData(month,'Precipitation (mm/day)',savePath,newName)
     else:
@@ -286,7 +308,50 @@ def readFileMonthly(fileName,var2Read,yearC,logPath):
         fid.write('[ERROR] '+fileName+' '+str(e)+'\n\n')
         fid.close()
     return out
-        
+
+def readFileSeasonal(fileName,var2Read,yearC,logPath,lastDec):
+    out = np.array([])
+    try:
+        scale = 84600
+        dataSet = nc.Dataset(fileName,'r')
+        data = dataSet.variables[var2Read][:]*scale
+        seasonMap = [2,5,8,11]
+        lPos = -1
+        days = int(data.shape[0])             
+        for s in range(len(seasonsName)):
+            fPos = lPos + 1
+            if s > 1:
+                init = seasonMap[s-1]
+            else:
+                init = 0
+            for m in range(init,seasonMap[s]):    
+                if(isLeap(int(yearC)) and s == 0 and days==366):
+                    lPos = months[m] + fPos + 1# Leap year
+                else:
+                    lPos = months[m] + fPos
+                nSeason = np.mean(data[fPos:lPos,:,:],axis=0)
+                if s < 1 and lastDec.size != 0:
+                    nSeason = (nSeason+lastDec)/2
+                if out.size != 0:
+                    if out.ndim < 3:
+                        out = np.concatenate((out[...,np.newaxis],nSeason[...,np.newaxis]),axis=2)
+                    else:
+                        out = np.concatenate((out[...],nSeason[...,np.newaxis]),axis=2)
+                else:
+                    out = nSeason
+                print 'f: %d - l: %d ' %(fPos,lPos)
+        print 'Data saved: %s' % (yearC)
+        fid = open(logPath+'log.txt', 'a+')
+        fid.write('[SAVED] '+fileName+'\n')
+        fid.close()
+        dataSet.close()
+    except:
+        e = sys.exc_info()[1]
+        fid = open(logPath+'log.txt', 'a+')
+        fid.write('[ERROR] '+fileName+' '+str(e)+'\n\n')
+        fid.close()
+    return out
+    
 def readFileTemp(fileName,var2Read,yearC,logPath):
     out = np.array([])
     scale = 273.15
