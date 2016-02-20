@@ -75,8 +75,8 @@ def generate(params,pType = 1):
                     
             elif(cType.lower() == 'monthly'): # Monthly climatology
                 if(var2Read == 'pr'):
-                    print 'File %s - %s - %s' % (files[f],var2Read,cType)
-                    #nYear = readFileMonthly(files[f],var2Read,f,logPath)
+                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    nYear = readFileMonthly(files[f],var2Read,f,logPath)
                 elif(var2Read == 'tasmin'):
                     print 'File %s - %s - %s' % (files[f],var2Read,cType)
                     #nYear = readFileTemp(files[f],'pr',f,logPath)
@@ -347,7 +347,7 @@ def plotData(data2D,label,path,name):
         # add colorbar
         cb = m.colorbar(newMap,"bottom", size="5%", pad="3%")
         cb.ax.set_xlabel(label)
-        plt.savefig(path+name+'.eps', format='eps', dpi=500)
+        plt.savefig(path+name+'.png', format='png', dpi=1000)
         plt.close(fig)
         print 'Map saved'
     except:
