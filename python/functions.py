@@ -332,22 +332,27 @@ def readFileSeasonal(fileName,var2Read,yearC,logPath,lastDec):
                 init = seasonMap[s-1]
             else:
                 init = 0
+            lPos += 1
             for m in range(init,seasonMap[s]):    
                 if(isLeap(int(yearC)) and s == 0 and days==366):
-                    lPos = months[m] + fPos + 1# Leap year
+                    lPos += months[m] + 1# Leap year
                 else:
-                    lPos = months[m] + fPos
-                nSeason = np.mean(data[fPos:lPos,:,:],axis=0)
-                if s < 1 and lastDec.size != 0:
-                    nSeason = (nSeason+lastDec)/2
-                if out.size != 0:
-                    if out.ndim < 3:
-                        out = np.concatenate((out[...,np.newaxis],nSeason[...,np.newaxis]),axis=2)
-                    else:
-                        out = np.concatenate((out[...],nSeason[...,np.newaxis]),axis=2)
+                    lPos += months[m]
+                    
+            nSeason = np.mean(data[fPos:lPos,:,:],axis=0)
+            if s < 1 and lastDec.size != 0:
+                nSeason = (nSeason+lastDec)/2
+            if out.size != 0:
+                if out.ndim < 3:
+                    out = np.concatenate((out[...,np.newaxis],nSeason[...,np.newaxis]),axis=2)
                 else:
-                    out = nSeason
-                print 'f: %d - l: %d ' %(fPos,lPos)
+                    out = np.concatenate((out[...],nSeason[...,np.newaxis]),axis=2)
+            else:
+                out = nSeason
+            if s == 3:
+                lPos += 1
+                lastDec = np.mean(data[lPos:-1,:,:],axis=0)
+            print 'f: %d - l: %d ' %(fPos,lPos)
         print 'Data saved: %s' % (yearC)
         fid = open(logPath+'log.txt', 'a+')
         fid.write('[SAVED] '+fileName+'\n')
@@ -358,7 +363,7 @@ def readFileSeasonal(fileName,var2Read,yearC,logPath,lastDec):
         fid = open(logPath+'log.txt', 'a+')
         fid.write('[ERROR] '+fileName+' '+str(e)+'\n\n')
         fid.close()
-    return out
+    return [out,lastDec]
     
 def readFileTemp(fileName,var2Read,yearC,logPath):
     out = np.array([])
