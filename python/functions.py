@@ -143,7 +143,7 @@ def generate(params,pType = 1):
                 for s in range(4):
                     season = out[:,:,s]
                     newName = getExperiment(files.values()[0])+'-'+seasonsName[i]
-                    print 'Ploting data %' % seasonsName[i]
+                    print 'Ploting data %' % seasonsName[s]
                     np.savetxt(savePath+newName+'.dat',season, delimiter=',')
                     plotData(season,'Precipitation (mm/day)',savePath,newName)
     else:
@@ -328,7 +328,7 @@ def readFileSeasonal(fileName,var2Read,yearC,logPath,lastDec):
         days = int(data.shape[0])             
         for s in range(len(seasonsName)):
             fPos = lPos + 1
-            if s > 1:
+            if s > 0:
                 init = seasonMap[s-1]
             else:
                 init = 0
