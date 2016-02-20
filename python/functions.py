@@ -76,7 +76,7 @@ def generate(params,pType = 1):
             elif(cType.lower() == 'monthly'): # Monthly climatology
                 if(var2Read == 'pr'):
                     print 'File %s - %s - %s' % (files[f],var2Read,cType)
-                    nYear = readFileMonthly(files[f],var2Read,f,logPath)
+                    #nYear = readFileMonthly(files[f],var2Read,f,logPath)
                 elif(var2Read == 'tasmin'):
                     print 'File %s - %s - %s' % (files[f],var2Read,cType)
                     #nYear = readFileTemp(files[f],'pr',f,logPath)
