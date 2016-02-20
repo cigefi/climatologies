@@ -328,13 +328,13 @@ def readFileSeasonal(fileName,var2Read,yearC,logPath,lastDec):
         seasonMap = [2,5,8,11]
         lPos = -1
         days = int(data.shape[0])             
-        for s in range(len(seasonsName)):
-            fPos = lPos + 1
+        for s in range(len(seasonsName)):            
+            lPos += 1
+            fPos = lPos
             if s > 0:
                 init = seasonMap[s-1]
             else:
                 init = 0
-            lPos += 1
             for m in range(init,seasonMap[s]):    
                 if(isLeap(int(yearC)) and s == 0 and days==366 and m==1):
                     lPos += months[m] + 1# Leap year
