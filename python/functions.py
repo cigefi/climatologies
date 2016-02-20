@@ -47,15 +47,12 @@ def generate(params,pType = 1):
     for f in sorted(files): #files.keys()
         #print 'Processing folder %s %s' % (files[f],getExperiment(files[f]))
         if(os.path.isdir(files[f])):
-            #print packParams(params,files[f])
             generate(packParams(params,files[f]))
         else:
             if(cType.lower() == 'daily'): # Daily climatology
                 #print 'File %s - %s - %s' % (files[f],getVar2Read(files[f]),cType)
                 if(var2Read == 'pr'):
-                    continue                    
-                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
-                    #nYear = readFile(files[f],'pr',f,logPath)
+                    nYear = readFile(files[f],'pr',f,logPath)
                 elif(var2Read == 'tasmin'):
                     continue
                     #print 'File %s - %s - %s' % (files[f],var2Read,cType)
@@ -79,7 +76,6 @@ def generate(params,pType = 1):
                     
             elif(cType.lower() == 'monthly'): # Monthly climatology
                 if(var2Read == 'pr'):
-                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
                     nYear = readFileMonthly(files[f],var2Read,f,logPath)
                 elif(var2Read == 'tasmin'):
                     continue                    
@@ -98,7 +94,7 @@ def generate(params,pType = 1):
                         fid.write('[ERROR] '+files[f]+' '+str(e)+'\n\n') #['+str('datetime.now()')+']
                         fid.close()  
                         print str(e)
-                print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                #print 'File %s - %s - %s' % (files[f],var2Read,cType)
             else: # Seasonal climatology
                 print 'File %s - %s - %s' % (files[f],var2Read,cType)
     if out.size != 0:
@@ -195,13 +191,6 @@ def unpackParams(params):
         yearN = params[6]        
     return [dirName,savePath,logPath,cType,var2Read,yearZero,yearN]
 
-def getVar2Read(filePath):
-    try:
-        tmp = filePath.split('_')[-2]
-        return tmp.split('/')[-1]
-    except:
-        return ''
-    
 def getExperiment(filePath):
     try:
         path = filePath.split('/')
@@ -215,6 +204,13 @@ def getIndex(index):
     except:
         i = index.split('.')[0]
     return i
+
+def getVar2Read(filePath):
+    try:
+        tmp = filePath.split('_')[-2]
+        return tmp.split('/')[-1]
+    except:
+        return ''
     
 def listFiles(path):
     dirs = os.listdir(path) # List all the subfolders inside the root path
@@ -250,7 +246,6 @@ def readFile(fileName,var2Read,yearC,logPath):
         fid = open(logPath+'log.txt', 'a+')
         fid.write('[ERROR] '+fileName+' '+str(e)+'\n\n')
         fid.close()
-        #dataSet.close()
     return out
 
 def readFileMonthly(fileName,var2Read,yearC,logPath):
@@ -275,14 +270,7 @@ def readFileMonthly(fileName,var2Read,yearC,logPath):
                     out = np.concatenate((out[...],newMonth[...,np.newaxis]),axis=2)
             else:
                 out = newMonth
-            #if m == 0:
-            #    out = newMonth
-                #out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
-                #out = np.dstack((np.mean(newMonth,axis=0)))
-            #else:
-            #    out = np.concatenate((out[...],newMonth[...,np.newaxis]),axis=2)
-                #out = np.dstack((out,np.mean(newMonth,axis=0)))
-            print 'Data saved: %s - %s' % (monthsName[m],yearC)
+        print 'Data saved: %s' % (yearC)
         fid = open(logPath+'log.txt', 'a+')
         fid.write('[SAVED] '+fileName+'\n')
         fid.close()
