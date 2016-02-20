@@ -271,7 +271,7 @@ def readFileMonthly(fileName,var2Read,yearC,logPath):
             if out.ndim < 3:
                 out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
             else:
-                out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
+                out = np.concatenate((out[...],newMonth[...,np.newaxis]),axis=2)
             #if m == 0:
             #    out = newMonth
                 #out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
