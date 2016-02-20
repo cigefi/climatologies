@@ -95,7 +95,7 @@ else:
         pass
     
     nYear = out = np.array([]);
-    for f in files.keys():
+    for f in sorted(files):#files.keys():
         if os.path.isdir(files[f]):
             params = [files[f]]
             generate(params)
