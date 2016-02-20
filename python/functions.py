@@ -144,7 +144,7 @@ def generate(params,pType = 1):
                     season = out[:,:,s]
                     if s == 0:
                         season = (season+lastDec)/2
-                    newName = getExperiment(files.values()[0])+'-'+seasonsName[i]
+                    newName = getExperiment(files.values()[0])+'-'+seasonsName[s]
                     print 'Ploting data %' % seasonsName[s]
                     np.savetxt(savePath+newName+'.dat',season, delimiter=',')
                     plotData(season,'Precipitation (mm/day)',savePath,newName)
