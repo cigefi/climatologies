@@ -268,10 +268,13 @@ def readFileMonthly(fileName,var2Read,yearC,logPath):
             else:
                 lPos = months[m] + fPos
             newMonth = np.mean(data[fPos:lPos,:,:],axis=0)
-            if out.ndim < 3:
-                out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
+            if out.size != 0:
+                if out.ndim < 3:
+                    out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
+                else:
+                    out = np.concatenate((out[...],newMonth[...,np.newaxis]),axis=2)
             else:
-                out = np.concatenate((out[...],newMonth[...,np.newaxis]),axis=2)
+                out = newMonth
             #if m == 0:
             #    out = newMonth
                 #out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
