@@ -267,9 +267,10 @@ def readFileMonthly(fileName,var2Read,yearC,logPath):
                 lPos = months[m] + fPos + 1# Leap year
             else:
                 lPos = months[m] + fPos
-            newMonth = data[fPos:lPos,:,:]
+            newMonth = np.mean(data[fPos:lPos,:,:],axis=0)
             if m == 0:
-                out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
+                out = newMonth
+                #out = np.concatenate((out[...,np.newaxis],newMonth[...,np.newaxis]),axis=2)
                 #out = np.dstack((np.mean(newMonth,axis=0)))
             else:
                 out = np.concatenate((out[...],newMonth[...,np.newaxis]),axis=2)
