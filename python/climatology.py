@@ -19,7 +19,7 @@ else:
         var2Read = ''
         yearZero = 0
         yearN = 0
-        params = [dirName,savePath,logPath]
+        params = [dirName]
     elif len(sys.argv) < 4:
         dirName = sys.argv[1]
         savePath = sys.argv[2]
@@ -28,7 +28,7 @@ else:
         var2Read = ''
         yearZero = 0
         yearN = 0
-        params = [dirName,savePath,logPath]
+        params = [dirName,savePath]
     elif len(sys.argv) < 5:
         dirName = sys.argv[1]
         savePath = sys.argv[2]
@@ -92,7 +92,7 @@ else:
     #logPath = dirName
     #savePath = dirName
     out = np.array([])
-    files = listFiles(dirName)
+    #files = listFiles(dirName)
     #print files
     #keys = files.keys().sort()
     #keys = keys.sort()

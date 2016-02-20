@@ -36,8 +36,10 @@ def generate(params,pType = 1):
     out = np.array([])
     files = listFiles(dirName)
     
-    #print files
+    print params
     try:
+        if not os.path.exists(logPath):
+            os.mkdir(logPath)
         os.remove(logPath+'log.txt')
     except:
         pass
@@ -46,16 +48,18 @@ def generate(params,pType = 1):
     for f in sorted(files): #files.keys()
         #print 'Processing folder %s %s' % (files[f],getExperiment(files[f]))
         if(os.path.isdir(files[f])):
-            params = [files[f]]
-            generate(params)
+            #print packParams(params,files[f])
+            generate(packParams(params,files[f]))
         else:
             if(cType.lower() == 'daily'): # Daily climatology
                 #print 'File %s - %s - %s' % (files[f],getVar2Read(files[f]),cType)
                 if(var2Read == 'pr'):
-                    print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    continue                    
+                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
                     #nYear = readFile(files[f],'pr',f,logPath)
                 elif(var2Read == 'tasmin'):
-                    print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    continue
+                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
                     #nYear = readFileTemp(files[f],'pr',f,logPath)
                 else:
                     continue
@@ -76,9 +80,11 @@ def generate(params,pType = 1):
                     
             elif(cType.lower() == 'monthly'): # Monthly climatology
                 if(var2Read == 'pr'):
-                    nYear = readFileMonthly(files[f],var2Read,f,logPath)
-                elif(var2Read == 'tasmin'):
                     print 'File %s - %s - %s' % (files[f],var2Read,cType)
+                    #nYear = readFileMonthly(files[f],var2Read,f,logPath)
+                elif(var2Read == 'tasmin'):
+                    continue                    
+                    #print 'File %s - %s - %s' % (files[f],var2Read,cType)
                     #nYear = readFileTemp(files[f],'pr',f,logPath)
                 else:
                     continue
@@ -97,6 +103,9 @@ def generate(params,pType = 1):
             else: # Seasonal climatology
                 print 'File %s - %s - %s' % (files[f],var2Read,cType)
     if out.size != 0:
+        if not os.path.exists(savePath):
+            os.mkdir(savePath)
+        
         if(cType.lower() == 'pr'):
             out = np.mean(out,axis=2)
             np.savetxt(savePath+'data.dat',out, delimiter=',')
@@ -109,7 +118,25 @@ def generate(params,pType = 1):
                 plotData(month,'Precipitation (mm/day)',savePath,newName)
     else:
         print 'No data read'
-
+        
+def packParams(params,newPath):
+    tmp = newPath.split('/')[-1]
+    if len(params) < 2:   
+        newParams = [newPath.split('/')[-1]]
+    elif len(params) < 3:
+        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp]
+    elif len(params) < 4:
+        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp]
+    elif len(params) < 5:
+        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp,params[3]]
+    elif len(params) < 6:
+        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp,params[3],params[4]]
+    elif len(params) < 7:
+        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp,params[3],params[4],params[5]]
+    else:
+        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp,params[3],params[4],params[5],params[6]]
+    return newParams
+    
 def unpackParams(params):
     if len(params) < 2:    
         dirName = params[0]
