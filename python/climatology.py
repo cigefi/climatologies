@@ -19,6 +19,7 @@ else:
         var2Read = ''
         yearZero = 0
         yearN = 0
+        params = [dirName,savePath,logPath]
     elif len(sys.argv) < 4:
         dirName = sys.argv[1]
         savePath = sys.argv[2]
@@ -26,7 +27,8 @@ else:
         cType = 'daily'
         var2Read = ''
         yearZero = 0
-        yearN = 0     
+        yearN = 0
+        params = [dirName,savePath,logPath]
     elif len(sys.argv) < 5:
         dirName = sys.argv[1]
         savePath = sys.argv[2]
@@ -35,6 +37,7 @@ else:
         var2Read = ''
         yearZero = 0
         yearN = 0 
+        params = [dirName,savePath,logPath]
     elif len(sys.argv) < 6:
         dirName = sys.argv[1]
         savePath = sys.argv[2]
@@ -43,6 +46,7 @@ else:
         var2Read = ''
         yearZero = 0
         yearN = 0 
+        params = [dirName,savePath,logPath,cType]
     elif len(sys.argv) < 7:
         dirName = sys.argv[1]
         savePath = sys.argv[2]
@@ -51,6 +55,7 @@ else:
         var2Read = sys.argv[5]
         yearZero = 0
         yearN = 0
+        params = [dirName,savePath,logPath,cType,var2Read]
     elif len(sys.argv) < 8:
         dirName = sys.argv[1]
         savePath = sys.argv[2]
@@ -59,6 +64,7 @@ else:
         var2Read = sys.argv[5]
         yearZero = sys.argv[6]
         yearN = 0 
+        params = [dirName,savePath,logPath,cType,var2Read,yearZero]
     else:
         dirName = sys.argv[1]
         savePath = sys.argv[2]
@@ -67,6 +73,7 @@ else:
         var2Read = sys.argv[5]
         yearZero = sys.argv[6]
         yearN = sys.argv[7]
+        params = [dirName,savePath,logPath,cType,var2Read,yearZero,yearN]
     # Fix path's
     dirName = dirName.replace('\\','/')
     savePath = savePath.replace('\\','/')
@@ -94,8 +101,9 @@ else:
     except:
         pass
     
-    nYear = out = np.array([]);
-    for f in sorted(files):#files.keys():
-        if os.path.isdir(files[f]):
-            params = [files[f]]
-            generate(params)
+    generate(params)
+    #nYear = out = np.array([]);
+    #for f in sorted(files):#files.keys():
+    #    if os.path.isdir(files[f]):
+    #        params = [files[f]]
+    #        generate(params)
