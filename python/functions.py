@@ -164,9 +164,9 @@ def packParams(params,newPath):
     elif len(params) < 6:
         newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp,params[3],params[4]]
     elif len(params) < 7:
-        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp,params[3],params[4],params[5]]
+        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp,params[3],params[4],int(params[5])]
     else:
-        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp,params[3],params[4],params[5],params[6]]
+        newParams = [newPath,params[1]+'/'+tmp if not params[1].endswith('/') else params[1]+tmp,params[2]+'/'+tmp if not params[2].endswith('/') else params[2]+tmp,params[3],params[4],int(params[5]),int(params[6])]
     return newParams
     
 def unpackParams(params):
@@ -216,7 +216,7 @@ def unpackParams(params):
         logPath = params[2]
         cType = params[3]
         var2Read = params[4]
-        yearZero = params[6]
+        yearZero = int(params[6])
         yearN = 0 
     else:
         dirName = params[0]
@@ -224,8 +224,8 @@ def unpackParams(params):
         logPath = params[2]
         cType = params[3]
         var2Read = params[4]
-        yearZero = params[5]
-        yearN = params[6]        
+        yearZero = int(params[5])
+        yearN = int(params[6])        
     return [dirName,savePath,logPath,cType,var2Read,yearZero,yearN]
 
 def getExperiment(filePath):
@@ -351,10 +351,10 @@ def readFileSeasonal(fileName,var2Read,yearC,logPath,lastDec):
             else:
                 out = nSeason
             if s == 3:
-                lPos += 1
+                #lPos += 1
                 lastDec = np.mean(data[lPos:-1,:,:],axis=0)
             print 'f: %d - l: %d ' %(fPos,lPos)
-            fPos += 1
+            #fPos += 1
         print 'Data saved: %s' % (yearC)
         fid = open(logPath+'log.txt', 'a+')
         fid.write('[SAVED] '+fileName+'\n')
