@@ -351,9 +351,8 @@ def readFileSeasonal(fileName,var2Read,yearC,logPath,lastDec):
             else:
                 out = nSeason
             if s == 3:
-                #lPos += 1
                 lastDec = np.mean(data[lPos:-1,:,:],axis=0)
-            print 'f: %d - l: %d ' %(fPos,lPos)
+            #print 'f: %d - l: %d ' %(fPos,lPos)
             #fPos += 1
         print 'Data saved: %s' % (yearC)
         fid = open(logPath+'log.txt', 'a+')
