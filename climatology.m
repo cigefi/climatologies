@@ -248,7 +248,11 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         scale = 84600;
         data = nc_varget(char(fileT),var2Read);
         out = mean(scale.*data,1);
-        clear data;
+        try
+            clear data;
+        catch
+            disp('Error, can not delete var data');
+        end
         disp(strcat('Data saved: ',num2str(yearC)));
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
         fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
@@ -278,8 +282,12 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
             end
             out = cat(1,out,mean(data(fPos:lPos,:,:),1));
             disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
+        end        
+        try
+            clear data;
+        catch
+            disp('Error, can not delete var data');
         end
-        clear data;
         fid = fopen(strcat(char(logPath),'log.txt'), 'at');
         fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
         fclose(fid);
@@ -467,8 +475,14 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
             data = (mind+maxd)/2;
             out = mean(data-scale,1);
             disp(strcat('Data saved: ',num2str(yearC)));
-            varlist = {'mind','maxd','data'};
-            clear(varlist{:});
+            %varlist = {'mind','maxd','data'};
+       	    try
+            	clear mind;
+            	clear maxd;
+	    	clear data;
+	    catch
+            	disp('Error, can not delete var data');
+            end
             fid = fopen(strcat(char(logPath),'log.txt'), 'at');
             fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
             fclose(fid);
