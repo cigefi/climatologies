@@ -81,7 +81,7 @@ climatology({SOURCE_PATH,SAVE_PATH},'monthly','pr',1950,2000);
 - (Optional) yearZero: Lower year of the data to be read (integer)
 - (Optional) yearN: Higher year of the data to be readed (integer)
 
-##### Output (10 files)
+##### Output (9 files)
 - log file: File that contains the list of property processed .nc files and the errors
 - [Experiment-Name]-[Season].dat file: File that contains a 2-Dimensional structure with the values point by point
 - [Experiment-Name]-[Season].eps file: File that contains a plot of the data in high resolution
