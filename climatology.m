@@ -154,15 +154,20 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                 newPath = char(path.concat(dirData(f).name));
                 switch nargin
                     case 1 
-                        climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)});
+                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)});
+                        climatology({newPath,char(savePath.concat(dirData(f).name))});
                     case 2 % Validates if the type param is received
-                        climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type);
+                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type);
+                        climatology({newPath,char(savePath.concat(dirData(f).name))},type);
                     case 3 % Validates if the var2Read param is received
-                        climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type,var2Read);
+                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type,var2Read);
+                        climatology({newPath,char(savePath.concat(dirData(f).name))},type,var2Read);
                     case 4 % Validates if the yearZero param is received
-                        climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type,var2Read,yearZero);
+                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type,var2Read,yearZero);
+                        climatology({newPath,char(savePath.concat(dirData(f).name))},type,var2Read,yearZero);
                     otherwise
-                        climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type,var2Read,yearZero,yearN);      
+                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type,var2Read,yearZero,yearN); 
+                        climatology({newPath,char(savePath.concat(dirData(f).name))},type,var2Read,yearZero,yearN);      
                 end
             end
         end
