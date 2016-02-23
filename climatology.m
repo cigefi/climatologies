@@ -144,7 +144,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     end
                 end
             catch exception
-                fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+                fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
                 fclose(fid);
                 continue;
@@ -254,12 +254,12 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
             disp('Error, can not delete var data');
         end
         disp(strcat('Data saved: ',num2str(yearC)));
-        fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
         fclose(fid);
     catch exception
         out = [];
-        fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
     end
@@ -288,12 +288,12 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
         catch
             disp('Error, can not delete var data');
         end
-        fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
         fclose(fid);
     catch exception
         out = [];
-        fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
     end
@@ -330,18 +330,18 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
             end
             varlist = {'mind','maxd'};
             clear(varlist{:});
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
             fclose(fid);
         else
             out = [];
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s does not exist\n\n',char(datetime('now')),char(fileT2));
             fclose(fid);
         end
     catch exception
         out = [];
-        fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         switch(exception.identifier)
             case 'MATLAB:Java:GenericException'
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),'The param var2Read does not exist into the .nc file');
@@ -386,13 +386,13 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
         fPos = lPos + 1;
         lastDecember = mean(data(fPos:days,:,:),1);
         clear data;
-        fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
         fclose(fid);
     catch exception
         out = [];
         lastDecember = [];
-        fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
     end
@@ -439,20 +439,20 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             lastDecember = mean(data(fPos:days,:,:),1);
             varlist = {'mind','maxd','data'};
             clear(varlist{:});
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
             fclose(fid);
         else
             out = [];
             lastDecember = [];
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s does not exist\n\n',char(datetime('now')),char(fileT2));
             fclose(fid);
         end
     catch exception
         out = [];
         lastDecember = [];
-        fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         switch(exception.identifier)
             case 'MATLAB:Java:GenericException'
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),'The param var2Read does not exist into the .nc file');
@@ -483,18 +483,18 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
 	    catch
             	disp('Error, can not delete var data');
             end
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
             fclose(fid);
         else
             out = [];
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s does not exist\n\n',char(datetime('now')),char(fileT2));
             fclose(fid);
         end
     catch exception
         out = [];
-        fid = fopen(strcat(char(logPath),'log.txt'), 'at');
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         switch(exception.identifier)
             case 'MATLAB:Java:GenericException'
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),'The param var2Read does not exist into the .nc file');
