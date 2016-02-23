@@ -144,6 +144,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     end
                 end
             catch exception
+            	disp(char(logPath));
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
                 fclose(fid);
