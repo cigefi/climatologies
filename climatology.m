@@ -112,9 +112,18 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         case 'daily'
                             switch var2Read
                                 case 'pr'
-                                    out = mean(cat(1,out,readFile(fileT,var2Read,yearC,logPath)),1);
+                                    newYear = readFile(fileT,var2Read,yearC,logPath);
+                                    %out = mean(cat(1,out,),1);
                                 otherwise
-                                    out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
+                                    newYear = readFileTemp(fileT,var2Read,yearC,logPath);
+                                    %out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
+                            end
+                            if ~isempty(newYear)
+                                if(~isempty(out))
+                                    out = (out + newYear)/2;
+                                else
+                                    out = newYear;
+                                end
                             end
                         case 'monthly'
                             switch var2Read
@@ -177,7 +186,6 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
             end
         end
     end
-    disp('Plotting');
     if(~isempty(out))
         if ~exist(char(savePath),'dir')
             mkdir(char(savePath));
@@ -251,7 +259,6 @@ end
 
 function [out] = readFile(fileT,var2Read,yearC,logPath)
     try
-        %disp(char(logPath));
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
