@@ -100,6 +100,9 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     if(~processing)
                         fprintf('Processing: %s\n',char(experimentName));
                         processing = 1;
+                        if ~exist(char(logPath),'dir')
+                            mkdir(char(logPath));
+                        end
 %                         if(exist(strcat(char(logPath),'log.txt'),'file'))
 %                             delete(strcat(char(logPath),'log.txt'));
 %                         end
@@ -248,7 +251,7 @@ end
 
 function [out] = readFile(fileT,var2Read,yearC,logPath)
     try
-        disp(char(logPath));
+        %disp(char(logPath));
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
