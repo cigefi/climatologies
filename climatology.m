@@ -119,7 +119,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                     %out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
                             end
                             if ~isempty(newYear)
-                                if(~isempty(out))
+                                if ~isempty(out)
                                     out = (out + newYear)/2;
                                 else
                                     out = newYear;
@@ -132,8 +132,8 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                 otherwise
                                     newYear = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsName);
                             end
-                            if(~isempty(newYear))
-                                if(~isempty(out))
+                            if ~isempty(newYear)
+                                if ~isempty(out)
                                     out = (out + newYear)/2;
                                 else
                                     out = newYear;
@@ -146,8 +146,8 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                 otherwise
                                     [newYear,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
                             end
-                            if(~isempty(newYear))
-                                if(~isempty(out))
+                            if ~isempty(newYear)
+                                if ~isempty(out)
                                     out = (out + newYear)/2;
                                 else
                                     out = newYear;
@@ -186,7 +186,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
             end
         end
     end
-    if(~isempty(out))
+    if ~isempty(out)
         if ~exist(char(savePath),'dir')
             mkdir(char(savePath));
         end
