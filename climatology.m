@@ -76,7 +76,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
 	if(savePath.charAt(savePath.length-1) ~= '/')
 		savePath = savePath.concat('/');
 	end
-	if(logPath.charAt(logPath.length-1) ~= '/')
+    if(logPath.charAt(logPath.length-1) ~= '/')
         logPath = logPath.concat('/');
     end
     %fprintf('Processing: %s\n',char(experimentName));
@@ -144,10 +144,10 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     end
                 end
             catch exception
-            	if(exist(char(logPath),'dir'))
-		     	fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
-                	fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
-                	fclose(fid);
+                if(exist(char(logPath),'dir'))
+                    fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+                    fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
+                    fclose(fid);
                 end
                 continue;
             end
@@ -248,12 +248,20 @@ end
 function [out] = readFile(fileT,var2Read,yearC,logPath)
     try
         scale = 84600;
-        data = nc_varget(char(fileT),var2Read);
+        %data = nc_varget(char(fileT),var2Read);
+        [data,err] = readNC(fileT,var2Read);
+        if ~isnan(err)
+            out = [];
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+            fclose(fid);
+            return;
+        end
         out = mean(scale.*data,1);
         try
             clear data;
         catch
-            disp('Error, can not delete var data');
+            disp('Error, cannot delete var data');
         end
         disp(strcat('Data saved: ',num2str(yearC)));
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -270,7 +278,15 @@ end
 function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
     try
         scale = 84600;
-        data = nc_varget(char(fileT),var2Read);
+        %data = nc_varget(char(fileT),var2Read);
+        [data,err] = readNC(fileT,var2Read);
+        if ~isnan(err)
+            out = [];
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+            fclose(fid);
+            return;
+        end
         data = scale.*data;
         lPos = 0;
         out = [];
@@ -545,5 +561,33 @@ function [] = PlotData(data2D,label,path,name)
     catch
         close(f);
         disp('Map not saved');
+    end
+end
+
+function [data,error] = readNC(path,var2Read)
+    var2Readid = 99999;
+	error = NaN;
+    try
+        % Catching data from original file
+        ncid = netcdf.open(char(path),'NC_NOWRITE');
+        [~,nvar,~,~] = netcdf.inq(ncid);
+        for i=0:1:nvar-1
+            [varname,~,~,~] = netcdf.inqVar(ncid,i);
+            switch(varname)
+                case var2Read
+                    var2Readid = i;
+            end
+        end
+        data = netcdf.getVar(ncid,var2Readid);%ncread(char(fileT),var2Read);
+        netcdf.close(ncid)
+    catch exception
+        data = [];
+        try
+            netcdf.close(ncid)
+        catch
+            error = 'I/O ERROR';
+            return;
+        end
+        error = exception.message;
     end
 end
