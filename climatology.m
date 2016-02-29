@@ -248,6 +248,7 @@ end
 
 function [out] = readFile(fileT,var2Read,yearC,logPath)
     try
+        disp(char(logPath));
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
@@ -273,6 +274,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
+        disp(exception.message);
     end
 end
 
