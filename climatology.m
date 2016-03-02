@@ -118,6 +118,8 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                     newYear = readFileTemp(fileT,var2Read,yearC,logPath);
                                     %out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
                             end
+                            disp('newYear');
+                            disp(size(newYear));
                             if ~isempty(newYear)
                                 if ~isempty(out)
                                     out = mean(cat(3,out,newYear),3);
@@ -269,7 +271,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
             fclose(fid);
             return;
         end
-        out = mean(scale.*data,1);
+        out = mean(scale.*data,3);%1);
         try
             clear data;
         catch
