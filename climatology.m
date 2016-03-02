@@ -96,16 +96,16 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         continue;
                     end
                 end
-                if(yearC > 0 && strcmp(var2Read,'tasmax')==0)
+                if(yearC > 0 && ~strcmp(var2Read,'tasmax'))
                     if(~processing)
                         fprintf('Processing: %s\n',char(experimentName));
                         processing = 1;
                         if ~exist(char(logPath),'dir')
                             mkdir(char(logPath));
                         end
-%                         if(exist(strcat(char(logPath),'log.txt'),'file'))
-%                             delete(strcat(char(logPath),'log.txt'));
-%                         end
+                        if(exist(strcat(char(logPath),'log.txt'),'file'))
+                            delete(strcat(char(logPath),'log.txt'));
+                        end
                     end
                     % Subrutine to writte the data in new Netcdf file
                     switch type
@@ -113,15 +113,11 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             switch var2Read
                                 case 'pr'
                                     newYear = readFile(fileT,var2Read,yearC,logPath);
-                                    %out = mean(cat(1,out,),1);
+                                    %out = mean(cat(1,out,readFile(fileT,var2Read,yearC,logPath)),1);
                                 case 'tasmin'
                                     newYear = readFileTemp(fileT,var2Read,yearC,logPath);
                                     %out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
                             end
-                            disp('newYear');
-                            disp(size(newYear));
-                            disp('out');
-                            disp(size(out));
                             if isempty(out)
                                 out = newYear;
                             else
@@ -301,7 +297,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
-        if all(~isnan(err) || isempty(data))
+        if ~isnan(err)
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -351,7 +347,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
             %mind = nc_varget(char(fileT),var2Read);
             %maxd = nc_varget(char(fileT2),'tasmax');            
             [mind,err] = readNC(fileT,var2Read);
-            if all(~isnan(err) || isempty(mind))
+            if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -359,7 +355,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
                 return;
             end            
             [maxd,err] = readNC(fileT,'tasmax');
-            if all(~isnan(err) || isempty(maxd))
+            if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -412,7 +408,7 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
-        if all(~isnan(err) || isempty(data))
+        if ~isnan(err)
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -471,7 +467,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             %mind = nc_varget(char(fileT),var2Read);
             %maxd = nc_varget(char(fileT2),'tasmax');            
             [mind,err] = readNC(fileT,var2Read);
-            if all(~isnan(err) || isempty(mind))
+            if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -479,7 +475,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                 return;
             end            
             [maxd,err] = readNC(fileT,'tasmax');
-            if all(~isnan(err) || isempty(maxd))
+            if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -552,7 +548,7 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
             %mind = nc_varget(char(fileT),var2Read);
             %maxd = nc_varget(char(fileT2),'tasmax');            
             [mind,err] = readNC(fileT,var2Read);
-            if all(~isnan(err) || isempty(mind))
+            if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -560,7 +556,7 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
                 return;
             end            
             [maxd,err] = readNC(fileT,'tasmax');
-            if all(~isnan(err) || isempty(maxd))
+            if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -657,7 +653,6 @@ function [data,error] = readNC(path,var2Read)
             end
         end
         data = permute(netcdf.getVar(ncid,var2Readid,'double'),[3 2 1]);%ncread(char(fileT),var2Read);
-        disp(size(data));
         if isempty(data)
             error = 'Empty dataset';
         end
@@ -671,6 +666,5 @@ function [data,error] = readNC(path,var2Read)
             return;
         end
         error = exception.message;
-        %disp(strcat('[ERROR] ',{' '},char(path),'\n',error));
     end
 end
