@@ -120,7 +120,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             end
                             if ~isempty(newYear)
                                 if ~isempty(out)
-                                    out = mean(cat(1,out,newYear),1);
+                                    out = mean(cat(3,out,newYear),3);
                                 else
                                     out = newYear;
                                 end
