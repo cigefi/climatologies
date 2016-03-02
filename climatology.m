@@ -265,7 +265,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
-        if all(~isnan(err) || isempty(data))
+        if ~isnan(err)% || isempty(data))
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -654,7 +654,9 @@ function [data,error] = readNC(path,var2Read)
         end
         data = permute(netcdf.getVar(ncid,var2Readid,'double'),[3 2 1]);%ncread(char(fileT),var2Read);
         disp(size(data));
-        
+        if isempty(data)
+            error = 'Empty dataset';
+        end
         netcdf.close(ncid)
     catch exception
         data = [];
