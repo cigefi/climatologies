@@ -120,6 +120,8 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             end
                             disp('newYear');
                             disp(size(newYear));
+                            disp('out');
+                            disp(size(out));
                             if ~isempty(newYear)
                                 if ~isempty(out)
                                     out = mean(cat(3,out,newYear),3);
@@ -271,7 +273,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
             fclose(fid);
             return;
         end
-        out = mean(scale.*data,3);%1);
+        out = mean(scale.*data,3).';%1);
         try
             clear data;
         catch
@@ -651,7 +653,7 @@ function [data,error] = readNC(path,var2Read)
             end
         end
         data = double(netcdf.getVar(ncid,var2Readid));%ncread(char(fileT),var2Read);
-        disp(size(data));
+        %disp(size(data));
         netcdf.close(ncid)
     catch exception
         data = [];
@@ -662,6 +664,6 @@ function [data,error] = readNC(path,var2Read)
             return;
         end
         error = exception.message;
-        disp(strcat('[ERROR] ',{' '},char(path),'\n',error));
+        %disp(strcat('[ERROR] ',{' '},char(path),'\n',error));
     end
 end
