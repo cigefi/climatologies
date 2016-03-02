@@ -118,10 +118,10 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                     newYear = readFileTemp(fileT,var2Read,yearC,logPath);
                                     %out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
                             end
-                            disp('newYear');
-                            disp(size(newYear));
-                            disp('out');
-                            disp(size(out));
+%                             disp('newYear');
+%                             disp(size(newYear));
+%                             disp('out');
+%                             disp(size(out));
                             out = mean(cat(3,out,newYear),3);
 %                             if ~isempty(newYear)
 %                                 if ~isempty(out)
@@ -197,7 +197,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
         end
         switch type
             case 'daily'
-                out = squeeze(out(1,:,:));
+                %out = squeeze(out(1,:,:));
                 switch(var2Read)
                     case 'pr'
                         units = 'mm';
