@@ -352,7 +352,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
                 fclose(fid);
                 return;
             end            
-            [maxd,err] = readNC(fileT,'tasmax');
+            [maxd,err] = readNC(fileT2,'tasmax');
             if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -474,7 +474,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                 fclose(fid);
                 return;
             end            
-            [maxd,err] = readNC(fileT,'tasmax');
+            [maxd,err] = readNC(fileT2,'tasmax');
             if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -556,7 +556,7 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
                 fclose(fid);
                 return;
             end            
-            [maxd,err] = readNC(fileT,'tasmax');
+            [maxd,err] = readNC(fileT2,'tasmax');
             if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
