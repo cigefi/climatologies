@@ -120,7 +120,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             end
                             if ~isempty(newYear)
                                 if ~isempty(out)
-                                    out = (out + newYear)/2;
+                                    out = mean(cat(1,out,newYear),1);
                                 else
                                     out = newYear;
                                 end
@@ -648,7 +648,7 @@ function [data,error] = readNC(path,var2Read)
                     var2Readid = i;
             end
         end
-        data = netcdf.getVar(ncid,var2Readid);%ncread(char(fileT),var2Read);
+        data = double(netcdf.getVar(ncid,var2Readid));%ncread(char(fileT),var2Read);
         netcdf.close(ncid)
     catch exception
         data = [];
