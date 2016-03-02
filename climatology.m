@@ -265,7 +265,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
-        if ~isnan(err)% || isempty(data))
+        if ~isnan(err)
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -308,16 +308,17 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
         lPos = 0;
         out = [];
         days = length(data(:,1,1));
-        for m=1:1:length(months)
+        for m=1:1:12
             fPos = lPos + 1;
             if(leapyear(yearC)&& m==2 && days==366)
                 lPos = months(m) + fPos; % Leap year
             else
-                lPos = months(m) + fPos -1;
+                lPos = months(m) + fPos - 1;
             end
             out = cat(1,out,mean(data(fPos:lPos,:,:),1));
-            disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
-        end        
+            %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
+        end
+        disp(strcat('Data saved: ',{' '},num2str(yearC)));
         try
             clear data;
         catch
@@ -336,9 +337,6 @@ end
 
 function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsName)
     try
-%         if(exist(strcat(char(logPath),'log.txt'),'file'))
-%             delete(strcat(char(logPath),'log.txt'));
-%         end
         scale = 273.15;
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
         fileT2 = fileT2.concat('/tasmax_day/');
@@ -366,7 +364,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
             out = [];
             daysMin = length(mind(:,1,1));
             daysMax = length(maxd(:,1,1));
-            for m=1:1:length(months)
+            for m=1:1:12
                 fPos = lPos + 1;
                 if(leapyear(yearC)&& m==2 && daysMin==366 && daysMax==366)
                     lPos = months(m) + fPos; % Leap year
@@ -377,9 +375,10 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
                 tMax = maxd(fPos:lPos,:,:);
                 data = (tMin+tMax)/2;
                 out = cat(1,out,mean(data-scale,1));
-                disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
+                %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
             end
-            varlist = {'mind','maxd'};
+            disp(strcat('Data saved: ',{' '},num2str(yearC)));
+            varlist = {'mind','maxd','data'};
             clear(varlist{:});
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
@@ -420,7 +419,7 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
         out = [];
         season_map = [2 5 8 11];
         days = length(data(:,1,1));
-        for s=1:1:length(seasonsName)
+        for s=1:1:4
             fPos = lPos + 1;
             if s > 1
                 init = season_map(s-1)+1;
@@ -440,10 +439,11 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
                 nSeason = data(fPos:lPos,:,:);
             end
             out = cat(1,out,mean(nSeason,1));
-            disp(strcat('Data saved: ',seasonsName(s),{' - '},num2str(yearC)));
+            %disp(strcat('Data saved: ',seasonsName(s),{' - '},num2str(yearC)));
         end
         fPos = lPos + 1;
         lastDecember = mean(data(fPos:days,:,:),1);
+        disp(strcat('Data saved: ',{' '},num2str(yearC)));
         clear data;
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
@@ -488,7 +488,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             out = [];
             season_map = [2 5 8 11];
             days = length(data(:,1,1));
-            for s=1:1:length(seasonsName)
+            for s=1:1:4
                 fPos = lPos + 1;
                 if s > 1
                     init = season_map(s-1)+1;
@@ -508,10 +508,11 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                     nSeason = data(fPos:lPos,:,:);
                 end
                 out = cat(1,out,mean(nSeason,1));
-                disp(strcat('Data saved: ',seasonsName(s),{' - '},num2str(yearC)));
+                %disp(strcat('Data saved: ',seasonsName(s),{' - '},num2str(yearC)));
             end
             fPos = lPos + 1;
             lastDecember = mean(data(fPos:days,:,:),1);
+            disp(strcat('Data saved: ',{' '},num2str(yearC)));
             varlist = {'mind','maxd','data'};
             clear(varlist{:});
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -566,13 +567,14 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
             data = (mind+maxd)/2;
             out = mean(data-scale,1);
             disp(strcat('Data saved: ',num2str(yearC)));
-            %varlist = {'mind','maxd','data'};
+            varlist = {'mind','maxd','data'};
        	    try
-            	clear mind;
-            	clear maxd;
-                clear data;
+                clear(varlist{:});
+%             	clear mind;
+%             	clear maxd;
+%               clear data;
             catch
-            	disp('Error, can not delete var data');
+            	disp('Error, cannot delete temp vars');
             end
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
