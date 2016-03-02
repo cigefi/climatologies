@@ -659,5 +659,6 @@ function [data,error] = readNC(path,var2Read)
             return;
         end
         error = exception.message;
+        disp(strcat('[ERROR] ',{' '},char(path),'\n',error));
     end
 end
