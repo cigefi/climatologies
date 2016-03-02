@@ -627,7 +627,8 @@ function [] = PlotData(data2D,label,path,name)
         print(strcat(path,char(name)),'-depsc','-tiff')
         close(f);
         disp('Map saved');
-    catch
+    catch exception
+        disp(exception.message);
         close(f);
         disp('Map not saved');
     end
@@ -638,7 +639,7 @@ function [data,error] = readNC(path,var2Read)
 	error = NaN;
     try
         % Catching data from original file
-        ncid = netcdf.open(char(path),'NC_NOWRITE');
+        ncid = netcdf.open(char(path));%,'NC_NOWRITE');
         [~,nvar,~,~] = netcdf.inq(ncid);
         for i=0:1:nvar-1
             [varname,~,~,~] = netcdf.inqVar(ncid,i);
