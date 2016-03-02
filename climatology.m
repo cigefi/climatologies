@@ -114,27 +114,19 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                 case 'pr'
                                     newYear = readFile(fileT,var2Read,yearC,logPath);
                                     %out = mean(cat(1,out,),1);
-                                otherwise
+                                case 'tasmin'
                                     newYear = readFileTemp(fileT,var2Read,yearC,logPath);
                                     %out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
                             end
-%                             disp('newYear');
-%                             disp(size(newYear));
-%                             disp('out');
-%                             disp(size(out));
-                            out = mean(cat(3,out,newYear),3);
-%                             if ~isempty(newYear)
-%                                 if ~isempty(out)
-%                                     out = mean(cat(3,out,newYear),3);
-%                                 else
-%                                     out = newYear;
-%                                 end
-%                             end
+                            disp(size(newYear));
+                            disp(size(out));
+                            out = mean(cat(1,out,newYear),1);
+                            %out = mean(cat(3,out,newYear),3);
                         case 'monthly'
                             switch var2Read
                                 case 'pr'
                                     newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName);
-                                otherwise
+                                case 'tasmin'
                                     newYear = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsName);
                             end
                             if ~isempty(newYear)
@@ -148,7 +140,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             switch var2Read
                                 case 'pr'
                                     [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
-                                otherwise
+                                case 'tasmin'
                                     [newYear,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
                             end
                             if ~isempty(newYear)
@@ -198,6 +190,8 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
         switch type
             case 'daily'
                 %out = squeeze(out(1,:,:));
+                fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
+                dlmwrite(char(fileT),out);
                 switch(var2Read)
                     case 'pr'
                         units = 'mm';
@@ -210,12 +204,13 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     otherwise
                         PlotData(out,'',char(savePath));
                 end
-                fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
-                dlmwrite(char(fileT),out);
             case 'monthly'
                 for m=1:1:12
                     disp(strcat('Processing',{' '},monthsName(m)));
-                    currentMonth = squeeze(out(m,:,:));
+                    %currentMonth = squeeze(out(m,:,:));
+                    currentMonth = squeeze(out(:,:,m));
+                    fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
+                    dlmwrite(char(fileT),currentMonth);
                     switch(var2Read)
                         case 'pr'
                             units = 'mm';
@@ -228,21 +223,24 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         otherwise
                             PlotData(currentMonth,'',char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                     end
-                    fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
-                    dlmwrite(char(fileT),currentMonth);
                 end
             case 'seasonal'
                 for s=1:1:4
                     disp(strcat('Processing',{' '},seasonsName(s)));
                     if(s==1)
-                        currentSeason = squeeze(out(s,:,:));
+                        %currentSeason = squeeze(out(s,:,:));
+                        currentSeason = squeeze(out(:,:,s));
                         if ~isempty(lastDecember)
-                            lastDecember = squeeze(lastDecember(1,:,:));
+                            %lastDecember = squeeze(lastDecember(1,:,:));
+                            lastDecember = squeeze(lastDecember(:,:,1));
                             currentSeason = (currentSeason+lastDecember)/2;
                         end
                     else
-                        currentSeason = squeeze(out(s,:,:));
+                        %currentSeason = squeeze(out(s,:,:));
+                        currentSeason = squeeze(out(:,:,s));
                     end
+                    fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
+                    dlmwrite(char(fileT),currentSeason);
                     switch(var2Read)
                         case 'pr'
                             units = 'mm';
@@ -255,8 +253,6 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         otherwise
                             PlotData(currentSeason,'',char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                     end
-                    fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
-                    dlmwrite(char(fileT),currentSeason);
                 end
         end
     end
@@ -267,14 +263,15 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
-        if ~isnan(err)
+        if ~isnan(err) || isempty(data)
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
             return;
         end
-        out = mean(scale.*data,3).';%1);
+        out = mean(scale.*data,1);
+        %out = mean(scale.*data,3).';%1);
         try
             clear data;
         catch
@@ -298,7 +295,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
-        if ~isnan(err)
+        if ~isnan(err) || isempty(data)
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -653,8 +650,8 @@ function [data,error] = readNC(path,var2Read)
                     var2Readid = i;
             end
         end
-        data = double(netcdf.getVar(ncid,var2Readid));%ncread(char(fileT),var2Read);
-        %disp(size(data));
+        data = permute(netcdf.getVar(ncid,var2Readid,'double'),[3 2 1]);%ncread(char(fileT),var2Read);
+        disp(size(data));
         netcdf.close(ncid)
     catch exception
         data = [];
