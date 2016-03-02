@@ -209,8 +209,8 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
             case 'monthly'
                 for m=1:1:12
                     disp(strcat('Processing',{' '},monthsName(m)));
-                    %currentMonth = squeeze(out(m,:,:));
-                    currentMonth = squeeze(out(:,:,m));
+                    currentMonth = squeeze(out(m,:,:));
+                    %currentMonth = squeeze(out(:,:,m));
                     fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
                     dlmwrite(char(fileT),currentMonth);
                     switch(var2Read)
@@ -230,16 +230,16 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                 for s=1:1:4
                     disp(strcat('Processing',{' '},seasonsName(s)));
                     if(s==1)
-                        %currentSeason = squeeze(out(s,:,:));
-                        currentSeason = squeeze(out(:,:,s));
+                        currentSeason = squeeze(out(s,:,:));
+                        %currentSeason = squeeze(out(:,:,s));
                         if ~isempty(lastDecember)
-                            %lastDecember = squeeze(lastDecember(1,:,:));
-                            lastDecember = squeeze(lastDecember(:,:,1));
+                            lastDecember = squeeze(lastDecember(1,:,:));
+                            %lastDecember = squeeze(lastDecember(:,:,1));
                             currentSeason = (currentSeason+lastDecember)/2;
                         end
                     else
-                        %currentSeason = squeeze(out(s,:,:));
-                        currentSeason = squeeze(out(:,:,s));
+                        currentSeason = squeeze(out(s,:,:));
+                        %currentSeason = squeeze(out(:,:,s));
                     end
                     fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
                     dlmwrite(char(fileT),currentSeason);
