@@ -96,7 +96,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         continue;
                     end
                 end
-                if(yearC > 0 && ~strcmp(var2Read,'tasmax'))
+                if all(yearC > 0 && ~strcmp(var2Read,'tasmax') && ~strcmp(experimentName,'[CIGEFI]'))
                     if(~processing)
                         fprintf('Processing: %s\n',char(experimentName));
                         processing = 1;
