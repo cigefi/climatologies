@@ -122,7 +122,11 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             disp(size(newYear));
                             disp('out');
                             disp(size(out));
-                            out = mean(cat(1,out,newYear),1);
+                            if isempty(out)
+                                out = newYear;
+                            else
+                                out = mean(cat(1,out,newYear),1);
+                            end
                             %out = mean(cat(3,out,newYear),3);
                         case 'monthly'
                             switch var2Read
