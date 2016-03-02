@@ -649,6 +649,7 @@ function [data,error] = readNC(path,var2Read)
             end
         end
         data = double(netcdf.getVar(ncid,var2Readid));%ncread(char(fileT),var2Read);
+        disp(size(data));
         netcdf.close(ncid)
     catch exception
         data = [];
