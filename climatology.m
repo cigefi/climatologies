@@ -263,7 +263,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
-        if ~isnan(err) || isempty(data)
+        if ~isnan(err) || isempty(data) == 1
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
