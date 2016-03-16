@@ -85,11 +85,11 @@ for f in fileList.keys():
             fid.write(fileList[f]['url']+'\n')
             fid.close()
             print '[% s] %s' %('CORRUPTED',ncfile)
-            try:
+            #try:
                 #os.remove(ncfile)
                 #downloadFile(f,fileList[f])
-            except:
-                print 'Previous file was not removed'
+            #except:
+            #    print 'Previous file was not removed'
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
     cont += 1
