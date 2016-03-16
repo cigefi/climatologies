@@ -30,7 +30,7 @@ def reordenarDict(fList):
         tmp = fList[f]
         tmp['experiment_name'] = experimentName
         tmp['url'] = f
-        nDict['/'+experimentName+'/'+fList[f]['variable']+'_day/'+fList[f]['year']+'.nc'] = tmp
+        nDict[experimentName+'/'+fList[f]['variable']+'_day/'+fList[f]['year']+'.nc'] = tmp
         #fList[f] = tmp
     #return fList
     return nDict
@@ -89,13 +89,14 @@ else:
 
 for f in fileList.keys():
     ncfile = dirName+f
-    print ncfile
-    if os.path.exists(ncfile):
+    if os.path.exists(ncfile):    
+        print ncfile
         md5O = fileList[f]['md5']
-        md5F = hashlib.md5(open(ncfile,'rb').read()).hexadigest()
+        md5F = hashlib.md5(open(ncfile,'rb').read()).hexdigest()
         if md5O != md5F:
             fid = open(dirName+'corruptedFiles.txt', 'a+')
             fid.write(fileList[f]['url']+'\n')
             fid.close()
-    
+    else:
+        print '[% s] %s' %('NOT EXIST',ncfile)
 #compareFiles(dirName,fileList)
