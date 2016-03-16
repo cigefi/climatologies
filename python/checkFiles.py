@@ -36,37 +36,6 @@ def reordenarDict(fList,experimentID):
     #return fList
     return nDict
 
-def listFiles(path):
-    dirs = os.listdir(path) # List all the subfolders inside the root path
-    fList = {}
-    for d in dirs:
-        i = getIndex(d)
-        try:
-            if d.split('.')[1] =='nc':
-                if not path.endswith('/'):
-                    fList[i] = listFiles(path+"/"+d) # Creates a dictionary with the list of files
-                else:
-                    fList[i] = listFiles(path+d)
-        except:
-            if not path.endswith('/'):
-                fList[i] = path+"/"+d
-            else:
-                fList[i] = path+d    
-    return fList
-
-def getIndex(index):
-    try:
-        i = int(index.split('.')[0])
-    except:
-        i = index.split('.')[0]
-    return i
-    
-def compareFiles(path,fileList):
-    files = listFiles(dirName)
-    for f in sorted(files): #files.keys()
-        if(os.path.isdir(files[f])):
-            compareFiles(files[f],fileList)
-
 if len(sys.argv) < 2:
     # Fix path's
     dirName = os.getcwd().replace('\\','/')
@@ -98,14 +67,12 @@ else:
 
 for f in fileList.keys():
     ncfile = dirName+f
-    if os.path.exists(ncfile):    
-        print ncfile
+    if os.path.exists(ncfile):
         md5O = fileList[f]['md5']
         md5F = hashlib.md5(open(ncfile,'rb').read()).hexdigest()
         if md5O != md5F:
-            fid = open('corruptedFiles.txt', 'a+')
+            fid = open('corruptedFiles-'+experimentID+'.txt', 'a+')
             fid.write(fileList[f]['url']+'\n')
             fid.close()
-    else:
-        print '[% s] %s' %('NOT EXIST',ncfile)
-#compareFiles(dirName,fileList)
+            print '[% s] %s' %('CORRUPTED',ncfile)
+        
