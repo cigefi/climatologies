@@ -94,7 +94,7 @@ for f in fileList.keys():
         md5O = fileList[f]['md5']
         md5F = hashlib.md5(open(ncfile,'rb').read()).hexdigest()
         if md5O != md5F:
-            fid = open(dirName+'corruptedFiles.txt', 'a+')
+            fid = open('corruptedFiles.txt', 'a+')
             fid.write(fileList[f]['url']+'\n')
             fid.close()
     else:
