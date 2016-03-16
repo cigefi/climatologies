@@ -11,6 +11,7 @@ import os
 import sys
 from urllib2 import urlopen as url
 import hashlib
+import urllib
 
 def cargar(ruta):
     f = open(ruta)
@@ -19,7 +20,16 @@ def cargar(ruta):
 def cargarURL(ruta):
     f = url(ruta)
     return json.load(f)
-    
+
+def downloadFile(savePath,refData):
+    try:
+        print 'Downloading %s file' % (refData['url'])
+        nFile= urllib.URLopener()
+        nFile.retrieve(refData['url'],savePath)
+        print 'File successfully downloaded'
+    except:
+        print '[ERROR] Cannot download the file'
+        
 def reordenarDict(fList,experimentID):
     nDict = {}
     for f in fList.keys():
@@ -64,7 +74,7 @@ if len(sys.argv) < 4:
     fileList = reordenarDict(cargarURL(fullDataList),experimentID)
 else:
     fileList = reordenarDict(cargar(fullDataList),experimentID)
-
+cont = 0
 for f in fileList.keys():
     ncfile = dirName+f
     if os.path.exists(ncfile):
@@ -75,4 +85,7 @@ for f in fileList.keys():
             fid.write(fileList[f]['url']+'\n')
             fid.close()
             print '[% s] %s' %('CORRUPTED',ncfile)
-        
+            #downloadFile(f,fileList[f])
+    if cont%100 == 0:
+        print '%d checked files of %d' %(cont,len(fileList.keys()))
+    cont += 1
