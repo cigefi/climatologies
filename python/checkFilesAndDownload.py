@@ -29,6 +29,9 @@ def downloadFile(savePath,refData):
         print 'File successfully downloaded'
     except:
         print '[ERROR] Cannot download the file'
+        fid = open('log-'+experimentID+'.txt','a+')
+        fid.write('[ERROR] '+ncfile+' not downloaded\n')
+        fid.close()
         
 def reordenarDict(fList,experimentID):
     nDict = {}
@@ -86,10 +89,16 @@ for f in fileList.keys():
             fid.close()
             print '[% s] %s' %('CORRUPTED',ncfile)
             try:
-                #os.remove(ncfile)
-                #downloadFile(f,fileList[f])
+                os.remove(ncfile) # Remove the previous file
+                downloadFile(f,fileList[f]) # Download the file again
+                fid = open('log-'+experimentID+'.txt','a+')
+                fid.write('[DOWNLOADED] '+ncfile+'\n')
+                fid.close()
             except:
                 print 'Previous file was not removed'
+                fid = open('log-'+experimentID+'.txt','a+')
+                fid.write('[ERROR] '+ncfile+' not removed\n')
+                fid.close()
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
     cont += 1
