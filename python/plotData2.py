@@ -9,7 +9,8 @@ import os
 import numpy as np
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
-import codecs
+#import iris
+
 
 #from pylab import *
 import sys
@@ -69,7 +70,7 @@ def plotData(data2D,label,path,name):
         meridians = np.arange(0.,360.,30.)
         m.drawmeridians(meridians)
         #data2D, lon, lat = m.transform_scalar(data2D, lon, lat, 180, 90, returnxy=True)
-        newMap = m.contourf(lon,lat,data2D,cmap=plt.cm.jet,50,latlon=True)
+        newMap = m.contourf(lon,lat,data2D,cmap=plt.cm.jet,latlon=True)
         #newMap = m.interp(data2D,lon,lat)
         #newMap = m.imshow(data2D, cmap=plt.cm.jet, aspect='equal', interpolation='gaussian')      
         #newMap = m.pcolormesh(lon,lat,data2D,edgecolors='none',cmap=plt.cm.jet,latlon=True)
@@ -91,7 +92,7 @@ else:
     if len(sys.argv) == 3:
         pType = sys.argv[2]
     else:
-        pType = 'tas'
+        pType = 'pr'
     #path = sys.argv[1]
     path = 'd:/cigefi/climatologies/test20/'
     path = path.replace('\\','/')
