@@ -20,17 +20,18 @@ def cargarURL(ruta):
     f = url(ruta)
     return json.load(f)
     
-def reordenarDict(fList):
+def reordenarDict(fList,experimentID):
     nDict = {}
     for f in fList.keys():
-        try:
-            experimentName = f.split('/')[-1].split('_day_')[-1].split('.nc')[0][0:-5]
-        except:
-            experimentName = ''
-        tmp = fList[f]
-        tmp['experiment_name'] = experimentName
-        tmp['url'] = f
-        nDict[experimentName+'/'+fList[f]['variable']+'_day/'+fList[f]['year']+'.nc'] = tmp
+        if fList[f]['experiment_id'] == experimentID:
+            try:
+                experimentName = f.split('/')[-1].split('_day_')[-1].split('.nc')[0][0:-5]
+            except:
+                experimentName = ''
+            tmp = fList[f]
+            tmp['experiment_name'] = experimentName
+            tmp['url'] = f
+            nDict[experimentName+'/'+fList[f]['variable']+'_day/'+fList[f]['year']+'.nc'] = tmp
         #fList[f] = tmp
     #return fList
     return nDict
@@ -69,23 +70,31 @@ def compareFiles(path,fileList):
 if len(sys.argv) < 2:
     # Fix path's
     dirName = os.getcwd().replace('\\','/')
-    RUTA = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'    
+    experimentID = 'historical'
+    fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'    
 elif len(sys.argv) < 3:
     # Fix path's
     dirName = sys.argv[1].replace('\\','/')
-    RUTA = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'
+    experimentID = 'historical'
+    fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'
 elif len(sys.argv) < 4:
     # Fix path's
     dirName = sys.argv[1].replace('\\','/')
-    RUTA = sys.argv[2]
+    experimentID = sys.argv[2]
+    fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'
+elif len(sys.argv) < 5:
+    # Fix path's
+    dirName = sys.argv[1].replace('\\','/')
+    experimentID = sys.argv[2]
+    fullDataList = sys.argv[3]
     
 if not dirName.endswith('/'):
     dirName += '/'
     
-if len(sys.argv) < 3:
-    fileList = reordenarDict(cargarURL(RUTA))
+if len(sys.argv) < 4:
+    fileList = reordenarDict(cargarURL(fullDataList),experimentID)
 else:
-    fileList = reordenarDict(cargar(RUTA))
+    fileList = reordenarDict(cargar(fullDataList),experimentID)
 
 for f in fileList.keys():
     ncfile = dirName+f
