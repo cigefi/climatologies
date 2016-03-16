@@ -65,8 +65,7 @@ def compareFiles(path,fileList):
     for f in sorted(files): #files.keys()
         if(os.path.isdir(files[f])):
             compareFiles(files[f],fileList)
-        else:
-    
+
 if len(sys.argv) < 2:
     # Fix path's
     dirName = os.getcwd().replace('\\','/')
@@ -94,8 +93,8 @@ for f in fileList.keys():
     if os.path.exists(ncfile):
         md5O = fileList[f]['md5']
         md5F = hashlib.md5(open(ncfile,'rb').read()).hexadigest()
-        if md50 != md5F:
-            fid = open('corruptedFiles.txt', 'a+')
+        if md5O != md5F:
+            fid = open(dirName+'corruptedFiles.txt', 'a+')
             fid.write(fileList[f]['url']+'\n')
             fid.close()
     
