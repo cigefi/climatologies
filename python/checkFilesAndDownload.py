@@ -13,6 +13,8 @@ from urllib2 import urlopen as url
 import hashlib
 import urllib
 
+global ncfile # global variable to be used in dlProgress
+
 def cargar(ruta):
     f = open(ruta)
     return json.load(f)
@@ -21,16 +23,23 @@ def cargarURL(ruta):
     f = url(ruta)
     return json.load(f)
 
+
+def dlProgress(count, blockSize, totalSize):
+    percent = int(count*blockSize*100/totalSize)
+    sys.stdout.write("\r" + ncfile + " ... %d%%" % percent)
+    sys.stdout.flush()
+  
 def downloadFile(savePath,refData):
     try:
         print 'Downloading %s file' % (refData['url'])
         nFile= urllib.URLopener()
-        nFile.retrieve(refData['url'],savePath)
-        print 'File successfully downloaded'
+        nFile.retrieve(refData['url'],savePath,reporthook=dlProgress)
+        print '\nFile successfully downloaded'
     except:
+        e = sys.exc_info()[1]
         print '[ERROR] Cannot download the file'
         fid = open('log-'+experimentID+'.txt','a+')
-        fid.write('[ERROR] '+ncfile+' not downloaded\n')
+        fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
         fid.close()
         
 def reordenarDict(fList,experimentID):
@@ -78,6 +87,11 @@ if len(sys.argv) < 4:
 else:
     fileList = reordenarDict(cargar(fullDataList),experimentID)
 cont = 0
+try:
+    os.remove('log-'+experimentID+'.txt')
+    os.remove('corruptedFiles-'+experimentID+'.txt')
+except:
+    pass
 for f in fileList.keys():
     ncfile = dirName+f
     if os.path.exists(ncfile):
@@ -90,14 +104,15 @@ for f in fileList.keys():
             print '[% s] %s' %('CORRUPTED',ncfile)
             try:
                 os.remove(ncfile) # Remove the previous file
-                downloadFile(f,fileList[f]) # Download the file again
+                downloadFile(ncfile,fileList[f]) # Download the file again
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[DOWNLOADED] '+ncfile+'\n')
                 fid.close()
             except:
+                e = sys.exc_info()[1]
                 print 'Previous file was not removed'
                 fid = open('log-'+experimentID+'.txt','a+')
-                fid.write('[ERROR] '+ncfile+' not removed\n')
+                fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
                 fid.close()
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))

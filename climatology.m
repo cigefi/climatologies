@@ -54,8 +54,8 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
         path = path.concat('/');
     end
     try
-    experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
-    experimentName = experimentParent.substring(experimentParent.lastIndexOf('/')+1);
+		experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
+		experimentName = experimentParent.substring(experimentParent.lastIndexOf('/')+1);
     catch
         experimentName = '[CIGEFI]'; % Dafault value
     end
@@ -200,7 +200,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         frequency = 'day';
                         PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
                     case 'tasmin'
-                        units = '°C';
+                        units = 'Â°C';
                         frequency = 'day';
                         PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
                     otherwise
@@ -219,7 +219,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             frequency = 'day';
                             PlotData(currentMonth,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                         case 'tasmin'
-                            units = '°C';
+                            units = 'Â°C';
                             frequency = 'day';
                             PlotData(currentMonth,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                         otherwise
@@ -249,7 +249,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             frequency = 'day';
                             PlotData(currentSeason,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                         case 'tasmin'
-                            units = '°C';
+                            units = 'Â°C';
                             frequency = 'day';
                             PlotData(currentSeason,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                         otherwise
@@ -292,7 +292,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
     end
 end
 
-function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
+function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,~)%monthsName)
     try
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
