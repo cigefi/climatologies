@@ -12,9 +12,11 @@ import sys
 from urllib2 import urlopen as url
 import hashlib
 import urllib
+from mailsender import email, alert
+import threading, time
 
-global ncfile # global variable to be used in dlProgress
-
+global ncfile, cont, ncurl, pcont # global variable to be used in dlProgress
+    
 def cargar(ruta):
     f = open(ruta)
     return json.load(f)
@@ -23,7 +25,6 @@ def cargarURL(ruta):
     f = url(ruta)
     return json.load(f)
 
-
 def dlProgress(count, blockSize, totalSize):
     percent = int(count*blockSize*100/totalSize)
     sys.stdout.write("\r" + ncfile + " ... %d%%" % percent)
@@ -31,16 +32,20 @@ def dlProgress(count, blockSize, totalSize):
   
 def downloadFile(savePath,refData):
     try:
+        threadObj = threading.Thread(target=alert)
+        threadObj.start()
         print 'Downloading %s file' % (refData['url'])
         nFile= urllib.URLopener()
         nFile.retrieve(refData['url'],savePath,reporthook=dlProgress)
         print '\nFile successfully downloaded'
     except:
-        e = sys.exc_info()[1]
+        e = sys.exc_info()[0]
         print '[ERROR] Cannot download the file'
         fid = open('log-'+experimentID+'.txt','a+')
         fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
         fid.close()
+        email('villegas.roberto@hotmail.com',e,'[ERROR] '+experimentID)
+        email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
         
 def reordenarDict(fList,experimentID):
     nDict = {}
@@ -58,6 +63,19 @@ def reordenarDict(fList,experimentID):
     #return fList
     return nDict
 
+def tcontrol():
+    TIME = 2700 # Waits in the background for 45 minutes until send a warning
+    #print 'Threat start'
+    t = 0
+    while (pcont == cont) and t < TIME:
+        print 'cont: %d - pcont %d - time: %d s'%(cont,pcont,t)
+        time.sleep(1)
+        t += 1
+    t += 1
+    if t > TIME:
+        alert(ncfile,ncurl)
+    #print 'Threat finished'
+        
 if len(sys.argv) < 2:
     # Fix path's
     dirName = os.getcwd().replace('\\','/')
@@ -86,17 +104,26 @@ if len(sys.argv) < 4:
     fileList = reordenarDict(cargarURL(fullDataList),experimentID)
 else:
     fileList = reordenarDict(cargar(fullDataList),experimentID)
-cont = 0
 try:
     os.remove('log-'+experimentID+'.txt')
     os.remove('corruptedFiles-'+experimentID+'.txt')
 except:
     pass
+cont = 0
+dFiles = 0
+pFiles = 0
+eFiles = 0
+eFList = '<ul>'
 for f in fileList.keys():
     ncfile = dirName+f
+    ncurl = fileList[f]['url']
     if os.path.exists(ncfile):
+        pFiles += 1
         md5O = fileList[f]['md5']
         md5F = hashlib.md5(open(ncfile,'rb').read()).hexdigest()
+        pcont = cont
+        to = threading.Thread(target=tcontrol) 
+        to.start() # Start control thread
         if md5O != md5F:
             fid = open('corruptedFiles-'+experimentID+'.txt', 'a+')
             fid.write(fileList[f]['url']+'\n')
@@ -108,12 +135,33 @@ for f in fileList.keys():
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[DOWNLOADED] '+ncfile+'\n')
                 fid.close()
+                dFiles += 1
             except:
-                e = sys.exc_info()[1]
+                eFiles += 1
+                eFList += '<li>'+fileList[f]['url']+'</li>'
+                e = sys.exc_info()[0]
                 print 'Previous file was not removed'
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
                 fid.close()
+                email('villegas.roberto@hotmail.com',e,'[ERROR] '+experimentID)
+                email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
+    
+    #if cont%3000 == 0:
+        #print 'Start ruin the world'
+        #pcont = cont
+        #to = threading.Thread(target=ttest05)
+        #to.start()
+        #time.sleep(4)
+        #print 'World ruined'
     cont += 1
+eFList = '</ul>'
+msg = 'The execution has been finished, stats: <br /><ul>'
+msg += '<li>Total files: '+str(cont)+'</li>'
+msg += '<li>Processed files: '+str(pFiles)+'</li>'
+msg += '<li>Downloaded files: '+str(dFiles)+'</li>'
+msg += '<li>Non-processed files: '+str(eFiles)+'<br />'+eFList+'</li>'
+email('villegas.roberto@hotmail.com',msg,'[FINISHED] '+experimentID)
+email('rodrigo.castillorodriguez@ucr.ac.cr',msg,'[FINISHED] '+experimentID)
