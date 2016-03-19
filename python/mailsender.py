@@ -7,7 +7,6 @@ Created on Wed Mar 16 12:12:13 2016
 """
 
 import smtplib
-import time
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -45,9 +44,7 @@ def email(you,message,subject='[WARNING]'):
         pass
     
 def alert(fpath,furl):
-    #time.sleep(5)#2700) # Wait 45 min
     msg = 'The execution is taking too much time. Check the Terminal.'
     msg += '<br /><br />The troubleshoot file is <a href=\''+furl+'\'>'+fpath+'</a>'
     email('villegas.roberto@hotmail.com',msg)
     email('rodrigo.castillorodriguez@ucr.ac.cr',msg)
-#email('bthillo@hotmail.com','Esto solamente <br />es una prueba','Custom subject')

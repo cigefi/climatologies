@@ -68,7 +68,7 @@ def tcontrol():
     #print 'Threat start'
     t = 0
     while (pcont == cont) and t < TIME:
-        print 'cont: %d - pcont %d - time: %d s'%(cont,pcont,t)
+        #print 'cont: %d - pcont %d - time: %d s'%(cont,pcont,t)
         time.sleep(1)
         t += 1
     t += 1
