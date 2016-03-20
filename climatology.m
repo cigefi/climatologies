@@ -340,7 +340,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,~)%monthsNa
     end
 end
 
-function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsName)
+function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,~)
     try
         scale = 273.15;
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
@@ -409,7 +409,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
     end
 end
 
-function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember)
+function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,~,lastDecember)
     try
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
@@ -466,7 +466,7 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
     end
 end
 
-function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember)
+function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,months,~,lastDecember)
     try
         scale = 273.15;
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
