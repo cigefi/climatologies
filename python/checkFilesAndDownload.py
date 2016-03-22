@@ -114,6 +114,12 @@ dFiles = 0
 pFiles = 0
 eFiles = 0
 eFList = '<ul>'
+msg0 = '<h1>Execution begins</h1>'
+msg0 += '<br />Details:<br /><ul>'
+msg0 += '<li>dirName: '+dirName+'</li>'
+msg0 += '<li>experimentID: '+experimentID+'</li>'
+msg0 += '</ul>'
+email('villegas.roberto@hotmail.com',msg0,'[UPDATE] '+experimentID)
 for f in fileList.keys():
     ncfile = dirName+f
     ncurl = fileList[f]['url']
