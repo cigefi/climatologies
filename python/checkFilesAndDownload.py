@@ -152,6 +152,23 @@ for f in fileList.keys():
                 fid.close()
                 email('villegas.roberto@hotmail.com',e,'[ERROR] '+experimentID)
                 email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
+    else: # In case the file doesn't exists
+        try:
+            downloadFile(ncfile,fileList[f]) # Download the file again
+            fid = open('log-'+experimentID+'.txt','a+')
+            fid.write('[DOWNLOADED] '+ncfile+'\n')
+            fid.close()
+            dFiles += 1
+        except:
+            eFiles += 1
+            eFList += '<li>'+fileList[f]['url']+'</li>'
+            e = sys.exc_info()[0]
+            print 'Previous file was not removed'
+            fid = open('log-'+experimentID+'.txt','a+')
+            fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
+            fid.close()
+            email('villegas.roberto@hotmail.com',e,'[ERROR] '+experimentID)
+            email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
     
