@@ -128,7 +128,7 @@ for f in fileList.keys():
         md5O = fileList[f]['md5']
         md5F = hashlib.md5(open(ncfile,'rb').read()).hexdigest()
         pcont = cont
-        to = threading.Thread(target=tcontrol,args=[]) 
+        to = threading.Thread(target=tcontrol,name='tcontrol',args=(), kwargs={}) 
         to.start() # Start control thread
         if md5O != md5F:
             fid = open('corruptedFiles-'+experimentID+'.txt', 'a+')
