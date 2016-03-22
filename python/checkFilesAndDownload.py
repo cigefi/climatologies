@@ -38,6 +38,7 @@ def downloadFile(savePath,refData):
         nFile= urllib.URLopener()
         nFile.retrieve(refData['url'],savePath,reporthook=dlProgress)
         print '\nFile successfully downloaded'
+        return 1
     except:
         e = sys.exc_info()[0]
         print '[ERROR] Cannot download the file'
@@ -46,7 +47,7 @@ def downloadFile(savePath,refData):
         fid.close()
         email('villegas.roberto@hotmail.com',e,'[ERROR] '+experimentID)
         email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
-        
+        return 0
 def reordenarDict(fList,experimentID):
     nDict = {}
     for f in fList.keys():
@@ -137,11 +138,14 @@ for f in fileList.keys():
             print '[% s] %s' %('CORRUPTED',ncfile)
             try:
                 os.remove(ncfile) # Remove the previous file
-                downloadFile(ncfile,fileList[f]) # Download the file again
-                fid = open('log-'+experimentID+'.txt','a+')
-                fid.write('[DOWNLOADED] '+ncfile+'\n')
-                fid.close()
-                dFiles += 1
+                if downloadFile(ncfile,fileList[f]): # Download the file again
+                    fid = open('log-'+experimentID+'.txt','a+')
+                    fid.write('[DOWNLOADED] '+ncfile+'\n')
+                    fid.close()
+                    dFiles += 1
+                else:
+                    eFiles += 1
+                    eFList += '<li>'+fileList[f]['url']+'</li>'
             except:
                 eFiles += 1
                 eFList += '<li>'+fileList[f]['url']+'</li>'
@@ -154,11 +158,14 @@ for f in fileList.keys():
                 email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
     else: # In case the file doesn't exists
         try:
-            downloadFile(ncfile,fileList[f]) # Download the file again
-            fid = open('log-'+experimentID+'.txt','a+')
-            fid.write('[DOWNLOADED] '+ncfile+'\n')
-            fid.close()
-            dFiles += 1
+            if downloadFile(ncfile,fileList[f]): # Download the file again
+                fid = open('log-'+experimentID+'.txt','a+')
+                fid.write('[DOWNLOADED] '+ncfile+'\n')
+                fid.close()
+                dFiles += 1
+            else:
+                eFiles += 1
+                eFList += '<li>'+fileList[f]['url']+'</li>'
         except:
             eFiles += 1
             eFList += '<li>'+fileList[f]['url']+'</li>'
