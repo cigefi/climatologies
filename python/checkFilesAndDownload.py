@@ -35,8 +35,9 @@ def downloadFile(savePath,refData):
         #threadObj = threading.Thread(target=alert)
         #threadObj.start()
         print 'Downloading %s file' % (refData['url'])
-        nFile= urllib.URLopener()
-        nFile.retrieve(refData['url'],savePath,reporthook=dlProgress)
+        urllib.urlretrieve(refData['url'],savePath)
+        #nFile= urllib.URLopener()
+        #nFile.retrieve(refData['url'],savePath,reporthook=dlProgress)
         print '\nFile successfully downloaded'
         return 1
     except:
