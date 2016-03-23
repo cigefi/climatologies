@@ -15,8 +15,8 @@ import urllib
 from mailsender import email, alert
 import time#, threading
 
-global ncfile, cont, ncurl, pcont # global variable to be used in dlProgress
-    
+global ncfile, cont, ncurl, pcont, RECEIPT # global variable to be used in dlProgress
+RECEIPT = 'roberto.villegas@ucr.ac.cr'#;rodrigo.castillorodriguez@ucr.ac.cr'
 def cargar(ruta):
     f = open(ruta)
     return json.load(f)
@@ -45,8 +45,7 @@ def downloadFile(savePath,refData):
         fid = open('log-'+experimentID+'.txt','a+')
         fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
         fid.close()
-        email('villegas.roberto@hotmail.com',e,'[ERROR] '+experimentID)
-        email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
+        email(RECEIPT,e,'[ERROR] '+experimentID)
         return 0
         
 def reordenarDict(fList,experimentID):
@@ -65,7 +64,6 @@ def reordenarDict(fList,experimentID):
 
 def tcontrol():
     TIME = 2700 # Waits in the background for 45 minutes until send a warning
-    #print 'Threat start'
     t = 0
     while (pcont == cont) and t < TIME:
         #print 'cont: %d - pcont %d - time: %d s'%(cont,pcont,t)
@@ -74,7 +72,6 @@ def tcontrol():
     t += 1
     if t > TIME:
         alert(ncfile,ncurl)
-    #print 'Threat finished'
         
 # Fix path's
 dirName = os.getcwd().replace('\\','/')
@@ -115,7 +112,7 @@ msg0 += '<br />Details:<br /><ul>'
 msg0 += '<li>dirName: '+dirName+'</li>'
 msg0 += '<li>experimentID: '+experimentID+'</li>'
 msg0 += '</ul>'
-email('villegas.roberto@hotmail.com',msg0,'[UPDATE] '+experimentID)
+email('roberto.villegas@ucr.ac.cr',msg0,'[UPDATE] '+experimentID)
 for f in fileList.keys():
     ncfile = dirName+f
     ncurl = fileList[f]['url']
@@ -140,45 +137,45 @@ for f in fileList.keys():
                     dFiles += 1
                 else:
                     eFiles += 1
-                    eFList += '<li>'+fileList[f]['url']+'</li>'
+                    eFList += '<li><a href=\''+fileList[f]['url']+'\'>'+ncfile+'</a></li>'
             except:
                 eFiles += 1
                 eFList += '<li>'+fileList[f]['url']+'</li>'
                 e = sys.exc_info()[0]
-                print 'Previous file was not removed'
+                print str(e)
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
                 fid.close()
-                email('villegas.roberto@hotmail.com',str(e),'[ERROR] '+experimentID)
-                email('rodrigo.castillorodriguez@ucr.ac.cr',str(e),'[ERROR] '+experimentID)
+                email(RECEIPT,str(e),'[ERROR] '+experimentID)
     else: # In case the file doesn't exists
         try:
-            if downloadFile(ncfile,fileList[f]): # Download the file again
+            if 0 > 1:
+            #if downloadFile(ncfile,fileList[f]): # Download the file again
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[DOWNLOADED] '+ncfile+'\n')
                 fid.close()
                 dFiles += 1
             else:
                 eFiles += 1
-                eFList += '<li>'+fileList[f]['url']+'</li>'
+                eFList += '<li><a href=\''+fileList[f]['url']+'\'>'+ncfile+'</a></li>'
+            
+            a = 1/0
         except:
             eFiles += 1
             eFList += '<li>'+fileList[f]['url']+'</li>'
             e = sys.exc_info()[0]
-            print 'Previous file was not removed'
+            print str(e)
             fid = open('log-'+experimentID+'.txt','a+')
             fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
             fid.close()
-            email('villegas.roberto@hotmail.com',str(e),'[ERROR] '+experimentID)
-            email('rodrigo.castillorodriguez@ucr.ac.cr',str(e),'[ERROR] '+experimentID)
+            email(RECEIPT,str(e),'[ERROR] '+experimentID)
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
     cont += 1
-eFList = '</ul>'
+eFList += '</ul>'
 msg = 'The execution has been finished, stats: <br /><ul>'
 msg += '<li>Total files: '+str(cont)+'</li>'
 msg += '<li>Processed files: '+str(pFiles)+'</li>'
 msg += '<li>Downloaded files: '+str(dFiles)+'</li>'
-msg += '<li>Non-processed files: '+str(eFiles)+'<br />'+eFList+'</li>'
-email('villegas.roberto@hotmail.com',msg,'[FINISHED] '+experimentID)
-email('rodrigo.castillorodriguez@ucr.ac.cr',msg,'[FINISHED] '+experimentID)
+msg += '<li>Non-processed files: '+str(eFiles)+'<br />'+eFList+'</li></ul>'
+email(RECEIPT,msg,'[FINISHED] '+experimentID)

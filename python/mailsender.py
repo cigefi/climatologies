@@ -19,18 +19,34 @@ def email(you,message,subject='[WARNING]'):
     msg['From'] = me
     msg['To'] = you
     
+    
     # Create the body of the message (a plain-text and an HTML version).
     html = """\
-    <html>
-      <head></head>
-      <body>
-        <p>"""
+        <html>
+            <head>
+                <style>
+                    body {
+                        background-color: #CCC;
+                        padding: 10px;
+                        font-family: 'Times New Roman', Georgia, Serif;
+                    }
+                    
+                    h1 {
+                        color: maroon;
+                        margin-left: 40px;
+                    } 
+                    </style>              
+            </head>
+            <body>
+                <div style='background: #005da4'>
+                    <img src='images/logo-cigefi-ucr-v1-med.png' />
+                </div>
+                <p>"""
     html += message
     html += """
-        </p>
-      </body>
-    </html>
-    """
+                </p>
+            </body>
+        </html>"""
     
     part1 = MIMEText(html, 'html')
     msg.attach(part1)
@@ -47,4 +63,4 @@ def alert(fpath,furl):
     msg = 'The execution is taking too much time. Check the Terminal.'
     msg += '<br /><br />The troubleshoot file is <a href=\''+furl+'\'>'+fpath+'</a>'
     email('villegas.roberto@hotmail.com',msg)
-    email('rodrigo.castillorodriguez@ucr.ac.cr',msg)
+    #email('rodrigo.castillorodriguez@ucr.ac.cr',msg)
