@@ -26,13 +26,15 @@ def email(you,message,subject='[WARNING]'):
             <head>
                 <style>
                     div#header{
-                        background-color: #005da4
+                        background-color: #005da4;
+                        margin: 0;
         			}
         			div#header img{	
         				padding: 20px;
         			}
         			
         			#content{
+                         margin: 0;
         				background-color: #EEE;
         				padding: 10px;
         				font-family: 'Times New Roman', Georgia, Serif;
