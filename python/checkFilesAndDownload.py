@@ -13,7 +13,7 @@ from urllib2 import urlopen as url
 import hashlib
 import urllib
 from mailsender import email, alert
-import threading, time
+import time#, threading
 
 global ncfile, cont, ncurl, pcont # global variable to be used in dlProgress
     
@@ -32,8 +32,8 @@ def dlProgress(count, blockSize, totalSize):
   
 def downloadFile(savePath,refData):
     try:
-        threadObj = threading.Thread(target=alert)
-        threadObj.start()
+        #threadObj = threading.Thread(target=alert)
+        #threadObj.start()
         print 'Downloading %s file' % (refData['url'])
         nFile= urllib.URLopener()
         nFile.retrieve(refData['url'],savePath,reporthook=dlProgress)
@@ -48,6 +48,7 @@ def downloadFile(savePath,refData):
         email('villegas.roberto@hotmail.com',e,'[ERROR] '+experimentID)
         email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
         return 0
+        
 def reordenarDict(fList,experimentID):
     nDict = {}
     for f in fList.keys():
@@ -154,8 +155,8 @@ for f in fileList.keys():
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
                 fid.close()
-                email('villegas.roberto@hotmail.com',e,'[ERROR] '+experimentID)
-                email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
+                email('villegas.roberto@hotmail.com',str(e),'[ERROR] '+experimentID)
+                email('rodrigo.castillorodriguez@ucr.ac.cr',str(e),'[ERROR] '+experimentID)
     else: # In case the file doesn't exists
         try:
             if downloadFile(ncfile,fileList[f]): # Download the file again
@@ -174,8 +175,8 @@ for f in fileList.keys():
             fid = open('log-'+experimentID+'.txt','a+')
             fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
             fid.close()
-            email('villegas.roberto@hotmail.com',e,'[ERROR] '+experimentID)
-            email('rodrigo.castillorodriguez@ucr.ac.cr',e,'[ERROR] '+experimentID)
+            email('villegas.roberto@hotmail.com',str(e),'[ERROR] '+experimentID)
+            email('rodrigo.castillorodriguez@ucr.ac.cr',str(e),'[ERROR] '+experimentID)
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
     
