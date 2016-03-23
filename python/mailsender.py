@@ -25,26 +25,30 @@ def email(you,message,subject='[WARNING]'):
         <html>
             <head>
                 <style>
-                    body {
-                        background-color: #CCC;
-                        padding: 10px;
-                        font-family: 'Times New Roman', Georgia, Serif;
-                    }
-                    
-                    h1 {
-                        color: maroon;
-                        margin-left: 40px;
-                    } 
-                    </style>              
+                    div#header{
+                        background-color: #005da4
+        			}
+        			div#header img{	
+        				padding: 20px;
+        			}
+        			
+        			#content{
+        				background-color: #EEE;
+        				padding: 10px;
+        				font-family: 'Times New Roman', Georgia, Serif;
+        			}
+                    </style>                  
             </head>
             <body>
-                <div style='background: #005da4'>
+                <div id='header'>
                     <img src='http://sedeguanacaste.ucr.ac.cr/images/logo-cigefi-ucr-v1-med.png' />
                 </div>
+                <div id='content'>
                 <p>"""
     html += message
     html += """
                 </p>
+                </div>
             </body>
         </html>"""
     

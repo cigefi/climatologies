@@ -15,7 +15,7 @@ import urllib
 from mailsender import email
 
 global RECEIPT # global variable to be used in dlProgress
-RECEIPT = 'roberto.villegas@ucr.ac.cr'#;rodrigo.castillorodriguez@ucr.ac.cr'
+RECEIPT = 'roberto.villegas@ucr.ac.cr;rodrigo.castillorodriguez@ucr.ac.cr'
 def cargar(ruta):
     f = open(ruta)
     return json.load(f)
