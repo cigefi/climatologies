@@ -47,7 +47,14 @@ def downloadFile(savePath,refData):
         fid.close()
         email(RECEIPT,e,'[ERROR] '+experimentID)
         return 0
-        
+
+def md5(fname):
+    hash_md5 = hashlib.md5()
+    with open(fname, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+    
 def reordenarDict(fList,experimentID):
     nDict = {}
     for f in fList.keys():
@@ -119,7 +126,7 @@ for f in fileList.keys():
     if os.path.exists(ncfile):
         pFiles += 1
         md5O = fileList[f]['md5']
-        md5F = hashlib.md5(open(ncfile,'rb').read()).hexdigest()
+        md5F = md5(ncfile)#hashlib.md5(open(ncfile,'rb').read()).hexdigest()
         pcont = cont
         #to = threading.Thread(target=tcontrol,name='tcontrol',args=(), kwargs={}) 
         #to.start() # Start control thread
@@ -131,10 +138,18 @@ for f in fileList.keys():
             try:
                 os.remove(ncfile) # Remove the previous file
                 if downloadFile(ncfile,fileList[f]): # Download the file again
-                    fid = open('log-'+experimentID+'.txt','a+')
-                    fid.write('[DOWNLOADED] '+ncfile+'\n')
-                    fid.close()
-                    dFiles += 1
+                    md5F = md5(ncfile)
+                    if md5O == md5F:
+                        fid = open('log-'+experimentID+'.txt','a+')
+                        fid.write('[DOWNLOADED] '+ncfile+'\n')
+                        fid.close()
+                        dFiles += 1
+                    else:
+                        eFiles += 1
+                        eFList += '<li><a href=\''+fileList[f]['url']+'\'>'+ncfile+'</a></li>'
+                        fid = open('log-'+experimentID+'.txt','a+')
+                        fid.write('[ERROR] '+ncfile+' Cannot download the file\n')
+                        fid.close()
                 else:
                     eFiles += 1
                     eFList += '<li><a href=\''+fileList[f]['url']+'\'>'+ncfile+'</a></li>'
