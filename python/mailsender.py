@@ -43,7 +43,7 @@ def email(you,message,subject='[WARNING]'):
             </head>
             <body>
                 <div id='header'>
-                    <img src='http://sedeguanacaste.ucr.ac.cr/images/logo-cigefi-ucr-v1-med.png' />
+                    <img alt='CIGEFI' src='http://sedeguanacaste.ucr.ac.cr/images/logo-cigefi-ucr-v1-med.png' />
                 </div>
                 <div id='content'>
                 <p>"""
