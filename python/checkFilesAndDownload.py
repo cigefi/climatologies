@@ -61,8 +61,6 @@ def reordenarDict(fList,experimentID):
             tmp['experiment_name'] = experimentName
             tmp['url'] = f
             nDict[experimentName+'/'+fList[f]['variable']+'_day/'+fList[f]['year']+'.nc'] = tmp
-        #fList[f] = tmp
-    #return fList
     return nDict
 
 def tcontrol():
@@ -78,21 +76,17 @@ def tcontrol():
         alert(ncfile,ncurl)
     #print 'Threat finished'
         
-if len(sys.argv) < 2:
-    # Fix path's
-    dirName = os.getcwd().replace('\\','/')
-    experimentID = 'historical'
-    fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'    
-elif len(sys.argv) < 3:
+# Fix path's
+dirName = os.getcwd().replace('\\','/')
+experimentID = 'historical'
+fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'    
+if len(sys.argv) < 3:
     # Fix path's
     dirName = sys.argv[1].replace('\\','/')
-    experimentID = 'historical'
-    fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'
 elif len(sys.argv) < 4:
     # Fix path's
     dirName = sys.argv[1].replace('\\','/')
     experimentID = sys.argv[2]
-    fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'
 elif len(sys.argv) < 5:
     # Fix path's
     dirName = sys.argv[1].replace('\\','/')
@@ -179,14 +173,6 @@ for f in fileList.keys():
             email('rodrigo.castillorodriguez@ucr.ac.cr',str(e),'[ERROR] '+experimentID)
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
-    
-    #if cont%3000 == 0:
-        #print 'Start ruin the world'
-        #pcont = cont
-        #to = threading.Thread(target=ttest05)
-        #to.start()
-        #time.sleep(4)
-        #print 'World ruined'
     cont += 1
 eFList = '</ul>'
 msg = 'The execution has been finished, stats: <br /><ul>'
