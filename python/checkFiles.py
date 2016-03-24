@@ -118,6 +118,7 @@ email('roberto.villegas@ucr.ac.cr',msg0,'[UPDATE] '+experimentID)
 for f in fileList.keys():
     ncfile = dirName+f
     if os.path.exists(ncfile):
+        pFiles += 1
         md5O = fileList[f]['md5']
         md5F = md5(ncfile)#hashlib.md5(open(ncfile,'rb').read()).hexdigest()
         if md5O != md5F:
