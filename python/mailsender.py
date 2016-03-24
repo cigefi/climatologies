@@ -32,13 +32,14 @@ def email(you,message,subject='[WARNING]',attachment=None):
                         margin: 0;
         			}
         			div#header img{	
-        				padding: 20px;
+        				padding: 10px 20px;
         			}
         			
         			#content{
                          margin: 0;
         				background-color: #EEE;
         				padding: 10px;
+                         font-size: 14pt;
         				font-family: 'Times New Roman', Georgia, Serif;
         			}
                     </style>                  
