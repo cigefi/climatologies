@@ -14,6 +14,7 @@ import hashlib
 import urllib
 from mailsender import email, alert
 import time#, threading
+import requests
 
 global ncfile, cont, ncurl, pcont, RECEIPT # global variable to be used in dlProgress
 RECEIPT = 'roberto.villegas@ucr.ac.cr'#;rodrigo.castillorodriguez@ucr.ac.cr'
@@ -35,9 +36,9 @@ def downloadFile(savePath,refData):
         #threadObj = threading.Thread(target=alert)
         #threadObj.start()
         print 'Downloading %s file' % (refData['url'])
-        urllib.urlretrieve(refData['url'],savePath)
-        #nFile= urllib.URLopener()
-        #nFile.retrieve(refData['url'],savePath,reporthook=dlProgress)
+        #urllib.urlretrieve(refData['url'],savePath)
+        nFile= urllib.URLopener()
+        nFile.retrieve(refData['url'],savePath,reporthook=dlProgress)
         print '\nFile successfully downloaded'
         return 1
     except:
@@ -46,7 +47,34 @@ def downloadFile(savePath,refData):
         fid = open('log-'+experimentID+'.txt','a+')
         fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
         fid.close()
-        email(RECEIPT,e,'[ERROR] '+experimentID)
+        email(RECEIPT,str(e),'[ERROR] '+experimentID)
+        return 0
+        
+def downloadFile2(savePath,url):
+    # NOTE the stream=True parameter
+    blockSize = 1024
+    try:
+        h = requests.head(url)
+        h = h.headers
+        totalSize = int(h['Content-Length'])
+        count = 1
+        r = requests.get(url, stream=True)
+        with open(savePath, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=blockSize):
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+                percent = int(count*blockSize*100/totalSize)
+                sys.stdout.write("\rDownloading ... %d%%" % percent)
+                sys.stdout.flush()
+                count += 1
+        return 1
+    except:
+        e = sys.exc_info()[0]
+        print '[ERROR] Cannot download the file'
+        fid = open('log-'+experimentID+'.txt','a+')
+        fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
+        fid.close()
+        email(RECEIPT,str(e),'[ERROR] '+experimentID)
         return 0
 
 def md5(fname):
@@ -74,7 +102,6 @@ def tcontrol():
     TIME = 2700 # Waits in the background for 45 minutes until send a warning
     t = 0
     while (pcont == cont) and t < TIME:
-        #print 'cont: %d - pcont %d - time: %d s'%(cont,pcont,t)
         time.sleep(1)
         t += 1
     t += 1
@@ -138,7 +165,7 @@ for f in fileList.keys():
             print '[% s] %s' %('CORRUPTED',ncfile)
             try:
                 os.remove(ncfile) # Remove the previous file
-                if downloadFile(ncfile,fileList[f]): # Download the file again
+                if downloadFile2(ncfile,fileList[f]['url']): # Download the file again
                     md5F = md5(ncfile)
                     if md5O == md5F:
                         fid = open('log-'+experimentID+'.txt','a+')
@@ -165,17 +192,23 @@ for f in fileList.keys():
                 email(RECEIPT,str(e),'[ERROR] '+experimentID)
     else: # In case the file doesn't exists
         try:
-            if 0 > 1:
-            #if downloadFile(ncfile,fileList[f]): # Download the file again
-                fid = open('log-'+experimentID+'.txt','a+')
-                fid.write('[DOWNLOADED] '+ncfile+'\n')
-                fid.close()
-                dFiles += 1
+            if downloadFile2(ncfile,fileList[f]['url']): # Download the file again
+                md5F = md5(ncfile)
+                if md5O == md5F:
+                    fid = open('log-'+experimentID+'.txt','a+')
+                    fid.write('[DOWNLOADED] '+ncfile+'\n')
+                    fid.close()
+                    dFiles += 1
+                else:
+                    eFiles += 1
+                    eFList += '<li><a href=\''+fileList[f]['url']+'\'>'+ncfile+'</a></li>'
+                    fid = open('log-'+experimentID+'.txt','a+')
+                    fid.write('[ERROR] '+ncfile+' Cannot download the file\n')
+                    fid.close()
             else:
                 eFiles += 1
                 eFList += '<li><a href=\''+fileList[f]['url']+'\'>'+ncfile+'</a></li>'
             
-            a = 1/0
         except:
             eFiles += 1
             eFList += '<li>'+fileList[f]['url']+'</li>'
@@ -194,4 +227,4 @@ msg += '<li>Total files: '+str(cont)+'</li>'
 msg += '<li>Processed files: '+str(pFiles)+'</li>'
 msg += '<li>Downloaded files: '+str(dFiles)+'</li>'
 msg += '<li>Non-processed files: '+str(eFiles)+'<br />'+eFList+'</li></ul>'
-email(RECEIPT,msg,'[FINISHED] '+experimentID)
+email(RECEIPT,msg,'[FINISHED] '+experimentID,'corruptedFiles-'+experimentID+'.txt')

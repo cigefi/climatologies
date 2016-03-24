@@ -8,10 +8,12 @@ Created on Wed Mar 16 12:12:13 2016
 
 import smtplib
 
+from os.path import basename
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-def email(you,message,subject='[WARNING]'):
+def email(you,message,subject='[WARNING]',attachment=None):
     me = "cigefi.ucr.dev@gmail.com"
     # Create message container - the correct MIME type is multipart/alternative.
     msg = MIMEMultipart('alternative')
@@ -54,8 +56,15 @@ def email(you,message,subject='[WARNING]'):
             </body>
         </html>"""
     
-    part1 = MIMEText(html, 'html')
+    part1 = MIMEText(html, 'html')    
     msg.attach(part1)
+    if attachment != None:
+        f = open(attachment, 'rb')
+        msg.attach(MIMEApplication(
+            f.read(),
+            Content_Disposition='attachment; filename="%s"' % basename(attachment),
+            Name=basename(attachment)
+        ))
     try:
         s = smtplib.SMTP('smtp.gmail.com', 587)
         s.starttls()

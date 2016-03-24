@@ -13,6 +13,7 @@ from urllib2 import urlopen as url
 import hashlib
 import urllib
 from mailsender import email
+import requests
 
 global RECEIPT # global variable to be used in dlProgress
 RECEIPT = 'roberto.villegas@ucr.ac.cr;rodrigo.castillorodriguez@ucr.ac.cr'
@@ -33,6 +34,26 @@ def downloadFile(savePath,refData):
     except:
         print '[ERROR] Cannot download the file'
 
+def downloadFile2(savePath,url):
+    # NOTE the stream=True parameter
+    try:
+        print 'Downloading %s file' % (url)
+        r = requests.get(url, stream=True)
+        with open(savePath, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024): 
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+        print '\nFile successfully downloaded'
+        return 1
+    except:
+        e = sys.exc_info()[0]
+        print '[ERROR] Cannot download the file'
+        fid = open('log-'+experimentID+'.txt','a+')
+        fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
+        fid.close()
+        email(RECEIPT,str(e),'[ERROR] '+experimentID)
+        return 0
+    
 def md5(fname):
     hash_md5 = hashlib.md5()
     with open(fname, 'rb') as f:
@@ -54,21 +75,17 @@ def reordenarDict(fList,experimentID):
             nDict[experimentName+'/'+fList[f]['variable']+'_day/'+fList[f]['year']+'.nc'] = tmp
     return nDict
 
-if len(sys.argv) < 2:
-    # Fix path's
-    dirName = os.getcwd().replace('\\','/')
-    experimentID = 'historical'
-    fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'    
-elif len(sys.argv) < 3:
+# Fix path's
+dirName = os.getcwd().replace('\\','/')
+experimentID = 'historical'
+fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'    
+if len(sys.argv) < 3:
     # Fix path's
     dirName = sys.argv[1].replace('\\','/')
-    experimentID = 'historical'
-    fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'
 elif len(sys.argv) < 4:
     # Fix path's
     dirName = sys.argv[1].replace('\\','/')
     experimentID = sys.argv[2]
-    fullDataList = 'https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'
 elif len(sys.argv) < 5:
     # Fix path's
     dirName = sys.argv[1].replace('\\','/')
@@ -109,9 +126,8 @@ for f in fileList.keys():
             fid.close()
             print '[% s] %s' %('CORRUPTED',ncfile)
             try:
-                os.remove(ncfile)
+                os.remove(ncfile) # Remove previous file
                 dFiles += 1
-                #downloadFile(f,fileList[f])
             except:
                 print 'Previous file was not removed'
                 eFiles += 1
@@ -129,6 +145,6 @@ eFList += '</ul>'
 msg = 'The execution has been finished, stats: <br /><ul>'
 msg += '<li>Total files: '+str(cont)+'</li>'
 msg += '<li>Processed files: '+str(pFiles)+'</li>'
-msg += '<li>Downloaded files: '+str(dFiles)+'</li>'
+msg += '<li>Corrupted files: '+str(dFiles)+'</li>'
 msg += '<li>Non-processed files: '+str(eFiles)+'<br />'+eFList+'</li></ul>'
-email(RECEIPT,msg,'[FINISHED] '+experimentID)
+email(RECEIPT,msg,'[FINISHED] '+experimentID,'corruptedFiles-'+experimentID+'.txt')
