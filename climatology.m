@@ -160,7 +160,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
                     fclose(fid);
                 end
-                mailError(type,var2Read,char(experimentName),char(exception.message));
+                %mailError(type,var2Read,char(experimentName),char(exception.message));
                 continue;
             end
         else
@@ -271,7 +271,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
-            mailError('daily',var2Read,'',char(err));
+            %mailError('daily',var2Read,'',char(err));
             return;
         end
         out = mean(scale.*data,1);
@@ -290,7 +290,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
-        mailError('daily',var2Read,'',char(exception.message));
+        %mailError('daily',var2Read,'',char(exception.message));
         disp(exception.message);
     end
 end
@@ -305,7 +305,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,~)%monthsNa
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
-            mailError('monthly',var2Read,'',char(err));
+            %mailError('monthly',var2Read,'',char(err));
             return;
         end
         data = scale.*data;
@@ -336,7 +336,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,~)%monthsNa
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
-        mailError('monthly',var2Read,'',char(exception.message));
+        %mailError('monthly',var2Read,'',char(exception.message));
     end
 end
 
@@ -355,7 +355,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,~)
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
                 fclose(fid);
-                mailError('monthly',var2Read,'',char(err));
+                %mailError('monthly',var2Read,'',char(err));
                 return;
             end            
             [maxd,err] = readNC(fileT2,'tasmax');
@@ -405,7 +405,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,~)
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         end
         fclose(fid);
-        mailError('monthly',var2Read,'',char(exception.message));
+        %mailError('monthly',var2Read,'',char(exception.message));
     end
 end
 
@@ -419,7 +419,7 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
-            mailError('seasonal',var2Read,'',char(err));
+            %mailError('seasonal',var2Read,'',char(err));
             return;
         end
         data = scale.*data;
@@ -462,7 +462,7 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
-        mailError('seasonal',var2Read,'',char(exception.message));
+        %mailError('seasonal',var2Read,'',char(exception.message));
     end
 end
 
@@ -481,7 +481,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
                 fclose(fid);
-                mailError('seasonal',var2Read,'',char(err));
+                %mailError('seasonal',var2Read,'',char(err));
                 return;
             end            
             [maxd,err] = readNC(fileT2,'tasmax');
@@ -546,7 +546,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         end
         fclose(fid);
-        mailError('seasonal',var2Read,'',char(exception.message));
+        %mailError('seasonal',var2Read,'',char(exception.message));
     end
 end
 
@@ -565,7 +565,7 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
                 fclose(fid);
-                mailError('daily',var2Read,'',char(err));
+                %mailError('daily',var2Read,'',char(err));
                 return;
             end            
             [maxd,err] = readNC(fileT2,'tasmax');
@@ -604,7 +604,7 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         end
         fclose(fid);
-        mailError('daily',var2Read,'',char(exception.message));
+        %mailError('daily',var2Read,'',char(exception.message));
     end
 end
 
@@ -647,7 +647,7 @@ function [] = PlotData(data2D,label,path,name)
         disp(exception.message);
         close(f);
         disp('Map not saved');
-        mailError('','','',char(exception.message));
+        %mailError('','','',char(exception.message));
     end
 end
 
