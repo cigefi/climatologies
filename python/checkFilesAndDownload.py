@@ -12,7 +12,7 @@ import sys
 from urllib2 import urlopen as url
 import hashlib
 import urllib
-from mailsender import email, alert
+from mailsender import alert#, email
 import time#, threading
 import requests
 
@@ -47,7 +47,7 @@ def downloadFile(savePath,refData):
         fid = open('log-'+experimentID+'.txt','a+')
         fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
         fid.close()
-        email(RECEIPT,str(e),'[ERROR] '+experimentID)
+        #email(RECEIPT,str(e),'[ERROR] '+experimentID)
         return 0
         
 def downloadFile2(savePath,url):
@@ -74,7 +74,7 @@ def downloadFile2(savePath,url):
         fid = open('log-'+experimentID+'.txt','a+')
         fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
         fid.close()
-        email(RECEIPT,str(e),'[ERROR] '+experimentID)
+        #email(RECEIPT,str(e),'[ERROR] '+experimentID)
         return 0
 
 def md5(fname):
@@ -147,7 +147,7 @@ msg0 += '<br />Details:<br /><ul>'
 msg0 += '<li>dirName: '+dirName+'</li>'
 msg0 += '<li>experimentID: '+experimentID+'</li>'
 msg0 += '</ul>'
-email('roberto.villegas@ucr.ac.cr',msg0,'[UPDATE] '+experimentID)
+#email('roberto.villegas@ucr.ac.cr',msg0,'[UPDATE] '+experimentID)
 for f in fileList.keys():
     ncfile = dirName+f
     ncurl = fileList[f]['url']
@@ -189,7 +189,7 @@ for f in fileList.keys():
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
                 fid.close()
-                email(RECEIPT,str(e),'[ERROR] '+experimentID)
+                #email(RECEIPT,str(e),'[ERROR] '+experimentID)
     else: # In case the file doesn't exists
         try:
             if downloadFile2(ncfile,fileList[f]['url']): # Download the file again
@@ -217,7 +217,7 @@ for f in fileList.keys():
             fid = open('log-'+experimentID+'.txt','a+')
             fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
             fid.close()
-            email(RECEIPT,str(e),'[ERROR] '+experimentID)
+            #email(RECEIPT,str(e),'[ERROR] '+experimentID)
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
     cont += 1
@@ -227,4 +227,4 @@ msg += '<li>Total files: '+str(cont)+'</li>'
 msg += '<li>Processed files: '+str(pFiles)+'</li>'
 msg += '<li>Downloaded files: '+str(dFiles)+'</li>'
 msg += '<li>Non-processed files: '+str(eFiles)+'<br />'+eFList+'</li></ul>'
-email(RECEIPT,msg,'[FINISHED] '+experimentID,'corruptedFiles-'+experimentID+'.txt')
+#email(RECEIPT,msg,'[FINISHED] '+experimentID,'corruptedFiles-'+experimentID+'.txt')

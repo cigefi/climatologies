@@ -12,7 +12,7 @@ import sys
 from urllib2 import urlopen as url
 import hashlib
 import urllib
-from mailsender import email
+#from mailsender import email
 import requests
 
 global RECEIPT # global variable to be used in dlProgress
@@ -51,7 +51,7 @@ def downloadFile2(savePath,url):
         fid = open('log-'+experimentID+'.txt','a+')
         fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
         fid.close()
-        email(RECEIPT,str(e),'[ERROR] '+experimentID)
+        #email(RECEIPT,str(e),'[ERROR] '+experimentID)
         return 0
     
 def md5(fname):
@@ -114,7 +114,7 @@ msg0 += '<br />Details:<br /><ul>'
 msg0 += '<li>dirName: '+dirName+'</li>'
 msg0 += '<li>experimentID: '+experimentID+'</li>'
 msg0 += '</ul>'
-email('roberto.villegas@ucr.ac.cr',msg0,'[UPDATE] '+experimentID)
+#email('roberto.villegas@ucr.ac.cr',msg0,'[UPDATE] '+experimentID)
 for f in fileList.keys():
     ncfile = dirName+f
     if os.path.exists(ncfile):
@@ -138,7 +138,7 @@ for f in fileList.keys():
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
                 fid.close()
-                email(RECEIPT,str(e),'[ERROR] '+experimentID)
+                #email(RECEIPT,str(e),'[ERROR] '+experimentID)
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
     cont += 1
@@ -148,4 +148,4 @@ msg += '<li>Total files: '+str(cont)+'</li>'
 msg += '<li>Processed files: '+str(pFiles)+'</li>'
 msg += '<li>Corrupted files: '+str(dFiles)+'</li>'
 msg += '<li>Non-processed files: '+str(eFiles)+'<br />'+eFList+'</li></ul>'
-email(RECEIPT,msg,'[FINISHED] '+experimentID,'corruptedFiles-'+experimentID+'.txt')
+#email(RECEIPT,msg,'[FINISHED] '+experimentID,'corruptedFiles-'+experimentID+'.txt')
