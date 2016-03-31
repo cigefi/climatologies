@@ -13,7 +13,7 @@ from urllib2 import urlopen as url
 import hashlib
 import urllib
 #from mailsender import email
-import requests
+#import requests
 
 global RECEIPT # global variable to be used in dlProgress
 RECEIPT = 'roberto.villegas@ucr.ac.cr;rodrigo.castillorodriguez@ucr.ac.cr'
@@ -38,12 +38,12 @@ def downloadFile2(savePath,url):
     # NOTE the stream=True parameter
     try:
         print 'Downloading %s file' % (url)
-        r = requests.get(url, stream=True)
-        with open(savePath, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024): 
-                if chunk: # filter out keep-alive new chunks
-                    f.write(chunk)
-        print '\nFile successfully downloaded'
+        #r = requests.get(url, stream=True)
+        #with open(savePath, 'wb') as f:
+        #    for chunk in r.iter_content(chunk_size=1024): 
+        #        if chunk: # filter out keep-alive new chunks
+        #            f.write(chunk)
+        #print '\nFile successfully downloaded'
         return 1
     except:
         e = sys.exc_info()[0]
