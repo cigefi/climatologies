@@ -60,6 +60,16 @@ def md5(fname):
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+def md5v2(fname):
+    BLOCKSIZE = 4096
+    hasher = hashlib.md5()
+    with open(fname, 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = afile.read(BLOCKSIZE)
+    return hasher.hexdigest()
     
 def reordenarDict(fList,experimentID):
     nDict = {}
@@ -121,12 +131,13 @@ for f in fileList.keys():
         pFiles += 1
         md5O = fileList[f]['md5']
         #md5F = md5(ncfile)#hashlib.md5(open(ncfile,'rb').read()).hexdigest()
-        md5F = hashlib.md5(open(ncfile,'rb').read()).hexdigest()
+        #md5F = hashlib.md5(open(ncfile,'rb').read()).hexdigest()
+        md5F = md5v2(ncfile)
         if md5O != md5F:
             fid = open('corruptedFiles-'+experimentID+'.txt', 'a+')
             fid.write(fileList[f]['url']+'\n')
             fid.close()
-            print '[% s] %s \n MD5(json): %s MD5(file): %s' %('CORRUPTED',ncfile,md5O,md5F)
+            print '[% s] %s \n MD5(json): %s    MD5(file): %s' %('CORRUPTED',ncfile,md5O,md5F)
             try:
                 #os.remove(ncfile) # Remove previous file
                 dFiles += 1
