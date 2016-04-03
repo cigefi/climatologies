@@ -160,6 +160,7 @@ try:
 except:
     print str(sys.exc_info()[0])
 eFList += '</ul>'
+print 'Total files: %d\nProcessed files: %d\nCorrupted files: %d\nNon-processed files: %d' %(cont,pFiles,dFiles,eFiles)
 msg = 'The execution has been finished, stats: <br /><ul>'
 msg += '<li>Total files: '+str(cont)+'</li>'
 msg += '<li>Processed files: '+str(pFiles)+'</li>'
