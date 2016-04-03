@@ -120,14 +120,15 @@ for f in fileList.keys():
     if os.path.exists(ncfile):
         pFiles += 1
         md5O = fileList[f]['md5']
-        md5F = md5(ncfile)#hashlib.md5(open(ncfile,'rb').read()).hexdigest()
+        #md5F = md5(ncfile)#hashlib.md5(open(ncfile,'rb').read()).hexdigest()
+        md5F = hashlib.md5(open(ncfile,'rb').read()).hexdigest()
         if md5O != md5F:
             fid = open('corruptedFiles-'+experimentID+'.txt', 'a+')
             fid.write(fileList[f]['url']+'\n')
             fid.close()
-            print '[% s] %s' %('CORRUPTED',ncfile)
+            print '[% s] %s \n MD5(json): %s MD5(file): %s' %('CORRUPTED',ncfile,md5O,md5F)
             try:
-                os.remove(ncfile) # Remove previous file
+                #os.remove(ncfile) # Remove previous file
                 dFiles += 1
             except:
                 print 'Previous file was not removed'
