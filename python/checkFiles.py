@@ -141,6 +141,7 @@ for f in fileList.keys():
             try:
                 #os.remove(ncfile) # Remove previous file
                 dFiles += 1
+                fileList.pop(f) # Remove current file
             except:
                 print 'Previous file was not removed'
                 eFiles += 1
@@ -154,6 +155,10 @@ for f in fileList.keys():
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
     cont += 1
+try:
+    json.dump(fileList,open(fullDataList,'w+'))
+except:
+    print str(sys.exc_info()[0])
 eFList += '</ul>'
 msg = 'The execution has been finished, stats: <br /><ul>'
 msg += '<li>Total files: '+str(cont)+'</li>'
