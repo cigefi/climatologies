@@ -158,7 +158,6 @@ for f in fileList.keys():
             try:
                 #os.remove(ncfile) # Remove previous file
                 dFiles += 1
-                fileList.pop(f) # Remove current file
             except:
                 print 'Previous file was not removed'
                 eFiles += 1
@@ -168,6 +167,8 @@ for f in fileList.keys():
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
                 fid.close()
+        else:
+            fileList.pop(f) # Remove current file
     else:
         print 'File not found %s' %ncfile
                 #email(RECEIPT,str(e),'[ERROR] '+experimentID)
