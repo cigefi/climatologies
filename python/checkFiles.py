@@ -164,6 +164,8 @@ for f in fileList.keys():
                 fid = open('log-'+experimentID+'.txt','a+')
                 fid.write('[ERROR] '+ncfile+' '+str(e)+'\n\n')
                 fid.close()
+    else:
+        print 'File not found %s' %ncfile
                 #email(RECEIPT,str(e),'[ERROR] '+experimentID)
     if cont%100 == 0:
         print '%d checked files of %d' %(cont,len(fileList.keys()))
