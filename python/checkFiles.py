@@ -29,7 +29,11 @@ def checkDict(fullDict,partialDict):
     for i in fullDict:
         for j in partialDict:
             if partialDict[j]['md5'] == fullDict[i]['md5']:
-                partialDict[fullDict[i]['experiment_name']+j] = partialDict.pop(j) 
+                tmp = partialDict[j]
+                tmp['experiment_name'] = fullDict[i]['experiment_name']
+                tmp['url'] = fullDict[i]['url']
+                partialDict.pop(j)
+                partialDict[fullDict[i]['experiment_name']+j] =  tmp
                 break
     return partialDict
     
