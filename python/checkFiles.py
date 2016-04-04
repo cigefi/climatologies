@@ -25,6 +25,14 @@ def cargarURL(ruta):
     f = url(ruta)
     return json.load(f)
 
+def checkDict(fullDict,partialDict):
+    for i in fullDict:
+        for j in partialDict:
+            if partialDict[j]['md5'] == fullDict[i]['md5']:
+                partialDict[fullDict[i]['experiment_name']+j] = partialDict.pop(j) 
+                break
+    return partialDict
+    
 def downloadFile(savePath,refData):
     try:
         print 'Downloading %s file' % (refData['url'])
@@ -78,6 +86,7 @@ def reordenarDict(fList,experimentID):
             try:
                 experimentName = f.split('/')[-1].split('_day_')[-1].split('.nc')[0][0:-5]
             except:
+                print str(sys.exc_info()[0])
                 experimentName = ''
             tmp = fList[f]
             tmp['experiment_name'] = experimentName
@@ -101,7 +110,6 @@ elif len(sys.argv) < 5:
     dirName = sys.argv[1].replace('\\','/')
     experimentID = sys.argv[2]
     fullDataList = sys.argv[3]
-    
 if not dirName.endswith('/'):
     dirName += '/'
     
@@ -109,6 +117,11 @@ if len(sys.argv) < 4:
     fileList = reordenarDict(cargarURL(fullDataList),experimentID)
 else:
     fileList = reordenarDict(cargar(fullDataList),experimentID)
+
+fullDict = reordenarDict(cargarURL('https://nex.nasa.gov/nex/static/media/dataset/nex-gddp-s3-files.json'),experimentID)
+if len(fileList.keys()) < len(fullDict.keys()):
+    fileList = checkDict(fullDict,fileList) # check the dictionary
+    
 try:
     os.remove('log-'+experimentID+'.txt')
     os.remove('corruptedFiles-'+experimentID+'.txt')
