@@ -113,17 +113,17 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                             switch var2Read
                                 case 'pr'
                                     newYear = readFile(fileT,var2Read,yearC,logPath);
-                                    %out = mean(cat(1,out,readFile(fileT,var2Read,yearC,logPath)),1);
+                                    %out = nanmean(cat(1,out,readFile(fileT,var2Read,yearC,logPath)),1);
                                 case 'tasmin'
                                     newYear = readFileTemp(fileT,var2Read,yearC,logPath);
-                                    %out = mean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
+                                    %out = nanmean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
                             end
                             if isempty(out)
                                 out = newYear;
                             else
-                                out = mean(cat(1,out,newYear),1);
+                                out = nanmean(cat(1,out,newYear),1);
                             end
-                            %out = mean(cat(3,out,newYear),3);
+                            %out = nanmean(cat(3,out,newYear),3);
                         case 'monthly'
                             switch var2Read
                                 case 'pr'
@@ -274,8 +274,8 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
             %mailError('daily',var2Read,'',char(err));
             return;
         end
-        out = mean(scale.*data,1);
-        %out = mean(scale.*data,3).';%1);
+        out = nanmean(scale.*data,1);
+        %out = nanmean(scale.*data,3).';%1);
         try
             clear data;
         catch
@@ -319,7 +319,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,~)%monthsNa
             else
                 lPos = months(m) + fPos - 1;
             end
-            out = cat(1,out,mean(data(fPos:lPos,:,:),1));
+            out = cat(1,out,nanmean(data(fPos:lPos,:,:),1));
             %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
         end
         disp(strcat('Data saved: ',{' '},num2str(yearC)));
@@ -380,7 +380,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,~)
                 tMin = mind(fPos:lPos,:,:);
                 tMax = maxd(fPos:lPos,:,:);
                 data = (tMin+tMax)/2;
-                out = cat(1,out,mean(data-scale,1));
+                out = cat(1,out,nanmean(data-scale,1));
                 %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
             end
             disp(strcat('Data saved: ',{' '},num2str(yearC)));
@@ -446,11 +446,11 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
             else
                 nSeason = data(fPos:lPos,:,:);
             end
-            out = cat(1,out,mean(nSeason,1));
+            out = cat(1,out,nanmean(nSeason,1));
             %disp(strcat('Data saved: ',seasonsName(s),{' - '},num2str(yearC)));
         end
         fPos = lPos + 1;
-        lastDecember = mean(data(fPos:days,:,:),1);
+        lastDecember = nanmean(data(fPos:days,:,:),1);
         disp(strcat('Data saved: ',{' '},num2str(yearC)));
         clear data;
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -517,11 +517,11 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                 else
                     nSeason = data(fPos:lPos,:,:);
                 end
-                out = cat(1,out,mean(nSeason,1));
+                out = cat(1,out,nanmean(nSeason,1));
                 %disp(strcat('Data saved: ',seasonsName(s),{' - '},num2str(yearC)));
             end
             fPos = lPos + 1;
-            lastDecember = mean(data(fPos:days,:,:),1);
+            lastDecember = nanmean(data(fPos:days,:,:),1);
             disp(strcat('Data saved: ',{' '},num2str(yearC)));
             varlist = {'mind','maxd','data'};
             clear(varlist{:});
@@ -577,7 +577,7 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
                 return;
             end
             data = (mind+maxd)/2;
-            out = mean(data-scale,1);
+            out = nanmean(data-scale,1);
             disp(strcat('Data saved: ',num2str(yearC)));
             varlist = {'mind','maxd','data'};
        	    try
@@ -654,6 +654,7 @@ end
 function [data,error] = readNC(path,var2Read)
     var2Readid = 99999;
 	error = NaN;
+    missingValue = 1.e+20;
     try
         % Catching data from original file
         ncid = netcdf.open(char(path));%,'NC_NOWRITE');
@@ -666,6 +667,7 @@ function [data,error] = readNC(path,var2Read)
             end
         end
         data = permute(netcdf.getVar(ncid,var2Readid,'double'),[3 2 1]);%ncread(char(fileT),var2Read);
+        data(data==missingValue) = NaN;
         if isempty(data)
             error = 'Empty dataset';
         end
