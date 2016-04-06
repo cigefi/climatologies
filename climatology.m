@@ -195,18 +195,18 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                 out = squeeze(out(1,:,:));
                 fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
                 dlmwrite(char(fileT),out);
-%                 switch(var2Read)
-%                     case 'pr'
-%                         units = 'mm';
-%                         frequency = 'day';
-%                         PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
-%                     case 'tasmin'
-%                         units = '°C';
-%                         frequency = 'day';
-%                         PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
-%                     otherwise
-%                         PlotData(out,'',char(savePath));
-%                 end
+                switch(var2Read)
+                    case 'pr'
+                        units = 'mm';
+                        frequency = 'day';
+                        PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
+                    case 'tasmin'
+                        units = '°C';
+                        frequency = 'day';
+                        PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
+                    otherwise
+                        PlotData(out,'',char(savePath));
+                end
             case 'monthly'
                 for m=1:1:12
                     disp(strcat('Processing',{' '},monthsName(m)));
@@ -263,8 +263,7 @@ end
 
 function [out] = readFile(fileT,var2Read,yearC,logPath)
     try
-        scale = 1;
-        %scale = 84600;
+        scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
         if ~isnan(err)
@@ -272,7 +271,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
-            %mailError('daily',var2Read,'',char(err));
+            mailError('daily',var2Read,'',char(err));
             return;
         end
         out = nanmean(scale.*data,1);
@@ -291,7 +290,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
-        %mailError('daily',var2Read,'',char(exception.message));
+        mailError('daily',var2Read,'',char(exception.message));
         disp(exception.message);
     end
 end
@@ -668,7 +667,7 @@ function [data,error] = readNC(path,var2Read)
             end
         end
         data = permute(netcdf.getVar(ncid,var2Readid,'double'),[3 2 1]);%ncread(char(fileT),var2Read);
-        data(data>=missingValue) = NaN;
+        data(abs(data)>=missingValue) = NaN;
         if isempty(data)
             error = 'Empty dataset';
         end
@@ -686,7 +685,8 @@ function [data,error] = readNC(path,var2Read)
 end
 
 function [] = mailError(type,var2Read,experimentName,msg)
-    RECIPIENTS = {'villegas.roberto@hotmail.com','rodrigo.castillorodriguez@ucr.ac.cr'};
+    %RECIPIENTS = {'villegas.roberto@hotmail.com','rodrigo.castillorodriguez@ucr.ac.cr'};
+    RECIPIENTS = {'villegas.roberto@hotmail.com'};
     subject = strcat({'[MATLAB][ERROR] '},type,{' - '},var2Read,{' - '},experimentName);
     msj = strcat({'An exception has been thrown: '},msg);
     mailsender(RECIPIENTS,subject,msj);
