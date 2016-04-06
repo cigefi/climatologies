@@ -271,7 +271,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
-            mailError('daily',var2Read,'',char(err));
+            %mailError('daily',var2Read,'',char(err));
             return;
         end
         out = nanmean(scale.*data,1);
@@ -290,7 +290,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
-        mailError('daily',var2Read,'',char(exception.message));
+        %mailError('daily',var2Read,'',char(exception.message));
         disp(exception.message);
     end
 end
