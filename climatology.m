@@ -195,18 +195,18 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                 out = squeeze(out(1,:,:));
                 fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
                 dlmwrite(char(fileT),out);
-                switch(var2Read)
-                    case 'pr'
-                        units = 'mm';
-                        frequency = 'day';
-                        PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
-                    case 'tasmin'
-                        units = '°C';
-                        frequency = 'day';
-                        PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
-                    otherwise
-                        PlotData(out,'',char(savePath));
-                end
+%                 switch(var2Read)
+%                     case 'pr'
+%                         units = 'mm';
+%                         frequency = 'day';
+%                         PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
+%                     case 'tasmin'
+%                         units = '°C';
+%                         frequency = 'day';
+%                         PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
+%                     otherwise
+%                         PlotData(out,'',char(savePath));
+%                 end
             case 'monthly'
                 for m=1:1:12
                     disp(strcat('Processing',{' '},monthsName(m)));
@@ -263,7 +263,8 @@ end
 
 function [out] = readFile(fileT,var2Read,yearC,logPath)
     try
-        scale = 84600;
+        scale = 1;
+        %scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
         if ~isnan(err)
@@ -667,7 +668,7 @@ function [data,error] = readNC(path,var2Read)
             end
         end
         data = permute(netcdf.getVar(ncid,var2Readid,'double'),[3 2 1]);%ncread(char(fileT),var2Read);
-        data(data==missingValue) = NaN;
+        data(data>=missingValue) = NaN;
         if isempty(data)
             error = 'Empty dataset';
         end
