@@ -90,6 +90,9 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
             seasonsName = checkSeasons(seasonsName,type(t));
         end
     end
+    if length(seasonsName) < 1
+        seasonsName = {'Winter','Spring','Summer','Fall'};
+    end
     
     path = java.lang.String(dirName(1));
     if(path.charAt(path.length-1) ~= '/')
