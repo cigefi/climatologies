@@ -6,7 +6,7 @@
 %            climatology(dirName)
 %
 % dirName = Path of the directory that contents the files and path for the
-% processing files (cell array)
+% processed files (cell array)
 % type (Recommended) = Variable to specify the type of climatology: daily,
 % monthly, seasonal. Default value 'daily'. (string)
 % var2Read (Recommended)= Variable to be read (use 'ncdump' to check the
