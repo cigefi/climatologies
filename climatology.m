@@ -21,7 +21,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     end 
     switch nargin
         case 1 % Validates if the type param is received
-            type = 'daily';
+            type = {'daily'};
             temp = java.lang.String(dirName(1)).split('/');
             temp = temp(end).split('_');
             var2Read = char(temp(1)); % Default value is taken from the path
@@ -39,6 +39,41 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
         case 4 % Validates if the yearN param is received
             yearN = 0;
     end
+    ttype = char(lower(type(1)));
+    switch ttype
+        case 'jan'
+            ttype = 'monthly';
+        case 'feb'
+            ttype = 'monthly';
+        case 'mar'
+            ttype = 'monthly';
+        case 'apr'
+            ttype = 'monthly';
+        case 'may'
+            ttype = 'monthly';
+        case 'jun'
+            ttype = 'monthly';
+        case 'jul'
+            ttype = 'monthly';
+        case 'aug'
+            ttype = 'monthly';
+        case 'sep'
+            ttype = 'monthly';
+        case 'oct'
+            ttype = 'monthly';
+        case 'nov'
+            ttype = 'monthly';
+        case 'dec'
+            ttype = 'monthly';
+        case 'sum'
+            ttype = 'seasonal';
+        case 'win'
+            ttype = 'seasonal';
+        case 'spr'
+            ttype = 'seasonal';
+        case 'fal'
+            ttype = 'seasonal';
+    end
     
     if(yearZero > yearN) % Validates if the yearZero is higher than yearN
         yearTemp = yearZero;
@@ -48,7 +83,14 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     dirData = dir(char(dirName(1)));  % Get the data for the current directory
     months = [31,28,31,30,31,30,31,31,30,31,30,31]; % Reference to the number of days per month
     monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
-    seasonsName = {'Winter','Spring','Summer','Fall'};
+    %seasonsName = {'Winter','Spring','Summer','Fall'};
+    seasonsName = {};
+    for t=1:1:length(type)
+        if strcmp(ttype,'seasonal')
+            seasonsName = checkSeasons(seasonsName,type(t));
+        end
+    end
+    
     path = java.lang.String(dirName(1));
     if(path.charAt(path.length-1) ~= '/')
         path = path.concat('/');
@@ -108,7 +150,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         end
                     end
                     % Subrutine to writte the data in new Netcdf file
-                    switch type
+                    switch ttype
                         case 'daily'
                             switch var2Read
                                 case 'pr'
@@ -190,7 +232,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
         if ~exist(char(savePath),'dir')
             mkdir(char(savePath));
         end
-        switch type
+        switch ttype
             case 'daily'
                 out = squeeze(out(1,:,:));
                 fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
@@ -208,7 +250,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         PlotData(out,'',char(savePath));
                 end
             case 'monthly'
-                for m=1:1:12
+                for m=1:1:length(monthsName)
                     disp(strcat('Processing',{' '},monthsName(m)));
                     currentMonth = squeeze(out(m,:,:));
                     %currentMonth = squeeze(out(:,:,m));
@@ -228,7 +270,20 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     end
                 end
             case 'seasonal'
-                for s=1:1:4
+                keySet =   {'Winter','Spring','Summer','Fall'};
+                valueSet = [1,2,3,4];
+                smap = containers.Map(keySet,valueSet);
+                tmp = [NaN,NaN,NaN,NaN];
+                for i=1:1:length(seasonsName)
+                    tmp(smap(char(seasonsName(i)))) = 1;
+                end
+                seasonsName = [];
+                for i=1:1:length(tmp)
+                    if ~isnan(tmp(i))
+                        seasonsName = cat(1,seasonsName,keySet(i));
+                    end
+                end
+                for s=1:1:length(seasonsName)
                     disp(strcat('Processing',{' '},seasonsName(s)));
                     if(s==1)
                         currentSeason = squeeze(out(s,:,:));
@@ -295,7 +350,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
     end
 end
 
-function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,~)%monthsName)
+function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
     try
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
@@ -312,7 +367,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,~)%monthsNa
         lPos = 0;
         out = [];
         days = length(data(:,1,1));
-        for m=1:1:12
+        for m=1:1:length(monthsName)
             fPos = lPos + 1;
             if(leapyear(yearC)&& m==2 && days==366)
                 lPos = months(m) + fPos; % Leap year
@@ -340,7 +395,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,~)%monthsNa
     end
 end
 
-function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,~)
+function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsName)
     try
         scale = 273.15;
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
@@ -370,7 +425,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,~)
             out = [];
             daysMin = length(mind(:,1,1));
             daysMax = length(maxd(:,1,1));
-            for m=1:1:12
+            for m=1:1:length(monthsName)
                 fPos = lPos + 1;
                 if(leapyear(yearC)&& m==2 && daysMin==366 && daysMax==366)
                     lPos = months(m) + fPos; % Leap year
@@ -409,8 +464,11 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,~)
     end
 end
 
-function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,~,lastDecember)
+function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember)
     try
+        keySet =   {'Winter','Spring','Summer','Fall'};
+        valueSet = [1,2,3,4];
+        smap = containers.Map(keySet,valueSet);
         scale = 84600;
         %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
@@ -427,7 +485,11 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
         out = [];
         season_map = [2 5 8 11];
         days = length(data(:,1,1));
-        for s=1:1:4
+        dPlot = [NaN,NaN,NaN,NaN];
+        for i=1:1:length(seasonsName)
+            dPlot(smap(seasonsName(i))) = 1;
+        end
+        for s=1:1:length(dPlot)
             fPos = lPos + 1;
             if s > 1
                 init = season_map(s-1)+1;
@@ -441,12 +503,14 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
                     lPos = lPos + months(m);
                 end
             end
-            if(s==1)
-                nSeason = cat(1,lastDecember,data(fPos:lPos,:,:));
-            else
-                nSeason = data(fPos:lPos,:,:);
+            if ~isnan(dPlot(s))
+                if s==1
+                    nSeason = cat(1,lastDecember,data(fPos:lPos,:,:));
+                else
+                    nSeason = data(fPos:lPos,:,:);
+                end
+                out = cat(1,out,nanmean(nSeason,1));
             end
-            out = cat(1,out,nanmean(nSeason,1));
             %disp(strcat('Data saved: ',seasonsName(s),{' - '},num2str(yearC)));
         end
         fPos = lPos + 1;
@@ -466,9 +530,12 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
     end
 end
 
-function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,months,~,lastDecember)
+function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember)
     try
         scale = 273.15;
+        keySet =   {'Winter','Spring','Summer','Fall'};
+        valueSet = [1,2,3,4];
+        smap = containers.Map(keySet,valueSet);
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
         fileT2 = fileT2.concat('/tasmax_day/');
         fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
@@ -498,7 +565,11 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             out = [];
             season_map = [2 5 8 11];
             days = length(data(:,1,1));
-            for s=1:1:4
+            dPlot = [NaN,NaN,NaN,NaN];
+            for i=1:1:length(seasonsName)
+                dPlot(smap(seasonsName(i))) = 1;
+            end
+            for s=1:1:length(seasonsName)
                 fPos = lPos + 1;
                 if s > 1
                     init = season_map(s-1)+1;
@@ -512,12 +583,15 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                         lPos = lPos + months(m);
                     end
                 end
-                if(s==1)
-                    nSeason = cat(1,lastDecember,data(fPos:lPos,:,:));
-                else
-                    nSeason = data(fPos:lPos,:,:);
+                
+                if ~isnan(dPlot(s))
+                    if s==1
+                        nSeason = cat(1,lastDecember,data(fPos:lPos,:,:));
+                    else
+                        nSeason = data(fPos:lPos,:,:);
+                    end
+                    out = cat(1,out,nanmean(nSeason,1));
                 end
-                out = cat(1,out,nanmean(nSeason,1));
                 %disp(strcat('Data saved: ',seasonsName(s),{' - '},num2str(yearC)));
             end
             fPos = lPos + 1;
@@ -682,6 +756,21 @@ function [data,error] = readNC(path,var2Read)
         end
         error = exception.message;
     end
+end
+
+function [seasons] = checkSeasons(seasonsName,season)
+    tmp = {};
+    switch char(lower(season))
+        case 'sum'
+            tmp = {'Summer'};%{'Winter','Spring','Fall'};
+        case 'win'
+            tmp  = {'Winter'};%{'Spring','Summer','Fall'};
+        case 'spr'
+            tmp = {'Spring'};%{'Winter','Summer','Fall'};
+        case 'fal'
+            tmp = {'Fall'};%{'Winter','Spring','Summer'};
+    end
+    seasons = union(seasonsName,tmp);
 end
 
 function [] = mailError(type,var2Read,experimentName,msg)
