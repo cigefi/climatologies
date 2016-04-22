@@ -490,7 +490,7 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
         days = length(data(:,1,1));
         dPlot = [NaN,NaN,NaN,NaN];
         for i=1:1:length(seasonsName)
-            dPlot(smap(seasonsName(i))) = 1;
+            dPlot(smap(char(seasonsName(i)))) = 1;
         end
         for s=1:1:length(dPlot)
             fPos = lPos + 1;
@@ -570,7 +570,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             days = length(data(:,1,1));
             dPlot = [NaN,NaN,NaN,NaN];
             for i=1:1:length(seasonsName)
-                dPlot(smap(seasonsName(i))) = 1;
+                dPlot(smap(char(seasonsName(i)))) = 1;
             end
             for s=1:1:length(seasonsName)
                 fPos = lPos + 1;
