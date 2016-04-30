@@ -90,7 +90,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
             seasonsName = checkSeasons(seasonsName,type(t));
         end
     end
-    if length(seasonsName) < 1
+    if length(seasonsName) < 1 && strcmp(ttype,'seasonal')
         seasonsName = {'Winter','Spring','Summer','Fall'};
     end
     
