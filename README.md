@@ -1,5 +1,5 @@
 # Climatologies
-This script is capable of reading recursively a bunch of netcdf files and generate 3 types of climatologies: daily, monthly, and seasonal.
+This script is capable of reading recursively a bunch of netcdf files and generate 3 types of climatologies: yearly, monthly, and seasonal.
 The unique requirement for the data is to be organized in the following structure:<br/>
 [EXPERIMENT NAME]<br/>
 ------ [MONITORING DATA]<br/>
@@ -7,10 +7,10 @@ The unique requirement for the data is to be organized in the following structur
 
 To obtain this file structure, you can use [fileOrganize.sh](https://github.com/cigefi/fileManager/) script.
 
-### Daily (default mode)
+### Yearly (default mode)
 ##### Input
 - (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
-- (Optional) type: daily
+- (Optional) type: yearly
 - (Optional) var2Read: Variable to be read (use 'ncdump -h' command from bash to get the variable names
 - (Optional) yearZero: Lower year of the data to be read (integer)
 - (Optional) yearN: Higher year of the data to be readed (integer)
@@ -21,7 +21,7 @@ To obtain this file structure, you can use [fileOrganize.sh](https://github.com/
 - [Experiment-Name].eps file: File that contains a plot of the data in high resolution
 
 ##### Function invocation
-Reads all the .nc files from _SOURCE_PATH_ and generates daily climatology
+Reads all the .nc files from _SOURCE_PATH_ and generates yearly climatology
 ```matlab
 climatology({SOURCE_PATH,SAVE_PATH});
 ```
