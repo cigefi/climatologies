@@ -170,24 +170,23 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                 case 'tasmax'
                                     newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
                                 case 'tasmean'
-                                    newYear = readFileTemp(fileT,var2Read,yearC,logPath);
+                                    newYear = readFileTemp(fileT,'tasmin',yearC,logPath);
                             end
                             if isempty(out)
                                 out = newYear;
                             else
                                 out = nanmean(cat(1,out,newYear),1);
                             end
-                            %out = nanmean(cat(3,out,newYear),3);
                         case 'monthly'
                             switch var2Read
                                 case 'pr'
-                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName);
+                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,84600);
                                 case 'tasmin'
-                                    newYear = readFileMonthlyTempMin(fileT,var2Read,yearC,logPath,months,monthsName);
+                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
                                 case 'tasmax'
-                                    newYear = readFileMonthlyTempMax(fileT,var2Read,yearC,logPath,months,monthsName);
+                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
                                 case 'tasmean'
-                                    newYear = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsName);
+                                    newYear = readFileMonthlyTemp(fileT,'tasmin',yearC,logPath,months,monthsName);
                             end
                             if ~isempty(newYear)
                                 if ~isempty(out)
@@ -374,10 +373,8 @@ function [out] = readFile(fileT,var2Read,yearC,logPath,scale)
     end
 end
 
-function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
+function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,scale)
     try
-        scale = 84600;
-        %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
         if ~isnan(err)
             out = [];
@@ -387,18 +384,35 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
             %mailError('monthly',var2Read,'',char(err));
             return;
         end
-        data = scale.*data;
+        switch var2Read
+            case 'pr'
+                data = scale.*data;
+            case 'tasmin'
+                data = data - scale;
+            case 'tasmax'
+                data = data - scale;
+        end
         lPos = 0;
         out = [];
+        keySet = {'January','February','March','April','May','June','July','August','September','October','November','December'};
+        valueSet = [1,2,3,4,5,6,7,8,9,10,11,12];
+        mmap = containers.Map(keySet,valueSet);
+        dPlot = nan(1,12);
+        for i=1:1:length(monthsName)
+            dPlot(mmap(char(monthsName(i)))) = 1;
+        end
         days = length(data(:,1,1));
-        for m=1:1:length(monthsName)
+        for m=1:1:length(dPlot)
             fPos = lPos + 1;
             if(leapyear(yearC)&& m==2 && days==366)
                 lPos = months(m) + fPos; % Leap year
             else
                 lPos = months(m) + fPos - 1;
             end
-            out = cat(1,out,nanmean(data(fPos:lPos,:,:),1));
+            if ~isnan(dPlot(m))
+                out = cat(1,out,nanmean(data(fPos:lPos,:,:),1));
+            end
+            %out = cat(1,out,nanmean(data(fPos:lPos,:,:),1));
             %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
         end
         disp(strcat('Data saved: ',{' '},num2str(yearC)));
@@ -415,7 +429,7 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName)
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
-        %mailError('monthly',var2Read,'',char(exception.message));
+        mailError('monthly',var2Read,'',char(exception.message));
     end
 end
 
@@ -425,9 +439,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
         fileT2 = fileT2.concat('/tasmax_day/');
         fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
-        if(exist(char(fileT2),'file'))
-            %mind = nc_varget(char(fileT),var2Read);
-            %maxd = nc_varget(char(fileT2),'tasmax');            
+        if(exist(char(fileT2),'file'))           
             [mind,err] = readNC(fileT,var2Read);
             if ~isnan(err)
                 out = [];
@@ -449,6 +461,13 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
             out = [];
             daysMin = length(mind(:,1,1));
             daysMax = length(maxd(:,1,1));
+            keySet = {'January','February','March','April','May','June','July','August','September','October','November','December'};
+            valueSet = [1,2,3,4,5,6,7,8,9,10,11,12];
+            mmap = containers.Map(keySet,valueSet);
+            dPlot = nan(1,12);
+            for i=1:1:length(monthsName)
+                dPlot(mmap(char(monthsName(i)))) = 1;
+            end
             for m=1:1:length(monthsName)
                 fPos = lPos + 1;
                 if(leapyear(yearC)&& m==2 && daysMin==366 && daysMax==366)
@@ -456,10 +475,12 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
                 else
                     lPos = months(m) + fPos -1;
                 end
-                tMin = mind(fPos:lPos,:,:);
-                tMax = maxd(fPos:lPos,:,:);
-                data = (tMin+tMax)/2;
-                out = cat(1,out,nanmean(data-scale,1));
+                if ~isnan(dPlot(m))
+                    tMin = mind(fPos:lPos,:,:);
+                    tMax = maxd(fPos:lPos,:,:);
+                    data = (tMin+tMax)/2;
+                    out = cat(1,out,nanmean(data-scale,1));
+                end
                 %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
             end
             disp(strcat('Data saved: ',{' '},num2str(yearC)));
@@ -484,7 +505,7 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         end
         fclose(fid);
-        %mailError('monthly',var2Read,'',char(exception.message));
+        mailError('monthly',var2Read,'',char(exception.message));
     end
 end
 
@@ -557,7 +578,7 @@ end
 function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember)
     try
         scale = 273.15;
-        keySet =   {'Winter','Spring','Summer','Fall'};
+        keySet = {'Winter','Spring','Summer','Fall'};
         valueSet = [1,2,3,4];
         smap = containers.Map(keySet,valueSet);
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
