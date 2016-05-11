@@ -90,14 +90,11 @@ climatology({SOURCE_PATH,SAVE_PATH},{'monthly'},{'var2Read',{'pr'},'vec',[1988,2
 ```
 ###### Alternative forms - parameters
 Since the latest version of the script, is possible to generate specific the climatologies for specific months. Using the convention:
-| Month | Param | Month | Param |
-| ---   | ---   | ---   | ---   |
-| January | jan | July  | jul   |
-| February| feb | August | aug  |
-| March   | mar | September | sep |
-| April   | apr | October | oct   |
-| May     | may | November | nov  |
-| June    | jun | December | dec  |
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
 
 ### Seasonal
 ##### Input
