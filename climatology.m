@@ -8,7 +8,7 @@
 % dirName = Path of the directory that contents the files and path for the
 % processed files (cell array)
 % type (Recommended) = Variable to specify the type of climatology: daily,
-% monthly, seasonal. Default value 'daily'. (string)
+% monthly, seasonal. Default value {'daily'}. (cell array)
 % var2Read (Recommended)= Variable to be read (use 'ncdump' to check the
 % variable names) (string)
 % yearZero (Optional) = Lower year of the data to be read (integer)
@@ -97,7 +97,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     if length(seasonsName) < 1 && strcmp(ttype,'seasonal')
         seasonsName = {'Winter','Spring','Summer','Fall'};
     end
-    if length(seasonsName) < 1 && strcmp(ttype,'monthly')
+    if length(monthsName) < 1 && strcmp(ttype,'monthly')
         monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
     end
     
@@ -766,6 +766,36 @@ function [data,error] = readNC(path,var2Read)
         end
         error = exception.message;
     end
+end
+function [months] = checkMonths(monthsName,month)
+    tmp = {};
+    switch char(lower(month))
+        case 'jan'
+            tmp = {'January'};
+        case 'feb'
+            tmp = {'February'};
+        case 'mar'
+            tmp = {'March'};
+        case 'apr'
+            tmp = {'April'};
+        case 'may'
+            tmp = {'May'};
+        case 'jun'
+            tmp = {'June'};
+        case 'jul'
+            tmp = {'July'};
+        case 'aug'
+            tmp = {'August'};
+        case 'sep'
+            tmp = {'September'};
+        case 'oct'
+            tmp = {'October'};
+        case 'nov'
+            tmp = {'November'};
+        case 'dec'
+            tmp = {'December'};
+    end
+    months = union(monthsName,tmp);
 end
 
 function [seasons] = checkSeasons(seasonsName,season)
