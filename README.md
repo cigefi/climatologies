@@ -45,9 +45,15 @@ climatology({SOURCE_PATH,SAVE_PATH},{'yearly'},{'var2Read',{'pr'},'vec',[1988,20
 ```
 ###### Alternative parameters
 The extra parameter _var2Read_ can take one of the following forms:
-{'var2Read',{'pr','tasmax'}}
-{'var2Read',{'pr','tasmax','tasmean'}}
-{'var2Read',{'pr','tasmax','tasmean','tasmin'}}
+```matlab
+... {'var2Read',{'pr','tasmax'}, ...}
+```
+```matlab
+... {'var2Read',{'pr','tasmax','tasmean'}, ...}
+```
+```matlab
+... {'var2Read',{'pr','tasmax','tasmean','tasmin'}, ...}
+```
 
 Since the latest version of the script, is possible to generate specific climatologies for
 ### Monthly
