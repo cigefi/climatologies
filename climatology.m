@@ -7,8 +7,8 @@
 %
 % dirName = Path of the directory that contents the files and path for the
 % processed files (cell array)
-% type (Recommended) = Variable to specify the type of climatology: daily,
-% monthly, seasonal. Default value {'daily'}. (cell array)
+% type (Recommended) = Variable to specify the type of climatology: yearly,
+% monthly, seasonal. Default value {'yearly'}. (cell array)
 % var2Read (Recommended)= Variable to be read (use 'ncdump' to check the
 % variable names) (string)
 % yearZero (Optional) = Lower year of the data to be read (integer)
@@ -21,7 +21,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     end 
     switch nargin
         case 1 % Validates if the type param is received
-            type = {'daily'};
+            type = {'yearly'};
             temp = java.lang.String(dirName(1)).split('/');
             temp = temp(end).split('_');
             var2Read = char(temp(1)); % Default value is taken from the path
@@ -148,7 +148,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         continue;
                     end
                 end
-                if all(yearC > 0 && ~strcmp(var2Read,'tasmax') && ~strcmp(experimentName,'[CIGEFI]'))
+                if all(yearC > 0 && ~strcmp(experimentName,'[CIGEFI]'))
                     if(~processing)
                         fprintf('Processing: %s\n',char(experimentName));
                         processing = 1;
@@ -161,14 +161,16 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                     end
                     % Subrutine to writte the data in new Netcdf file
                     switch ttype
-                        case 'daily'
+                        case 'yearly'
                             switch var2Read
                                 case 'pr'
-                                    newYear = readFile(fileT,var2Read,yearC,logPath);
-                                    %out = nanmean(cat(1,out,readFile(fileT,var2Read,yearC,logPath)),1);
+                                    newYear = readFile(fileT,var2Read,yearC,logPath,84600);
                                 case 'tasmin'
+                                    newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
+                                case 'tasmax'
+                                    newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
+                                case 'tasmean'
                                     newYear = readFileTemp(fileT,var2Read,yearC,logPath);
-                                    %out = nanmean(cat(1,out,readFileTemp(fileT,var2Read,yearC,logPath)),1);
                             end
                             if isempty(out)
                                 out = newYear;
@@ -181,6 +183,10 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                 case 'pr'
                                     newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName);
                                 case 'tasmin'
+                                    newYear = readFileMonthlyTempMin(fileT,var2Read,yearC,logPath,months,monthsName);
+                                case 'tasmax'
+                                    newYear = readFileMonthlyTempMax(fileT,var2Read,yearC,logPath,months,monthsName);
+                                case 'tasmean'
                                     newYear = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsName);
                             end
                             if ~isempty(newYear)
@@ -195,6 +201,10 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                                 case 'pr'
                                     [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
                                 case 'tasmin'
+                                    [newYear,lastDecember] = readFileSeasonalTempMin(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
+                                case 'tasmax'
+                                    [newYear,lastDecember] = readFileSeasonalTempMax(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
+                                case 'tasmean'
                                     [newYear,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
                             end
                             if ~isempty(newYear)
@@ -243,7 +253,7 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
             mkdir(char(savePath));
         end
         switch ttype
-            case 'daily'
+            case 'yearly'
                 out = squeeze(out(1,:,:));
                 fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
                 dlmwrite(char(fileT),out);
@@ -326,27 +336,31 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     end
 end
 
-function [out] = readFile(fileT,var2Read,yearC,logPath)
+function [out] = readFile(fileT,var2Read,yearC,logPath,scale)
     try
-        scale = 84600;
-        %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
         if ~isnan(err)
             out = [];
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
-            %mailError('daily',var2Read,'',char(err));
+            %mailError('yearly',var2Read,'',char(err));
             return;
         end
-        out = nanmean(scale.*data,1);
-        %out = nanmean(scale.*data,3).';%1);
+        switch var2Read
+            case 'pr'
+                out = nanmean(scale.*data,1);
+            case 'tasmin'
+                out = nanmean(data-scale,1);
+            case 'tasmax'
+                out = nanmean(data-scale,1);
+        end
         try
             clear data;
         catch
             disp('Error, cannot delete var data');
         end
-        disp(strcat('Data saved: ',num2str(yearC)));
+        disp(char(strcat('Data saved: ',num2str(yearC))));
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
         fclose(fid);
@@ -355,7 +369,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath)
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
-        %mailError('daily',var2Read,'',char(exception.message));
+        mailError('yearly',var2Read,'',char(exception.message));
         disp(exception.message);
     end
 end
@@ -640,16 +654,14 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
         fileT2 = fileT2.concat('/tasmax_day/');
         fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
-        if(exist(char(fileT2),'file'))
-            %mind = nc_varget(char(fileT),var2Read);
-            %maxd = nc_varget(char(fileT2),'tasmax');            
+        if(exist(char(fileT2),'file'))            
             [mind,err] = readNC(fileT,var2Read);
             if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
                 fclose(fid);
-                %mailError('daily',var2Read,'',char(err));
+                mailError('yearly',var2Read,'',char(err));
                 return;
             end            
             [maxd,err] = readNC(fileT2,'tasmax');
@@ -688,7 +700,7 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         end
         fclose(fid);
-        %mailError('daily',var2Read,'',char(exception.message));
+        mailError('yearly',var2Read,'',char(exception.message));
     end
 end
 
