@@ -753,12 +753,10 @@ function [] = PlotData(data2D,label,path,name)
     plabel('off')
     framem('on')
     set(gcf,'Color',[1,1,1]);
-    %colormap(parula);
     colormap(jet);
     try
         %[c,h]=contourfm(latgrat,longrat,testi',p,'LineStyle','none');
         contourfm(latgrat,longrat,testi',p,'LineStyle','none');
-        %worldmap
         hi = worldhi([-90 90],[-180 180]);
         for i=1:length(hi)
             plotm(hi(i).lat,hi(i).long,'k')
