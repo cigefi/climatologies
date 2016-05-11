@@ -198,13 +198,13 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
                         case 'seasonal'
                             switch var2Read
                                 case 'pr'
-                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
+                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,84600);
                                 case 'tasmin'
-                                    [newYear,lastDecember] = readFileSeasonalTempMin(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
+                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
                                 case 'tasmax'
-                                    [newYear,lastDecember] = readFileSeasonalTempMax(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
+                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
                                 case 'tasmean'
-                                    [newYear,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember);
+                                    [newYear,lastDecember] = readFileSeasonalTemp(fileT,'tasmin',yearC,logPath,months,seasonsName,lastDecember);
                             end
                             if ~isempty(newYear)
                                 if ~isempty(out)
@@ -509,13 +509,11 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
     end
 end
 
-function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember)
+function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,scale)
     try
         keySet =   {'Winter','Spring','Summer','Fall'};
         valueSet = [1,2,3,4];
         smap = containers.Map(keySet,valueSet);
-        scale = 84600;
-        %data = nc_varget(char(fileT),var2Read);
         [data,err] = readNC(fileT,var2Read);
         if ~isnan(err)
             out = [];
@@ -525,7 +523,14 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
             %mailError('seasonal',var2Read,'',char(err));
             return;
         end
-        data = scale.*data;
+        switch var2Read
+            case 'pr'
+                data = scale.*data;
+            case 'tasmin'
+                data = data-scale;
+            case 'tasmax'
+                data = data-scale;
+        end
         lPos = 0;      
         out = [];
         season_map = [2 5 8 11];
@@ -571,7 +576,7 @@ function [out,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,mont
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         fclose(fid);
-        %mailError('seasonal',var2Read,'',char(exception.message));
+        mailError('seasonal',var2Read,'',char(exception.message));
     end
 end
 
@@ -584,9 +589,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
         fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
         fileT2 = fileT2.concat('/tasmax_day/');
         fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
-        if(exist(char(fileT2),'file'))
-            %mind = nc_varget(char(fileT),var2Read);
-            %maxd = nc_varget(char(fileT2),'tasmax');            
+        if(exist(char(fileT2),'file'))            
             [mind,err] = readNC(fileT,var2Read);
             if ~isnan(err)
                 out = [];
@@ -665,7 +668,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
         end
         fclose(fid);
-        %mailError('seasonal',var2Read,'',char(exception.message));
+        mailError('seasonal',var2Read,'',char(exception.message));
     end
 end
 
@@ -751,7 +754,8 @@ function [] = PlotData(data2D,label,path,name)
     try
         %[c,h]=contourfm(latgrat,longrat,testi',p,'LineStyle','none');
         contourfm(latgrat,longrat,testi',p,'LineStyle','none');
-        worldmap
+        %worldmap
+        hi = worldhi([-90 90],[-180 180]);
         for i=1:length(hi)
             plotm(hi(i).lat,hi(i).long,'k')
         end
@@ -800,6 +804,7 @@ function [data,error] = readNC(path,var2Read)
         error = exception.message;
     end
 end
+
 function [months] = checkMonths(monthsName,month)
     tmp = {};
     switch char(lower(month))
