@@ -1,7 +1,6 @@
 % Function climatology
 %
-% Prototype: climatology(dirName,type, var2Read,yearZero,yearN)
-%            climatology(dirName,type, var2Read)
+% Prototype: climatology(dirName,type,extra)
 %            climatology(dirName,type)
 %            climatology(dirName)
 %
@@ -9,35 +8,55 @@
 % processed files (cell array)
 % type (Recommended) = Variable to specify the type of climatology: yearly,
 % monthly, seasonal. Default value {'yearly'}. (cell array)
-% var2Read (Recommended)= Variable to be read (use 'ncdump' to check the
-% variable names) (string)
-% yearZero (Optional) = Lower year of the data to be read (integer)
-% yearN (Optional) = Higher year of the data to be read (integer)
-function [] = climatology(dirName,type,var2Read,yearZero,yearN)
+% extra (Optional) = This param contain extra configuration options for the
+% execution. Can contain var2Read (cell array) and range of years to be
+% read or a vector of the specific years to be read. (cell array)
+% Ex. {'var2Read',{'pr','tasmin'},'f',1960,'l',1990} % Read the files
+% between 1960 and 1990 and read the variables pr and tasmin.
+function [] = climatology(dirName,type,extra)
     if nargin < 1
         error('climatology: dirName is a required input')
     else
         dirName = strrep(dirName,'\','/'); % Clean dirName var
-    end 
+    end
+    temp = java.lang.String(dirName(1)).split('/');
+    temp = temp(end).split('_');
+    var2Read = char(temp(1)); % Default value is taken from the path
+    yearZero = 0; % Default value
+    yearN = 0; % Default value
     switch nargin
         case 1 % Validates if the type param is received
             type = {'yearly'};
-            temp = java.lang.String(dirName(1)).split('/');
-            temp = temp(end).split('_');
-            var2Read = char(temp(1)); % Default value is taken from the path
-            yearZero = 0; % Default value
-            yearN = 0; % Default value
-        case 2 % Validates if the var2Read param is received
-            temp = java.lang.String(dirName(1)).split('/');
-            temp = temp(end).split('_');
-            var2Read = char(temp(1)); % Default value is taken from the path
-            yearZero = 0; % Default value
-            yearN = 0; % Default value
-        case 3 % Validates if the yearZero param is received
-            yearZero = 0; % Default value
-            yearN = 0; % Default value
-        case 4 % Validates if the yearN param is received
-            yearN = 0;
+%         case 2 % Validates if the extra param is received
+%             temp = java.lang.String(dirName(1)).split('/');
+%             temp = temp(end).split('_');
+%             var2Read = char(temp(1)); % Default value is taken from the path
+%             yearZero = 0; % Default value
+%             yearN = 0; % Default value
+        case 3 
+            if ~mod(length(extra),2)
+                tmp = reshape(extra,2,[])'; 
+                yearVector = [];
+                vars = [];
+                for i=1:1:length(tmp)
+                    switch lower(char(tmp{i,1}))
+                        case 'f'
+                            val = tmp{i,2};
+                            if length(val) == 1
+                                yearZero = val;%str2double(char(val));
+                            end
+                        case 'l'
+                            val = tmp{i,2};
+                            if length(val) == 1
+                                yearN = val;%str2double(char(val));
+                            end
+                        case 'vec'
+                            yearVector = tmp{i,2};
+                        case 'var2read'
+                            vars = tmp{i,2};
+                    end
+                end
+            end
     end
     ttype = char(lower(type(1)));
     switch ttype
@@ -105,14 +124,13 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     if(path.charAt(path.length-1) ~= '/')
         path = path.concat('/');
     end
-    try
-		experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
-		experimentName = experimentParent.substring(experimentParent.lastIndexOf('/')+1);
-    catch
-        experimentName = '[CIGEFI]'; % Dafault value
-    end
-    out = [];
-    lastDecember = []; % Temp var to save the data of the previous December
+%     if ~isempty(vars)
+%         numVars = length(vars);
+%         %var2Read = vars{1};
+%         %vars(1) = [];
+%     else
+%         numVars = 1;
+%     end
     if(length(dirName)>1)
         savePath = java.lang.String(dirName(2));
         if(length(dirName)>2)
@@ -131,206 +149,222 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     if(logPath.charAt(logPath.length-1) ~= '/')
         logPath = logPath.concat('/');
     end
-    %fprintf('Processing: %s\n',char(experimentName));
+    
     processing = 0;
-    for f = 3:length(dirData)
-        fileT = path.concat(dirData(f).name);
-        if(fileT.substring(fileT.lastIndexOf('.')+1).equalsIgnoreCase('nc'))
-            try
-                yearC = str2double(fileT.substring(fileT.length-7,fileT.lastIndexOf('.')));
-                if(yearZero>0)
-                    if(yearC<yearZero) 
-                        continue;
-                     end
-                end
-                if(yearN>0)
-                    if(yearC>yearN)
-                        continue;
+    for q=1:1:1
+        %var2Read = vars{q};
+        %vars(1) = [];
+        out = [];
+        lastDecember = []; % Temp var to save the data of the previous December
+        try
+            experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
+            experimentName = experimentParent.substring(experimentParent.lastIndexOf('/')+1);
+        catch
+            experimentName = '[CIGEFI]'; % Dafault value
+        end
+        for f = 3:length(dirData)
+            fileT = path.concat(dirData(f).name);
+            if(fileT.substring(fileT.lastIndexOf('.')+1).equalsIgnoreCase('nc')&&existInCell(vars,var2Read))
+                try
+                    yearC = str2double(fileT.substring(fileT.length-7,fileT.lastIndexOf('.')));
+                    if(yearZero>0)
+                        if(yearC<yearZero) 
+                            continue;
+                         end
                     end
-                end
-                if all(yearC > 0 && ~strcmp(experimentName,'[CIGEFI]'))
-                    if(~processing)
-                        fprintf('Processing: %s\n',char(experimentName));
-                        processing = 1;
-                        if ~exist(char(logPath),'dir')
-                            mkdir(char(logPath));
+                    if(yearN>0)
+                        if(yearC>yearN)
+                            continue;
                         end
-                        if(exist(strcat(char(logPath),'log.txt'),'file'))
-                            delete(strcat(char(logPath),'log.txt'));
+                    end
+                    if all(yearC > 0 && ~strcmp(experimentName,'[CIGEFI]'))
+                        if(~processing)
+                            fprintf('Processing: %s - %s\n',char(experimentName),var2Read);
+                            processing = 1;
+                            if ~exist(char(logPath),'dir')
+                                mkdir(char(logPath));
+                            end
+                            if(exist(strcat(char(logPath),'log.txt'),'file'))
+                                delete(strcat(char(logPath),'log.txt'));
+                            end
+                        end
+                        % Subrutine to writte the data in new Netcdf file
+                        switch ttype
+                            case 'yearly'
+                                switch var2Read
+                                    case 'pr'
+                                        newYear = readFile(fileT,var2Read,yearC,logPath,84600);
+                                    case 'tasmin'
+                                        newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
+                                    case 'tasmax'
+                                        newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
+                                    case 'tasmean'
+                                        newYear = readFileTemp(fileT,'tasmin',yearC,logPath);
+                                end
+                                if isempty(out)
+                                    out = newYear;
+                                else
+                                    out = nanmean(cat(1,out,newYear),1);
+                                end
+                            case 'monthly'
+                                switch var2Read
+                                    case 'pr'
+                                        newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,84600);
+                                    case 'tasmin'
+                                        newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
+                                    case 'tasmax'
+                                        newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
+                                    case 'tasmean'
+                                        newYear = readFileMonthlyTemp(fileT,'tasmin',yearC,logPath,months,monthsName);
+                                end
+                                if ~isempty(newYear)
+                                    if ~isempty(out)
+                                        out = (out + newYear)/2;
+                                    else
+                                        out = newYear;
+                                    end
+                                end
+                            case 'seasonal'
+                                switch var2Read
+                                    case 'pr'
+                                        [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,84600);
+                                    case 'tasmin'
+                                        [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
+                                    case 'tasmax'
+                                        [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
+                                    case 'tasmean'
+                                        [newYear,lastDecember] = readFileSeasonalTemp(fileT,'tasmin',yearC,logPath,months,seasonsName,lastDecember);
+                                end
+                                if ~isempty(newYear)
+                                    if ~isempty(out)
+                                        out = (out + newYear)/2;
+                                    else
+                                        out = newYear;
+                                    end
+                                end
                         end
                     end
-                    % Subrutine to writte the data in new Netcdf file
-                    switch ttype
-                        case 'yearly'
-                            switch var2Read
-                                case 'pr'
-                                    newYear = readFile(fileT,var2Read,yearC,logPath,84600);
-                                case 'tasmin'
-                                    newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
-                                case 'tasmax'
-                                    newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
-                                case 'tasmean'
-                                    newYear = readFileTemp(fileT,'tasmin',yearC,logPath);
-                            end
-                            if isempty(out)
-                                out = newYear;
-                            else
-                                out = nanmean(cat(1,out,newYear),1);
-                            end
-                        case 'monthly'
-                            switch var2Read
-                                case 'pr'
-                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,84600);
-                                case 'tasmin'
-                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
-                                case 'tasmax'
-                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
-                                case 'tasmean'
-                                    newYear = readFileMonthlyTemp(fileT,'tasmin',yearC,logPath,months,monthsName);
-                            end
-                            if ~isempty(newYear)
-                                if ~isempty(out)
-                                    out = (out + newYear)/2;
-                                else
-                                    out = newYear;
-                                end
-                            end
-                        case 'seasonal'
-                            switch var2Read
-                                case 'pr'
-                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,84600);
-                                case 'tasmin'
-                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
-                                case 'tasmax'
-                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
-                                case 'tasmean'
-                                    [newYear,lastDecember] = readFileSeasonalTemp(fileT,'tasmin',yearC,logPath,months,seasonsName,lastDecember);
-                            end
-                            if ~isempty(newYear)
-                                if ~isempty(out)
-                                    out = (out + newYear)/2;
-                                else
-                                    out = newYear;
-                                end
-                            end
+                catch exception
+                    if(exist(char(logPath),'dir'))
+                        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+                        fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
+                        fclose(fid);
                     end
+                    %mailError(type,var2Read,char(experimentName),char(exception.message));
+                    continue;
                 end
-            catch exception
-                if(exist(char(logPath),'dir'))
-                    fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
-                    fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
-                    fclose(fid);
-                end
-                %mailError(type,var2Read,char(experimentName),char(exception.message));
-                continue;
-            end
-        else
-            if isequal(dirData(f).isdir,1)
-                newPath = char(path.concat(dirData(f).name));
-                switch nargin
-                    case 1 
-                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)});
-                        climatology({newPath,char(savePath.concat(dirData(f).name))});
-                    case 2 % Validates if the type param is received
-                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type);
-                        climatology({newPath,char(savePath.concat(dirData(f).name))},type);
-                    case 3 % Validates if the var2Read param is received
-                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type,var2Read);
-                        climatology({newPath,char(savePath.concat(dirData(f).name))},type,var2Read);
-                    case 4 % Validates if the yearZero param is received
-                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type,var2Read,yearZero);
-                        climatology({newPath,char(savePath.concat(dirData(f).name))},type,var2Read,yearZero);
-                    otherwise
-                        %climatology({newPath,char(savePath.concat(dirData(f).name)),char(logPath)},type,var2Read,yearZero,yearN); 
-                        climatology({newPath,char(savePath.concat(dirData(f).name))},type,var2Read,yearZero,yearN);      
+            else
+                if isequal(dirData(f).isdir,1)
+                    newPath = char(path.concat(dirData(f).name));
+                    switch nargin
+                        case 1 
+                            climatology({newPath,char(savePath.concat(dirData(f).name))});
+                        case 2 % Validates if the type param is received
+                            climatology({newPath,char(savePath.concat(dirData(f).name))},type);
+                        otherwise
+%                             extra = {};
+%                             if yearZero > 0
+%                                 extra = union({'f',yearZero},extra);
+%                             end
+%                             if yearN > 0
+%                                 extra = union({'l',yearN},extra);
+%                             end
+%                             if ~isempty(yearVector)
+%                                 extra = union({'vec',yearVector},extra);
+%                             end
+%                             if ~isempty(vars)
+%                                 extra = union({'var2Read',vars},extra);
+%                             end
+                            climatology({newPath,char(savePath.concat(dirData(f).name))},type,extra);      
+                    end
                 end
             end
         end
-    end
-    if ~isempty(out)
-        if ~exist(char(savePath),'dir')
-            mkdir(char(savePath));
-        end
-        switch ttype
-            case 'yearly'
-                out = squeeze(out(1,:,:));
-                fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
-                dlmwrite(char(fileT),out);
-                switch(var2Read)
-                    case 'pr'
-                        units = 'mm';
-                        frequency = 'day';
-                        PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
-                    case 'tasmin'
-                        units = '°C';
-                        frequency = 'day';
-                        PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
-                    otherwise
-                        PlotData(out,'',char(savePath));
-                end
-            case 'monthly'
-                for m=1:1:length(monthsName)
-                    disp(strcat('Processing',{' '},monthsName(m)));
-                    currentMonth = squeeze(out(m,:,:));
-                    %currentMonth = squeeze(out(:,:,m));
-                    fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
-                    dlmwrite(char(fileT),currentMonth);
+        if ~isempty(out)
+            if ~exist(char(savePath),'dir')
+                mkdir(char(savePath));
+            end
+            switch ttype
+                case 'yearly'
+                    out = squeeze(out(1,:,:));
+                    fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'.dat'));
+                    dlmwrite(char(fileT),out);
                     switch(var2Read)
                         case 'pr'
                             units = 'mm';
                             frequency = 'day';
-                            PlotData(currentMonth,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                            PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
                         case 'tasmin'
                             units = '°C';
                             frequency = 'day';
-                            PlotData(currentMonth,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                            PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
                         otherwise
-                            PlotData(currentMonth,'',char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                            PlotData(out,'',char(savePath));
                     end
-                end
-            case 'seasonal'
-                keySet =   {'Winter','Spring','Summer','Fall'};
-                valueSet = [1,2,3,4];
-                smap = containers.Map(keySet,valueSet);
-                tmp = [NaN,NaN,NaN,NaN];
-                for i=1:1:length(seasonsName)
-                    tmp(smap(char(seasonsName(i)))) = 1;
-                end
-                seasonsName = [];
-                for i=1:1:length(tmp)
-                    if ~isnan(tmp(i))
-                        seasonsName = cat(1,seasonsName,keySet(i));
-                    end
-                end
-                for s=1:1:length(seasonsName)
-                    disp(strcat('Processing',{' '},seasonsName(s)));
-                    if(s==1)
-                        currentSeason = squeeze(out(s,:,:));
-                        %currentSeason = squeeze(out(:,:,s));
-                        if ~isempty(lastDecember)
-                            lastDecember = squeeze(lastDecember(1,:,:));
-                            %lastDecember = squeeze(lastDecember(:,:,1));
-                            currentSeason = (currentSeason+lastDecember)/2;
+                case 'monthly'
+                    for m=1:1:length(monthsName)
+                        disp(strcat('Processing',{' '},monthsName(m)));
+                        currentMonth = squeeze(out(m,:,:));
+                        %currentMonth = squeeze(out(:,:,m));
+                        fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
+                        dlmwrite(char(fileT),currentMonth);
+                        switch(var2Read)
+                            case 'pr'
+                                units = 'mm';
+                                frequency = 'day';
+                                PlotData(currentMonth,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                            case 'tasmin'
+                                units = '°C';
+                                frequency = 'day';
+                                PlotData(currentMonth,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                            otherwise
+                                PlotData(currentMonth,'',char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                         end
-                    else
-                        currentSeason = squeeze(out(s,:,:));
-                        %currentSeason = squeeze(out(:,:,s));
                     end
-                    fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
-                    dlmwrite(char(fileT),currentSeason);
-                    switch(var2Read)
-                        case 'pr'
-                            units = 'mm';
-                            frequency = 'day';
-                            PlotData(currentSeason,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
-                        case 'tasmin'
-                            units = '°C';
-                            frequency = 'day';
-                            PlotData(currentSeason,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
-                        otherwise
-                            PlotData(currentSeason,'',char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
+                case 'seasonal'
+                    keySet =   {'Winter','Spring','Summer','Fall'};
+                    valueSet = [1,2,3,4];
+                    smap = containers.Map(keySet,valueSet);
+                    tmp = [NaN,NaN,NaN,NaN];
+                    for i=1:1:length(seasonsName)
+                        tmp(smap(char(seasonsName(i)))) = 1;
                     end
-                end
+                    seasonsName = [];
+                    for i=1:1:length(tmp)
+                        if ~isnan(tmp(i))
+                            seasonsName = cat(1,seasonsName,keySet(i));
+                        end
+                    end
+                    for s=1:1:length(seasonsName)
+                        disp(strcat('Processing',{' '},seasonsName(s)));
+                        if(s==1)
+                            currentSeason = squeeze(out(s,:,:));
+                            %currentSeason = squeeze(out(:,:,s));
+                            if ~isempty(lastDecember)
+                                lastDecember = squeeze(lastDecember(1,:,:));
+                                %lastDecember = squeeze(lastDecember(:,:,1));
+                                currentSeason = (currentSeason+lastDecember)/2;
+                            end
+                        else
+                            currentSeason = squeeze(out(s,:,:));
+                            %currentSeason = squeeze(out(:,:,s));
+                        end
+                        fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
+                        dlmwrite(char(fileT),currentSeason);
+                        switch(var2Read)
+                            case 'pr'
+                                units = 'mm';
+                                frequency = 'day';
+                                PlotData(currentSeason,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
+                            case 'tasmin'
+                                units = '°C';
+                                frequency = 'day';
+                                PlotData(currentSeason,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
+                            otherwise
+                                PlotData(currentSeason,'',char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
+                        end
+                    end
+            end
         end
     end
 end
@@ -849,6 +883,16 @@ function [seasons] = checkSeasons(seasonsName,season)
             tmp = {'Fall'};%{'Winter','Spring','Summer'};
     end
     seasons = union(seasonsName,tmp);
+end
+
+function [res] = existInCell(vars,var2Read)
+    res = 0;
+    for i=1:1:length(vars)
+        if strcmp(vars{i},var2Read)
+            res = 1;
+            break;
+        end
+    end
 end
 
 function [] = mailError(type,var2Read,experimentName,msg)
