@@ -11,9 +11,7 @@ To obtain this file structure, you can use [fileOrganize.sh](https://github.com/
 ##### Input
 - (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
 - (Optional) type: yearly
-- (Optional) var2Read: Variable to be read (use 'ncdump -h' command from bash to get the variable names
-- (Optional) yearZero: Lower year of the data to be read (integer)
-- (Optional) yearN: Higher year of the data to be readed (integer)
+- (Optional) extra: This param contains extra configuration options, such as, var2Read (variable to be read, use 'ncdump -h' command from bash to get the variable names) and range of years (use 'f' to specify the lowest year, 'l' to specify the top year, and 'vec' to specify a vector of year)s (cell)
 
 ##### Output (3 files)
 - log file: File that contains the list of property processed .nc files and the errors
@@ -27,21 +25,24 @@ climatology({SOURCE_PATH,SAVE_PATH});
 ```
 Same as above
 ```matlab
-climatology({SOURCE_PATH,SAVE_PATH},'daily');
+climatology({SOURCE_PATH,SAVE_PATH},{'yearly'});
 ```
 Reads all the .nc files wich contain the variable _pr_ from _SOURCE_PATH_ and generates daily climatology
 ```matlab
-climatology({SOURCE_PATH,SAVE_PATH},'daily','pr');
+climatology({SOURCE_PATH,SAVE_PATH},{'yearly'},{'var2Read',{'pr'} });
 ```
-Same as above, plus the maximum data to be read is from the year 1950
+Same as above, but the lowest data to be read is from 1950
 ```matlab
-climatology({SOURCE_PATH,SAVE_PATH},'daily','pr',1950);
+climatology({SOURCE_PATH,SAVE_PATH},{'yearly'},{'var2Read',{'pr'},'f',1950});
 ```
 Same as above, but the data to be read is from the range 1950 to 2000
 ```matlab
-climatology({SOURCE_PATH,SAVE_PATH},'daily','pr',1950,2000);
+climatology({SOURCE_PATH,SAVE_PATH},{'yearly'},{'var2Read',{'pr'},'f',1950,'l',2000});
 ```
-
+Same as above, but the data to be read is from the years _1956_,_1988_, and _2004_
+```matlab
+climatology({SOURCE_PATH,SAVE_PATH},{'yearly'},{'var2Read',{'pr'},'vec',[1988,2004,1956]});
+```
 ### Monthly
 ##### Input
 - (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
