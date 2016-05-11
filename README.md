@@ -43,6 +43,13 @@ Same as above, but the data to be read is from the years _1956_,_1988_, and _200
 ```matlab
 climatology({SOURCE_PATH,SAVE_PATH},{'yearly'},{'var2Read',{'pr'},'vec',[1988,2004,1956]});
 ```
+###### Alternative parameters
+The extra parameter _var2Read_ can take one of the following forms:
+{'var2Read',{'pr','tasmax'}}
+{'var2Read',{'pr','tasmax','tasmean'}}
+{'var2Read',{'pr','tasmax','tasmean','tasmin'}}
+
+Since the latest version of the script, is possible to generate specific climatologies for
 ### Monthly
 ##### Input
 - (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
