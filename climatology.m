@@ -82,16 +82,23 @@ function [] = climatology(dirName,type,var2Read,yearZero,yearN)
     end
     dirData = dir(char(dirName(1)));  % Get the data for the current directory
     months = [31,28,31,30,31,30,31,31,30,31,30,31]; % Reference to the number of days per month
-    monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
+    %monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
     %seasonsName = {'Winter','Spring','Summer','Fall'};
     seasonsName = {};
+    monthsName = {};
     for t=1:1:length(type)
         if strcmp(ttype,'seasonal')
             seasonsName = checkSeasons(seasonsName,type(t));
         end
+        if strcmp(ttype,'monthly')
+            monthsName = checkMonths(monthsName,type(t));
+        end
     end
     if length(seasonsName) < 1 && strcmp(ttype,'seasonal')
         seasonsName = {'Winter','Spring','Summer','Fall'};
+    end
+    if length(seasonsName) < 1 && strcmp(ttype,'monthly')
+        monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
     end
     
     path = java.lang.String(dirName(1));
@@ -711,7 +718,7 @@ function [] = PlotData(data2D,label,path,name)
     try
         %[c,h]=contourfm(latgrat,longrat,testi',p,'LineStyle','none');
         contourfm(latgrat,longrat,testi',p,'LineStyle','none');
-        hi = worldhi([-90 90],[-180 180]);
+        worldmap
         for i=1:length(hi)
             plotm(hi(i).lat,hi(i).long,'k')
         end
