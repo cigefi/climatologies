@@ -89,12 +89,30 @@ Same as above, but the data to be read is from the years _1956_,_1988_, and _200
 climatology({SOURCE_PATH,SAVE_PATH},{'monthly'},{'var2Read',{'pr'},'vec',[1988,2004,1956]});
 ```
 ###### Alternative forms - parameters
-Since the latest version of the script, is possible to generate specific the climatologies for specific months. Using the convention:
-| Tables        | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
+Since the latest version of the script, is possible to generate specific the climatologies for specific months. Using the following convention:
+```matlab
+| Month   | Param | Month     | Param |
+| -----   | ----- | ---       | ---   |
+| January | jan   | July      | jul   |
+| February| feb   | August    | aug   |
+| March   | mar   | September | sep   |
+| April   | apr   | October   | oct   |
+| May     | may   | November  | nov   |
+| June    | jun   | December  | dec   |
+```
+Then, the parameter _{'monthly'}_ can be replace by:
+```matlab
+...{'jan'}...
+```
+```matlab
+...{'jan','feb'}...
+```
+```matlab
+...{'jan','dec','mar','apr'}...
+```
+```matlab
+...{'oct','jun'}...
+```
 
 ### Seasonal
 ##### Input
