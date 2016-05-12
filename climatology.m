@@ -171,7 +171,11 @@ function [] = climatology(dirName,type,extra)
                 end
                 if all(yearC > 0 && ~strcmp(experimentName,'[CIGEFI]'))
                     if(~processing)
-                        fprintf('Processing: %s - %s\n',char(experimentName),var2Read);
+                        if tasmean && strcmp(var2Read,'tasmin')
+                            fprintf('Processing: %s - %s - tasmean\n',char(experimentName),var2Read);
+                        else
+                            fprintf('Processing: %s - %s\n',char(experimentName),var2Read);
+                        end
                         processing = 1;
                         if ~exist(char(logPath),'dir')
                             mkdir(char(logPath));
@@ -236,7 +240,6 @@ function [] = climatology(dirName,type,extra)
                                 end
                             end
                         case 'seasonal'
-                            disp(char(strcat('Processing: ',num2str(yearC))));
                             switch var2Read
                                 case 'pr'
                                     [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,84600);
