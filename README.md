@@ -11,7 +11,7 @@ To obtain this file structure, you can use [fileOrganize.sh](https://github.com/
 ##### Input
 - (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
 - (Optional) type: yearly
-- (Optional) extra: This param contains extra configuration options, such as, var2Read (variable to be read, use 'ncdump -h' command from bash to get the variable names) and range of years (use 'f' to specify the lowest year, 'l' to specify the top year, and 'vec' to specify a vector of year)s (cell)
+- (Optional) extra: This param contains extra configuration options, such as, var2Read (variable to be read, use 'ncdump -h' command from bash to get the variable names) and range of years (use 'f' to specify the lowest year, 'l' to specify the top year, and 'vec' to specify a vector of year)s (cell array)
 
 ##### Output (3 files)
 - log file: File that contains the list of property processed .nc files and the errors
@@ -29,7 +29,7 @@ climatology({SOURCE_PATH,SAVE_PATH},{'yearly'});
 ```
 Reads all the .nc files wich contain the variable _pr_ from _SOURCE_PATH_ and generates daily climatology
 ```matlab
-climatology({SOURCE_PATH,SAVE_PATH},{'yearly'},{'var2Read',{'pr'} });
+climatology({SOURCE_PATH,SAVE_PATH},{'yearly'},{'var2Read',{'pr'}});
 ```
 Same as above, but the lowest data to be read is from 1950
 ```matlab
@@ -60,7 +60,7 @@ The optional parameter _var2Read_ can take one of the following forms:
 ##### Input
 - (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
 - (Optional) type: monthly
-- (Optional) extra: 
+- (Optional) extra: This param contains extra configuration options, such as, var2Read (variable to be read, use 'ncdump -h' command from bash to get the variable names) and range of years (use 'f' to specify the lowest year, 'l' to specify the top year, and 'vec' to specify a vector of year)s (cell array)
 
 ##### Output (3 to 25 files)
 - log file: File that contains the list of property processed .nc files and the errors
@@ -74,7 +74,7 @@ climatology({SOURCE_PATH,SAVE_PATH},{'monthly'});
 ```
 Reads all the .nc files wich contain the variable _pr_ from _SOURCE_PATH_ and generates monthly climatology
 ```matlab
-climatology({{SOURCE_PATH,SAVE_PATH},{'monthly'},'pr');
+climatology({{SOURCE_PATH,SAVE_PATH},{'monthly'},{'var2Read',{'pr'}});
 ```
 Same as above, but the lowest data to be read is from 1950
 ```matlab
@@ -89,25 +89,38 @@ Same as above, but the data to be read is from the years _1956_,_1988_, and _200
 climatology({SOURCE_PATH,SAVE_PATH},{'monthly'},{'var2Read',{'pr'},'vec',[1988,2004,1956]});
 ```
 ###### Alternative forms - parameters
-Since the latest version of the script, is possible to generate specific the climatologies for specific months. Using the convention:
-| Month | Param | Month | Param |
-| ---   | ---   | ---   | ---   |
-| January | jan | July  | jul   |
-| February| feb | August | aug  |
-| March   | mar | September | sep |
-| April   | apr | October | oct   |
-| May     | may | November | nov  |
-| June    | jun | December | dec  |
+Since the latest version of the script, is possible to generate the climatologies for specific months. Using the following convention:
+```matlab
+| Month   | Param | Month     | Param |
+| -----   | ----- | ---       | ---   |
+| January | jan   | July      | jul   |
+| February| feb   | August    | aug   |
+| March   | mar   | September | sep   |
+| April   | apr   | October   | oct   |
+| May     | may   | November  | nov   |
+| June    | jun   | December  | dec   |
+```
+Then, the parameter _{'monthly'}_ can be replace by:
+```matlab
+...{'jan'}...
+```
+```matlab
+...{'jan','feb'}...
+```
+```matlab
+...{'jan','dec','mar','apr'}...
+```
+```matlab
+...{'oct','jun'}...
+```
 
 ### Seasonal
 ##### Input
 - (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
 - (Optional) type: seasonal
-- (Optional) var2Read: Variable to be read (use 'ncdump -h' command from bash to get the variable names
-- (Optional) yearZero: Lower year of the data to be read (integer)
-- (Optional) yearN: Higher year of the data to be readed (integer)
+- (Optional) extra: This param contains extra configuration options, such as, var2Read (variable to be read, use 'ncdump -h' command from bash to get the variable names) and range of years (use 'f' to specify the lowest year, 'l' to specify the top year, and 'vec' to specify a vector of year)s (cell array)
 
-##### Output (9 files)
+##### Output (3-9 files)
 - log file: File that contains the list of property processed .nc files and the errors
 - [Experiment-Name]-[Season].dat file: File that contains a 2-Dimensional structure with the values point by point
 - [Experiment-Name]-[Season].eps file: File that contains a plot of the data in high resolution
@@ -115,19 +128,46 @@ Since the latest version of the script, is possible to generate specific the cli
 ##### Function invocation
 Reads all the .nc files from _SOURCE_PATH_ and generates seasonal climatology
 ```matlab
-climatology({SOURCE_PATH,SAVE_PATH},'seasonal');
+climatology({SOURCE_PATH,SAVE_PATH},{'seasonal'});
 ```
-Reads all the .nc files wich contain the variable _pr_ from _SOURCE_PATH_ and generates seasonal climatology
+Reads all the .nc files wich contain the variable _pr_ from _SOURCE_PATH_ and generates monthly climatology
 ```matlab
-climatology({SOURCE_PATH,SAVE_PATH},'seasonal','pr');
+climatology({{SOURCE_PATH,SAVE_PATH},{'seasonal'},{'var2Read',{'pr'}});
 ```
-Same as above, plus the maximum data to be read is from the year 1950
+Same as above, but the lowest data to be read is from 1950
 ```matlab
-climatology({SOURCE_PATH,SAVE_PATH},'seasonal','pr',1950);
+climatology({SOURCE_PATH,SAVE_PATH},{'seasonal'},{'var2Read',{'pr'},'f',1950});
 ```
 Same as above, but the data to be read is from the range 1950 to 2000
 ```matlab
-climatology({SOURCE_PATH,SAVE_PATH},'seasonal','pr',1950,2000);
+climatology({SOURCE_PATH,SAVE_PATH},{'seasonal'},{'var2Read',{'pr'},'f',1950,'l',2000});
+```
+Same as above, but the data to be read is from the years _1956_,_1988_, and _2004_
+```matlab
+climatology({SOURCE_PATH,SAVE_PATH},{'seasonal'},{'var2Read',{'pr'},'vec',[1988,2004,1956]});
+```
+###### Alternative forms - parameters
+Since the latest version of the script, is possible to generate the climatologies for specific months. Using the following convention:
+```matlab
+| Season  | Param | 
+| -----   | ----- |
+| Summer  | sum   |
+| Winter  | win   | 
+| Fall    | fal   | 
+| Spring  | spr   |
+```
+Then, the parameter _{'seasonal'}_ can be replace by:
+```matlab
+...{'sum'}...
+```
+```matlab
+...{'win','sum'}...
+```
+```matlab
+...{'sum','win','spr'}...
+```
+```matlab
+...{'spr','sum'}...
 ```
 
 #### Read saved data
