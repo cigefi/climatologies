@@ -178,4 +178,5 @@ data = dlmread('MyData.dat');
 ### License
 CIGEFI Centre for Geophysical Research<br/>
 Universidad de Costa Rica &copy;2016
+
 [Roberto Villegas-Díaz](mailto:roberto.villegas@ucr.ac.cr)
