@@ -48,6 +48,9 @@ function [] = climatology(dirName,type,extra)
                             yearVector = tmp{i,2};
                         case 'var2read'
                             vars = tmp{i,2};
+                            if length(vars) < 2
+                                var2Read = vars{1};
+                            end
                     end
                 end
             end
@@ -137,12 +140,14 @@ function [] = climatology(dirName,type,extra)
     end
     
     processing = 0;
-    out = [];
+    out = []; % Temp var to save the data of the previous December
     outM = [];
-    lastDecember = []; % Temp var to save the data of the previous December
-    lastDecemberM = [];
     try
-        experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
+        if strcmp(var2Read,'tasmean')
+            experimentParent = path.substring(0,path.lastIndexOf(strcat('/','tasmin')));
+        else
+            experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
+        end
         experimentName = experimentParent.substring(experimentParent.lastIndexOf('/')+1);
     catch
         experimentName = '[CIGEFI]'; % Dafault value
@@ -184,6 +189,10 @@ function [] = climatology(dirName,type,extra)
                             delete(strcat(char(logPath),'log.txt'));
                         end
                     end
+                    newYearM = [];
+                    newYear = [];
+                    lastDecember = []; 
+                    lastDecemberM = [];
                     % Subrutine to writte the data in new Netcdf file
                     switch ttype
                         case 'yearly'
@@ -197,8 +206,8 @@ function [] = climatology(dirName,type,extra)
                                     end
                                 case 'tasmax'
                                     newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
-%                                 case 'tasmean'
-%                                     newYear = readFileTemp(fileT,'tasmin',yearC,logPath);
+                                case 'tasmean'
+                                    newYear = readFileTemp(fileT,'tasmin',yearC,logPath);
                             end
                             if isempty(out)
                                 out = newYear;
@@ -929,7 +938,7 @@ end
 function [] = mailError(type,var2Read,experimentName,msg)
     %RECIPIENTS = {'villegas.roberto@hotmail.com','rodrigo.castillorodriguez@ucr.ac.cr'};
     RECIPIENTS = {'villegas.roberto@hotmail.com'};
-    subject = strcat({'[MATLAB][ERROR] '},type,{' - '},var2Read,{' - '},experimentName);
-    msj = strcat({'An exception has been thrown: '},msg);
+    subject = '[MATLAB][ERROR]';
+    msj = strcat(type,{' - '},var2Read,{' - '},experimentName,{' --- '},{'An exception has been thrown: '},msg);
     mailsender(RECIPIENTS,subject,msj);
 end
