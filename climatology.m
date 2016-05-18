@@ -308,9 +308,13 @@ function [] = climatology(dirName,type,extra)
         saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecember);
     end
     if ~isempty(outM)
-        if strcmp(var2Read,'tasmin')
-            tmp = savePath.split('tasmin');
-            savePath = java.lang.String(strcat(char(tmp(1)),'tasmean',char(tmp(2))));
+        if strcmp(var2Read,'tasmean')
+            try
+                tmp = savePath.split('tasmin');
+                savePath = java.lang.String(strcat(char(tmp(1)),'tasmean',char(tmp(2))));
+            catch e
+                disp(e.message);
+            end
         end
         if ~exist(char(savePath),'dir')
             mkdir(char(savePath));
