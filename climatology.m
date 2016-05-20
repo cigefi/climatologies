@@ -312,7 +312,7 @@ function [] = climatology(dirName,type,extra)
             fclose(fid);
         end
     end
-    if isempty(outM)
+    if ~isempty(outM)
         if strcmp(var2Read,'tasmean')
             try
                 tmp = savePath.split('tasmin');
