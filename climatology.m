@@ -142,6 +142,8 @@ function [] = climatology(dirName,type,extra)
     processing = 0;
     out = []; % Temp var to save the data of the previous December
     outM = [];
+    lastDecember = []; 
+    lastDecemberM = [];
     try
         if strcmp(var2Read,'tasmean')
             experimentParent = path.substring(0,path.lastIndexOf(strcat('/','tasmin')));
@@ -191,8 +193,6 @@ function [] = climatology(dirName,type,extra)
                     end
                     newYearM = [];
                     newYear = [];
-                    lastDecember = []; 
-                    lastDecemberM = [];
                     % Subrutine to writte the data in new Netcdf file
                     switch ttype
                         case 'yearly'
@@ -305,9 +305,14 @@ function [] = climatology(dirName,type,extra)
         if ~exist(char(savePath),'dir')
             mkdir(char(savePath));
         end
-        saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecember);
+        err = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecember);
+        if ~isnan(err)
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+            fclose(fid);
+        end
     end
-    if ~isempty(outM)
+    if isempty(outM)
         if strcmp(var2Read,'tasmean')
             try
                 tmp = savePath.split('tasmin');
@@ -319,11 +324,17 @@ function [] = climatology(dirName,type,extra)
         if ~exist(char(savePath),'dir')
             mkdir(char(savePath));
         end
-        saveAndPlot(outM,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecemberM);
+        err = saveAndPlot(outM,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecemberM);
+        if ~isnan(err)
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+            fclose(fid);
+        end
     end
 end
 
-function [] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecember)
+function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecember)
+    err = NaN;
     switch ttype
         case 'yearly'
             out = squeeze(out(1,:,:));
@@ -334,15 +345,19 @@ function [] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,
                     units = 'mm';
                     frequency = 'day';
                     PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
-                case 'tasmin'
+%                 case 'tasmin'
+                otherwise
                     units = '°C';
                     frequency = 'day';
                     PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
-                otherwise
-                    PlotData(out,'',char(savePath));
+%                 otherwise
+%                     PlotData(out,'',char(savePath));
             end
         case 'monthly'
-            for m=1:1:length(monthsName)
+            if length(out(:,1,1)) ~= length(monthsName)
+                err = 'The output structure dimension does not match with the number of months';
+            end
+            for m=1:1:length(out(:,1,1))
                 disp(strcat('Processing',{' '},monthsName(m)));
                 currentMonth = squeeze(out(m,:,:));
                 fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
@@ -352,15 +367,19 @@ function [] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,
                         units = 'mm';
                         frequency = 'day';
                         PlotData(currentMonth,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
-                    case 'tasmin'
+                    %case 'tasmin'
+                    otherwise
                         units = '°C';
                         frequency = 'day';
                         PlotData(currentMonth,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
-                    otherwise
-                        PlotData(currentMonth,'',char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+%                     otherwise
+%                         PlotData(currentMonth,'',char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                 end
             end
         case 'seasonal'
+            if length(out(:,1,1)) ~= length(seasonsName)
+                err = 'The output structure dimension does not match with the number of seasons';
+            end
             keySet =   {'Winter','Spring','Summer','Fall'};
             valueSet = [1,2,3,4];
             smap = containers.Map(keySet,valueSet);
@@ -392,12 +411,13 @@ function [] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,
                         units = 'mm';
                         frequency = 'day';
                         PlotData(currentSeason,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
-                    case 'tasmin'
+%                     case 'tasmin'
+                    otherwise
                         units = '°C';
                         frequency = 'day';
                         PlotData(currentSeason,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
-                    otherwise
-                        PlotData(currentSeason,'',char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
+%                     otherwise
+%                         PlotData(currentSeason,'',char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                 end
             end
     end
