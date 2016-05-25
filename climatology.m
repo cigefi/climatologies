@@ -141,8 +141,10 @@ function [] = climatology(dirName,type,extra)
     
     processing = 0;
     out = []; % Temp var to save the data of the previous December
+    outD = [];
     outM = [];
     lastDecember = []; 
+    lastDecemberD = [];
     lastDecemberM = [];
     try
         if strcmp(var2Read,'tasmean')
@@ -154,7 +156,21 @@ function [] = climatology(dirName,type,extra)
     catch
         experimentName = '[CIGEFI]'; % Dafault value
     end
+    [pr,~] = existInCell(vars,'pr');
+    [tasmax,~] = existInCell(vars,'tasmax');
     [tasmean,~] = existInCell(vars,'tasmean');
+    [tasmin,~] = existInCell(vars,'tasmin');
+    [tasdif,~] = existInCell(vars,'tasdif');
+    if tasmean && strcmp(var2Read,'tasmin')
+        mlogPath = getNewPath(logPath,'tasmean');
+    else
+        mlogPath = '';
+    end
+    if tasdif && strcmp(var2Read,'tasmin')
+        dlogPath = getNewPath(logPath,'tasdif');
+    else
+        dlogPath = '';
+    end
     for f = 3:length(dirData)
         [member,var2Read] = existInCell(vars,var2Read);
         fileT = path.concat(dirData(f).name);
@@ -178,41 +194,64 @@ function [] = climatology(dirName,type,extra)
                 end
                 if all(yearC > 0 && ~strcmp(experimentName,'[CIGEFI]'))
                     if(~processing)
-                        if tasmean && strcmp(var2Read,'tasmin')
+                        if tasdif && tasmean && strcmp(var2Read,'tasmin')
+                            fprintf('Processing: %s - %s - tasdif - tasmean\n',char(experimentName),var2Read);
+                        elseif tasdif && strcmp(var2Read,'tasmin')
+                            fprintf('Processing: %s - %s - tasdif\n',char(experimentName),var2Read);
+                        elseif tasmean && strcmp(var2Read,'tasmin')
                             fprintf('Processing: %s - %s - tasmean\n',char(experimentName),var2Read);
                         else
                             fprintf('Processing: %s - %s\n',char(experimentName),var2Read);
                         end
                         processing = 1;
-                        if ~exist(char(logPath),'dir')
-                            mkdir(char(logPath));
-                        end
-                        if(exist(strcat(char(logPath),'log.txt'),'file'))
-                            delete(strcat(char(logPath),'log.txt'));
+                        if pr || tasmin || tasmax
+                            if ~exist(char(logPath),'dir')
+                                mkdir(char(logPath));
+                            end
+                            if(exist(strcat(char(logPath),'log.txt'),'file'))
+                                delete(strcat(char(logPath),'log.txt'));
+                            end
                         end
                     end
-                    newYearM = [];
                     newYear = [];
+                    newYearD = [];
+                    newYearM = [];
                     % Subrutine to writte the data in new Netcdf file
                     switch ttype
                         case 'yearly'
                             switch var2Read
                                 case 'pr'
                                     newYear = readFile(fileT,var2Read,yearC,logPath,84600);
-                                case 'tasmin'
-                                    newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
-                                    if tasmean
-                                        newYearM = readFileTemp(fileT,'tasmin',yearC,logPath);
+                                case 'tasdif'
+                                    if length(dlogPath) < 1
+                                        dlogPath = getNewPath(logPath,'tasdif');
                                     end
+                                    newYearD = readFileTemp(fileT,var2Read,yearC,dlogPath);
                                 case 'tasmax'
                                     newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
                                 case 'tasmean'
-                                    newYear = readFileTemp(fileT,'tasmin',yearC,logPath);
+                                    if length(mlogPath) < 1
+                                        mlogPath = getNewPath(logPath,'tasmean');
+                                    end
+                                    newYearM = readFileTemp(fileT,var2Read,yearC,mlogPath);
+                                case 'tasmin'
+                                    newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
+                                    if tasdif
+                                        newYearD = readFileTemp(fileT,'tasdif',yearC,dlogPath);
+                                    end
+                                    if tasmean
+                                        newYearM = readFileTemp(fileT,'tasmean',yearC,mlogPath);
+                                    end
                             end
                             if isempty(out)
                                 out = newYear;
                             else
                                 out = nanmean(cat(1,out,newYear),1);
+                            end
+                            if isempty(outD) 
+                                outD = newYearD;
+                            else
+                                outD = nanmean(cat(1,outD,newYearD),1);
                             end
                             if isempty(outM) 
                                 outM = newYearM;
@@ -223,21 +262,40 @@ function [] = climatology(dirName,type,extra)
                             switch var2Read
                                 case 'pr'
                                     newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,84600);
-                                case 'tasmin'
-                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
-                                    if tasmean
-                                        newYearM = readFileMonthlyTemp(fileT,'tasmin',yearC,logPath,months,monthsName);
+                                case 'tasdif'
+                                    if length(dlogPath) < 1
+                                        dlogPath = getNewPath(logPath,'tasdif');
                                     end
+                                    newYearD = readFileMonthlyTemp(fileT,var2Read,yearC,dlogPath,months,monthsName);
                                 case 'tasmax'
                                     newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
                                 case 'tasmean'
-                                    newYear = readFileMonthlyTemp(fileT,'tasmin',yearC,logPath,months,monthsName);
+                                    if length(mlogPath) < 1
+                                        mlogPath = getNewPath(logPath,'tasmean');
+                                    end
+                                    newYearM = readFileMonthlyTemp(fileT,var2Read,yearC,mlogPath,months,monthsName);
+                                case 'tasmin'
+                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
+                                    if tasdif
+                                        newYearM = readFileMonthlyTemp(fileT,'tasdif',yearC,dlogPath,months,monthsName);
+                                    end
+                                    if tasmean
+                                        newYearM = readFileMonthlyTemp(fileT,'tasmean',yearC,mlogPath,months,monthsName);
+                                    end
                             end
                             if ~isempty(newYear)
                                 if ~isempty(out)
                                     out = (out + newYear)/2;
                                 else
                                     out = newYear;
+                                end
+                            end
+                            
+                            if ~isempty(newYearD)
+                                if ~isempty(outD)
+                                    outD = (outD + newYearD)/2;
+                                else
+                                    outD = newYearD;
                                 end
                             end
                             
@@ -252,21 +310,39 @@ function [] = climatology(dirName,type,extra)
                             switch var2Read
                                 case 'pr'
                                     [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,84600);
-                                case 'tasmin'
-                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
-                                    if tasmean
-                                        [newYearM,lastDecemberM] = readFileSeasonalTemp(fileT,'tasmin',yearC,logPath,months,seasonsName,lastDecemberM);
-                                    end
                                 case 'tasmax'
                                     [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
+                                case 'tasdif'
+                                    if length(dlogPath) < 1
+                                        dlogPath = getNewPath(logPath,'tasdif');
+                                    end
+                                    [newYearD,lastDecemberD] = readFileSeasonalTemp(fileT,var2Read,yearC,dlogPath,months,seasonsName,lastDecemberD);
                                 case 'tasmean'
-                                    [newYear,lastDecember] = readFileSeasonalTemp(fileT,'tasmin',yearC,logPath,months,seasonsName,lastDecember);
+                                    if length(mlogPath) < 1
+                                        mlogPath = getNewPath(logPath,'tasmean');
+                                    end
+                                    [newYearM,lastDecemberM] = readFileSeasonalTemp(fileT,var2Read,yearC,mlogPath,months,seasonsName,lastDecemberM);
+                                case 'tasmin'
+                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
+                                    if tasdif
+                                        [newYearD,lastDecemberD] = readFileSeasonalTemp(fileT,'tasdif',yearC,dlogPath,months,seasonsName,lastDecemberD);
+                                    end
+                                    if tasmean
+                                        [newYearM,lastDecemberM] = readFileSeasonalTemp(fileT,'tasmean',yearC,mlogPath,months,seasonsName,lastDecemberM);
+                                    end
                             end
                             if ~isempty(newYear)
                                 if ~isempty(out)
                                     out = (out + newYear)/2;
                                 else
                                     out = newYear;
+                                end
+                            end
+                            if ~isempty(newYearD)
+                                if ~isempty(outD)
+                                    outD = (outD + newYearD)/2;
+                                else
+                                    outD = newYearD;
                                 end
                             end
                             if ~isempty(newYearM)
@@ -312,24 +388,60 @@ function [] = climatology(dirName,type,extra)
             fclose(fid);
         end
     end
-    if ~isempty(outM)
-        if strcmp(var2Read,'tasmean')
-            try
-                tmp = savePath.split('tasmin');
-                savePath = java.lang.String(strcat(char(tmp(1)),'tasmean',char(tmp(2))));
-            catch e
-                disp(e.message);
-            end
-        end
-        if ~exist(char(savePath),'dir')
-            mkdir(char(savePath));
-        end
-        err = saveAndPlot(outM,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecemberM);
+    if ~isempty(outD)
+%         if strcmp(var2Read,'tasmin')%'tasmean')
+%             try
+%                 tmp = savePath.split('tasmin');
+%                 savePath = java.lang.String(strcat(char(tmp(1)),'tasdif',char(tmp(2))));
+%             catch e
+%                 disp(e.message);
+%             end
+%         end
+%         if ~exist(char(savePath),'dir')
+%             mkdir(char(savePath));
+%         end
+        savePath = getNewPath(savePath,'tasdif');
+        err = saveAndPlot(outD,ttype,experimentName,'tasdif',savePath,monthsName,seasonsName,lastDecemberD);
         if ~isnan(err)
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
         end
+    end
+    if ~isempty(outM)
+%         if strcmp(var2Read,'tasmin')%'tasmean')
+%             try
+%                 tmp = savePath.split('tasmin');
+%                 savePath = java.lang.String(strcat(char(tmp(1)),'tasmean',char(tmp(2))));
+%             catch e
+%                 disp(e.message);
+%             end
+%         end
+%         if ~exist(char(savePath),'dir')
+%             mkdir(char(savePath));
+%         end
+        savePath = getNewPath(savePath,'tasmean');
+        err = saveAndPlot(outM,ttype,experimentName,'tasmean',savePath,monthsName,seasonsName,lastDecemberM);
+        if ~isnan(err)
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+            fclose(fid);
+        end
+    end
+end
+
+function [path] = getNewPath(oldPath,var2Read)
+    try
+        tmp = oldPath.split('tasmin');
+        path = java.lang.String(strcat(char(tmp(1)),var2Read,char(tmp(2))));
+    catch
+        path = oldPath;
+    end
+    if ~exist(char(path),'dir')
+        mkdir(char(path));
+    end
+    if(exist(strcat(char(path),'log.txt'),'file'))
+        delete(strcat(char(path),'log.txt'));
     end
 end
 
@@ -447,7 +559,7 @@ function [out] = readFile(fileT,var2Read,yearC,logPath,scale)
         catch
             disp('Error, cannot delete var data');
         end
-        disp(char(strcat('Data saved: ',num2str(yearC))));
+        disp(char(strcat('Data saved: ',num2str(yearC),{' - '},var2Read)));
         fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
         fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
         fclose(fid);
@@ -524,11 +636,11 @@ end
 function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsName)
     try
         scale = 273.15;
-        fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
+        fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/','tasmin')));
         fileT2 = fileT2.concat('/tasmax_day/');
         fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
         if(exist(char(fileT2),'file'))           
-            [mind,err] = readNC(fileT,var2Read);
+            [mind,err] = readNC(fileT,'tasmin');
             if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -566,12 +678,16 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
                 if ~isnan(dPlot(m))
                     tMin = mind(fPos:lPos,:,:);
                     tMax = maxd(fPos:lPos,:,:);
-                    data = (tMin+tMax)/2;
+                    if strcmp(var2Read,'tasdif')
+                        data = tMax - tMin;
+                    else
+                        data = (tMin+tMax)/2;
+                    end
                     out = cat(1,out,nanmean(data-scale,1));
                 end
                 %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
             end
-            disp(strcat('Data saved: ',{' '},num2str(yearC)));
+            disp(strcat('Data saved: ',{' '},num2str(yearC),{' - '},var2Read));
             varlist = {'mind','maxd','data'};
             clear(varlist{:});
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -674,11 +790,11 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
         keySet = {'Winter','Spring','Summer','Fall'};
         valueSet = [1,2,3,4];
         smap = containers.Map(keySet,valueSet);
-        fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
+        fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/','tasmin')));
         fileT2 = fileT2.concat('/tasmax_day/');
         fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
         if(exist(char(fileT2),'file'))            
-            [mind,err] = readNC(fileT,var2Read);
+            [mind,err] = readNC(fileT,'tasmin');
             if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -695,7 +811,11 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                 fclose(fid);
                 return;
             end
-            data = (mind+maxd)/2;
+            if strcmp(var2Read,'tasdif')
+                data = maxd - mind;
+            else
+                data = (mind+maxd)/2;
+            end
             data = data - scale;
             lPos = 0;      
             out = [];
@@ -732,7 +852,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             end
             fPos = lPos + 1;
             lastDecember = nanmean(data(fPos:days,:,:),1);
-            disp(strcat('Data saved: ',{' '},num2str(yearC)));
+            disp(strcat('Data saved: ',{' '},num2str(yearC),{' - '},var2Read));
             varlist = {'mind','maxd','data'};
             clear(varlist{:});
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -763,11 +883,11 @@ end
 function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
     try
         scale = 273.15;
-        fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/',var2Read)));
+        fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/','tasmin')));
         fileT2 = fileT2.concat('/tasmax_day/');
         fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
         if(exist(char(fileT2),'file'))            
-            [mind,err] = readNC(fileT,var2Read);
+            [mind,err] = readNC(fileT,'tasmin');
             if ~isnan(err)
                 out = [];
                 fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
@@ -784,9 +904,13 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
                 fclose(fid);
                 return;
             end
-            data = (mind+maxd)/2;
+            if strcmp(var2Read,'tasdif')
+                data = maxd - mind;
+            else
+                data = (mind+maxd)/2;
+            end
             out = nanmean(data-scale,1);
-            disp(strcat('Data saved: ',num2str(yearC)));
+            disp(strcat('Data saved: ',num2str(yearC),{' - '},var2Read));
             varlist = {'mind','maxd','data'};
        	    try
                 clear(varlist{:});
@@ -939,24 +1063,12 @@ end
 
 function [res,var2Read] = existInCell(vars,var2Read)
     res = 0;
-    %res2 = 0;
     for i=1:1:length(vars)
         if strcmp(vars{i},var2Read)
             res = 1;
-            %vars(i) = [];
             break;
         end
     end
-%     if strcmp(var2Read,'tasmin')% && ~res
-%         %var2Read = 'tasmean';
-%         for i=1:1:length(vars)
-%             if strcmp(vars{i},'tasmean')
-%                 res2 = 1;
-%                 %vars(i) = [];
-%                 break;
-%             end
-%         end
-%     end
 end
 
 function [] = mailError(type,var2Read,experimentName,msg)
