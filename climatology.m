@@ -147,7 +147,7 @@ function [] = climatology(dirName,type,extra)
     lastDecemberD = [];
     lastDecemberM = [];
     try
-        if strcmp(var2Read,'tasmean')
+        if strcmp(var2Read,'tasdif') || strcmp(var2Read,'tasmean')
             experimentParent = path.substring(0,path.lastIndexOf(strcat('/','tasmin')));
         else
             experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
@@ -440,9 +440,9 @@ function [path] = getNewPath(oldPath,var2Read)
     if ~exist(char(path),'dir')
         mkdir(char(path));
     end
-    if(exist(strcat(char(path),'log.txt'),'file'))
-        delete(strcat(char(path),'log.txt'));
-    end
+%     if(exist(strcat(char(path),'log.txt'),'file'))
+%         delete(strcat(char(path),'log.txt'));
+%     end
 end
 
 function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecember)
