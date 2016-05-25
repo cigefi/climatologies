@@ -19,6 +19,8 @@ function [] = climatology(dirName,type,extra)
     else
         dirName = strrep(dirName,'\','/'); % Clean dirName var
     end
+    vars = [];
+    yearVector = [];
     temp = java.lang.String(dirName(1)).split('/');
     temp = temp(end).split('_');
     var2Read = char(temp(1)); % Default value is taken from the path
@@ -158,11 +160,19 @@ function [] = climatology(dirName,type,extra)
     catch
         experimentName = '[CIGEFI]'; % Dafault value
     end
-    [pr,~] = existInCell(vars,'pr');
-    [tasmax,~] = existInCell(vars,'tasmax');
-    [tasmean,~] = existInCell(vars,'tasmean');
-    [tasmin,~] = existInCell(vars,'tasmin');
-    [tasdif,~] = existInCell(vars,'tasdif');
+    if ~isempty(vars)
+        [pr,~] = existInCell(vars,'pr');
+        [tasmax,~] = existInCell(vars,'tasmax');
+        [tasmean,~] = existInCell(vars,'tasmean');
+        [tasmin,~] = existInCell(vars,'tasmin');
+        [tasdif,~] = existInCell(vars,'tasdif');
+    else
+        pr = 1;
+        tasmax = 1;
+        tasmean = 1;
+        tasmin = 1;
+        tasdif = 1;
+    end
     if tasmean && strcmp(var2Read,'tasmin')
         mlogPath = getNewPath(logPath,'tasmean');
     else
@@ -176,7 +186,7 @@ function [] = climatology(dirName,type,extra)
     for f = 3:length(dirData)
         [member,var2Read] = existInCell(vars,var2Read);
         fileT = path.concat(dirData(f).name);
-        if(fileT.substring(fileT.lastIndexOf('.')+1).equalsIgnoreCase('nc')&&(member||((tasmean||tasdif)&&strcmp(var2Read,'tasmin'))))
+        if(fileT.substring(fileT.lastIndexOf('.')+1).equalsIgnoreCase('nc')&&(member||(((tasmean||tasdif)&&strcmp(var2Read,'tasmin'))||isempty(vars))))
             try
                 yearC = str2double(fileT.substring(fileT.length-7,fileT.lastIndexOf('.')));
                 if(yearZero>0)
@@ -196,16 +206,18 @@ function [] = climatology(dirName,type,extra)
                 end
                 if all(yearC > 0 && ~strcmp(experimentName,'[CIGEFI]'))
                     if(~processing)
-                        if tasdif && tasmean && strcmp(var2Read,'tasmin') && tasmin
-                            fprintf('Processing: %s - %s - tasdif - tasmean\n',char(experimentName),var2Read);
-                        elseif tasdif && strcmp(var2Read,'tasmin') && tasmin
-                            fprintf('Processing: %s - %s - tasdif\n',char(experimentName),var2Read);
-                        elseif tasmean && strcmp(var2Read,'tasmin') && tasmin
-                            fprintf('Processing: %s - %s - tasmean\n',char(experimentName),var2Read);
-                        elseif tasdif && tasmean
-                            fprintf('Processing: %s - tasdif - tasmean\n',char(experimentName));
-                        else
+                        if strcmp(var2Read,'pr')||strcmp(var2Read,'tasmax')
                             fprintf('Processing: %s - %s\n',char(experimentName),var2Read);
+                        else
+                            if tasdif && tasmean && strcmp(var2Read,'tasmin') && tasmin
+                                fprintf('Processing: %s - %s - tasdif - tasmean\n',char(experimentName),var2Read);
+                            elseif tasdif && strcmp(var2Read,'tasmin') && tasmin
+                                fprintf('Processing: %s - %s - tasdif\n',char(experimentName),var2Read);
+                            elseif tasmean && strcmp(var2Read,'tasmin') && tasmin
+                                fprintf('Processing: %s - %s - tasmean\n',char(experimentName),var2Read);
+                            elseif tasdif && tasmean
+                                fprintf('Processing: %s - tasdif - tasmean\n',char(experimentName));
+                            end
                         end
                         processing = 1;
                         if pr || tasmin || tasmax
