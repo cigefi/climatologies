@@ -174,12 +174,12 @@ function [] = climatology(dirName,type,extra)
         tasdif = 1;
     end
     if tasmean && strcmp(var2Read,'tasmin')
-        mlogPath = getNewPath(logPath,'tasmean');
+        mlogPath = getNewPath(logPath,'tasmean',1);
     else
         mlogPath = '';
     end
     if tasdif && strcmp(var2Read,'tasmin')
-        dlogPath = getNewPath(logPath,'tasdif');
+        dlogPath = getNewPath(logPath,'tasdif',1);
     else
         dlogPath = '';
     end
@@ -240,14 +240,14 @@ function [] = climatology(dirName,type,extra)
                                     newYear = readFile(fileT,var2Read,yearC,logPath,84600);
                                 case 'tasdif'
                                     if length(dlogPath) < 1
-                                        dlogPath = getNewPath(logPath,'tasdif');
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
                                     end
                                     newYearD = readFileTemp(fileT,var2Read,yearC,dlogPath);
                                 case 'tasmax'
                                     newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
                                 case 'tasmean'
                                     if length(mlogPath) < 1
-                                        mlogPath = getNewPath(logPath,'tasmean');
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
                                     end
                                     newYearM = readFileTemp(fileT,var2Read,yearC,mlogPath);
                                 case 'tasmin'
@@ -282,14 +282,14 @@ function [] = climatology(dirName,type,extra)
                                     newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,84600);
                                 case 'tasdif'
                                     if length(dlogPath) < 1
-                                        dlogPath = getNewPath(logPath,'tasdif');
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
                                     end
                                     newYearD = readFileMonthlyTemp(fileT,var2Read,yearC,dlogPath,months,monthsName);
                                 case 'tasmax'
                                     newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
                                 case 'tasmean'
                                     if length(mlogPath) < 1
-                                        mlogPath = getNewPath(logPath,'tasmean');
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
                                     end
                                     newYearM = readFileMonthlyTemp(fileT,var2Read,yearC,mlogPath,months,monthsName);
                                 case 'tasmin'
@@ -334,12 +334,12 @@ function [] = climatology(dirName,type,extra)
                                     [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
                                 case 'tasdif'
                                     if length(dlogPath) < 1
-                                        dlogPath = getNewPath(logPath,'tasdif');
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
                                     end
                                     [newYearD,lastDecemberD] = readFileSeasonalTemp(fileT,var2Read,yearC,dlogPath,months,seasonsName,lastDecemberD);
                                 case 'tasmean'
                                     if length(mlogPath) < 1
-                                        mlogPath = getNewPath(logPath,'tasmean');
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
                                     end
                                     [newYearM,lastDecemberM] = readFileSeasonalTemp(fileT,var2Read,yearC,mlogPath,months,seasonsName,lastDecemberM);
                                 case 'tasmin'
@@ -411,17 +411,6 @@ function [] = climatology(dirName,type,extra)
         end
     end
     if ~isempty(outD)
-%         if strcmp(var2Read,'tasmin')%'tasmean')
-%             try
-%                 tmp = savePath.split('tasmin');
-%                 savePath = java.lang.String(strcat(char(tmp(1)),'tasdif',char(tmp(2))));
-%             catch e
-%                 disp(e.message);
-%             end
-%         end
-%         if ~exist(char(savePath),'dir')
-%             mkdir(char(savePath));
-%         end
         savePath = getNewPath(savePath,'tasdif');
         err = saveAndPlot(outD,ttype,experimentName,'tasdif',savePath,monthsName,seasonsName,lastDecemberD);
         if ~isnan(err)
@@ -431,17 +420,6 @@ function [] = climatology(dirName,type,extra)
         end
     end
     if ~isempty(outM)
-%         if strcmp(var2Read,'tasmin')%'tasmean')
-%             try
-%                 tmp = savePath.split('tasmin');
-%                 savePath = java.lang.String(strcat(char(tmp(1)),'tasmean',char(tmp(2))));
-%             catch e
-%                 disp(e.message);
-%             end
-%         end
-%         if ~exist(char(savePath),'dir')
-%             mkdir(char(savePath));
-%         end
         savePath = getNewPath(savePath,'tasmean');
         err = saveAndPlot(outM,ttype,experimentName,'tasmean',savePath,monthsName,seasonsName,lastDecemberM);
         if ~isnan(err)
@@ -452,7 +430,10 @@ function [] = climatology(dirName,type,extra)
     end
 end
 
-function [path] = getNewPath(oldPath,var2Read)
+function [path] = getNewPath(oldPath,var2Read,clean)
+    if ~exist('clean', 'var')
+        clean = 0;
+    end
     try
         tmp = oldPath.split('tasmin');
         path = java.lang.String(strcat(char(tmp(1)),var2Read,char(tmp(2))));
@@ -462,9 +443,11 @@ function [path] = getNewPath(oldPath,var2Read)
     if ~exist(char(path),'dir')
         mkdir(char(path));
     end
-%     if(exist(strcat(char(path),'log.txt'),'file'))
-%         delete(strcat(char(path),'log.txt'));
-%     end
+    if clean
+        if(exist(strcat(char(path),'log.txt'),'file'))
+            delete(strcat(char(path),'log.txt'));
+        end
+    end
 end
 
 function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecember)
@@ -479,13 +462,10 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
                     units = 'mm';
                     frequency = 'day';
                     PlotData(out,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),char(experimentName));
-%                 case 'tasmin'
                 otherwise
                     units = '°C';
                     frequency = 'day';
                     PlotData(out,strcat('Temperature (',units,'/',frequency,')'),char(savePath),char(experimentName));
-%                 otherwise
-%                     PlotData(out,'',char(savePath));
             end
         case 'monthly'
             if length(out(:,1,1)) ~= length(monthsName)
@@ -501,13 +481,10 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
                         units = 'mm';
                         frequency = 'day';
                         PlotData(currentMonth,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
-                    %case 'tasmin'
                     otherwise
                         units = '°C';
                         frequency = 'day';
                         PlotData(currentMonth,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
-%                     otherwise
-%                         PlotData(currentMonth,'',char(savePath),strcat(char(experimentName),'-',monthsName(m)));
                 end
             end
         case 'seasonal'
@@ -545,13 +522,10 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
                         units = 'mm';
                         frequency = 'day';
                         PlotData(currentSeason,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
-%                     case 'tasmin'
                     otherwise
                         units = '°C';
                         frequency = 'day';
                         PlotData(currentSeason,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
-%                     otherwise
-%                         PlotData(currentSeason,'',char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                 end
             end
     end
