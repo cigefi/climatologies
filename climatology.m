@@ -147,7 +147,9 @@ function [] = climatology(dirName,type,extra)
     lastDecemberD = [];
     lastDecemberM = [];
     try
-        if strcmp(var2Read,'tasdif') || strcmp(var2Read,'tasmean')
+        if strcmp(var2Read,'tasdif') %|| strcmp(var2Read,'tasmean')
+            experimentParent = path.substring(0,path.lastIndexOf(strcat('/','tasmin')));
+        elseif strcmp(var2Read,'tasmean')
             experimentParent = path.substring(0,path.lastIndexOf(strcat('/','tasmin')));
         else
             experimentParent = path.substring(0,path.lastIndexOf(strcat('/',var2Read)));
@@ -174,7 +176,7 @@ function [] = climatology(dirName,type,extra)
     for f = 3:length(dirData)
         [member,var2Read] = existInCell(vars,var2Read);
         fileT = path.concat(dirData(f).name);
-        if(fileT.substring(fileT.lastIndexOf('.')+1).equalsIgnoreCase('nc')&&member)
+        if(fileT.substring(fileT.lastIndexOf('.')+1).equalsIgnoreCase('nc')&&(member||((tasmean||tasdif)&&strcmp(var2Read,'tasmin'))))
             try
                 yearC = str2double(fileT.substring(fileT.length-7,fileT.lastIndexOf('.')));
                 if(yearZero>0)
@@ -194,12 +196,14 @@ function [] = climatology(dirName,type,extra)
                 end
                 if all(yearC > 0 && ~strcmp(experimentName,'[CIGEFI]'))
                     if(~processing)
-                        if tasdif && tasmean && strcmp(var2Read,'tasmin')
+                        if tasdif && tasmean && strcmp(var2Read,'tasmin') && tasmin
                             fprintf('Processing: %s - %s - tasdif - tasmean\n',char(experimentName),var2Read);
-                        elseif tasdif && strcmp(var2Read,'tasmin')
+                        elseif tasdif && strcmp(var2Read,'tasmin') && tasmin
                             fprintf('Processing: %s - %s - tasdif\n',char(experimentName),var2Read);
-                        elseif tasmean && strcmp(var2Read,'tasmin')
+                        elseif tasmean && strcmp(var2Read,'tasmin') && tasmin
                             fprintf('Processing: %s - %s - tasmean\n',char(experimentName),var2Read);
+                        elseif tasdif && tasmean
+                            fprintf('Processing: %s - tasdif - tasmean\n',char(experimentName));
                         else
                             fprintf('Processing: %s - %s\n',char(experimentName),var2Read);
                         end
@@ -235,7 +239,9 @@ function [] = climatology(dirName,type,extra)
                                     end
                                     newYearM = readFileTemp(fileT,var2Read,yearC,mlogPath);
                                 case 'tasmin'
-                                    newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
+                                    if tasmin
+                                        newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
+                                    end
                                     if tasdif
                                         newYearD = readFileTemp(fileT,'tasdif',yearC,dlogPath);
                                     end
@@ -275,7 +281,9 @@ function [] = climatology(dirName,type,extra)
                                     end
                                     newYearM = readFileMonthlyTemp(fileT,var2Read,yearC,mlogPath,months,monthsName);
                                 case 'tasmin'
-                                    newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
+                                    if tasmin
+                                        newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
+                                    end
                                     if tasdif
                                         newYearM = readFileMonthlyTemp(fileT,'tasdif',yearC,dlogPath,months,monthsName);
                                     end
@@ -323,7 +331,9 @@ function [] = climatology(dirName,type,extra)
                                     end
                                     [newYearM,lastDecemberM] = readFileSeasonalTemp(fileT,var2Read,yearC,mlogPath,months,seasonsName,lastDecemberM);
                                 case 'tasmin'
-                                    [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
+                                    if tasmin
+                                        [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
+                                    end
                                     if tasdif
                                         [newYearD,lastDecemberD] = readFileSeasonalTemp(fileT,'tasdif',yearC,dlogPath,months,seasonsName,lastDecemberD);
                                     end
