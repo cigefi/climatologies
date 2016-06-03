@@ -678,8 +678,9 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
                         data = tMax - tMin;
                     else
                         data = (tMin+tMax)/2;
+                        data = data - scale;
                     end
-                    out = cat(1,out,nanmean(data-scale,1));
+                    out = cat(1,out,nanmean(data,1));
                 end
                 %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
             end
