@@ -812,8 +812,8 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
                 data = maxd - mind;
             else
                 data = (mind+maxd)/2;
+                data = data - scale;
             end
-            data = data - scale;
             lPos = 0;      
             out = [];
             season_map = [2 5 8 11];
@@ -905,8 +905,9 @@ function [out] = readFileTemp(fileT,var2Read,yearC,logPath)
                 data = maxd - mind;
             else
                 data = (mind+maxd)/2;
+                data = data - scale;
             end
-            out = nanmean(data-scale,1);
+            out = nanmean(data,1);
             disp(strcat('Data saved: ',num2str(yearC),{' - '},var2Read));
             varlist = {'mind','maxd','data'};
        	    try
