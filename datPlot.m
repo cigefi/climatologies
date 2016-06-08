@@ -46,7 +46,7 @@ function datPlot(dirName,var2Read)
         if(ext.equalsIgnoreCase('dat'))
             if ~strcmp(experimentName,'[CIGEFI]')
                 if(~processing)
-                    fprintf('Processing: %s\n',char(experimentName));
+                    fprintf('Plotting: %s\n',char(experimentName));
                     processing = 1;
                     if ~exist(char(logPath),'dir')
                         mkdir(char(logPath));
@@ -55,7 +55,7 @@ function datPlot(dirName,var2Read)
                         delete(strcat(char(logPath),'log.txt'));
                     end
                 end
-                plotFile(fileT,var2Read,savePath,logPath);
+                plotFile(fileT,savePath,logPath);
             end
             
         else
@@ -79,7 +79,7 @@ function datPlot(dirName,var2Read)
     end
 end
 
-function plotFile(fileT,var2Read,savePath,logPath)
+function plotFile(fileT,savePath,logPath)
     % New file configuration
     if ~exist(char(savePath),'dir')
         mkdir(char(savePath));
