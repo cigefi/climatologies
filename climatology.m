@@ -34,7 +34,7 @@ function [] = climatology(dirName,type,extra)
                 tmp = reshape(extra,2,[])'; 
                 yearVector = [];
                 vars = [];
-                for i=1:1:length(tmp(:,1))
+                parfor i=1:1:length(tmp(:,1))
                     switch lower(char(tmp{i,1}))
                         case 'f'
                             val = tmp{i,2};
