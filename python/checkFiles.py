@@ -14,7 +14,7 @@ import hashlib
 import urllib
 #from mailsender import email
 #import requests
-
+dumpT = 10
 global RECEIPT # global variable to be used in dlProgress
 RECEIPT = 'roberto.villegas@ucr.ac.cr;rodrigo.castillorodriguez@ucr.ac.cr'
 def cargar(ruta):
@@ -65,6 +65,10 @@ def downloadFile2(savePath,url):
         fid.close()
         #email(RECEIPT,str(e),'[ERROR] '+experimentID)
         return 0
+        
+def dumpMem():
+    os.system('sync')
+    open('/proc/sys/vm/drop_caches','w').write("1\n")
     
 def md5(fname):
     hash_md5 = hashlib.md5()

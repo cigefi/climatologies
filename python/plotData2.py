@@ -94,7 +94,8 @@ else:
     else:
         pType = 'pr'
     #path = sys.argv[1]
-    path = 'd:/cigefi/climatologies/test20/'
+    #path = 'd:/cigefi/climatologies/test20/'
+    path = 'd:/TEST46'
     path = path.replace('\\','/')
     
     if not path.endswith('/'):
