@@ -421,6 +421,9 @@ function [] = climatology(dirName,type,extra)
     end
     if ~isempty(outM)
         savePath = getNewPath(savePath,'tasmean');
+        logPath = getNewPath(logPath,'tasmean');
+        mailError('seasonal','tasmean',char(experimentName),savePath);
+        mailError('seasonal','tasmean',char(experimentName),logPath);
         err = saveAndPlot(outM,ttype,experimentName,'tasmean',savePath,monthsName,seasonsName,lastDecemberM);
         if ~isnan(err)
             try
@@ -477,19 +480,24 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
                 err = 'The output structure dimension does not match with the number of months';
             end
             for m=1:1:length(out(:,1,1))
-                disp(strcat('Processing',{' '},monthsName(m)));
-                currentMonth = squeeze(out(m,:,:));
-                fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
-                dlmwrite(char(fileT),currentMonth);
-                switch(var2Read)
-                    case 'pr'
-                        units = 'mm';
-                        frequency = 'day';
-                        PlotData(currentMonth,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
-                    otherwise
-                        units = '°C';
-                        frequency = 'day';
-                        PlotData(currentMonth,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                try
+                    disp(strcat('Processing',{' '},monthsName(m)));
+                    currentMonth = squeeze(out(m,:,:));
+                    fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
+                    dlmwrite(char(fileT),currentMonth);
+                    switch(var2Read)
+                        case 'pr'
+                            units = 'mm';
+                            frequency = 'day';
+                            PlotData(currentMonth,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                        otherwise
+                            units = '°C';
+                            frequency = 'day';
+                            PlotData(currentMonth,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                    end
+                catch e
+                    mailError('monthly',var2Read,char(experimentName),e.message);
+                    err = e.message;
                 end
             end
         case 'seasonal'
@@ -524,19 +532,19 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
                     end
                     fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
                     dlmwrite(char(fileT),currentSeason);
+                    switch(var2Read)
+                        case 'pr'
+                            units = 'mm';
+                            frequency = 'day';
+                            PlotData(currentSeason,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
+                        otherwise
+                            units = '°C';
+                            frequency = 'day';
+                            PlotData(currentSeason,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
+                    end
                 catch e
+                    mailError('monthly',var2Read,char(experimentName),e.message);
                     err = e.message;
-                    return;
-                end
-                switch(var2Read)
-                    case 'pr'
-                        units = 'mm';
-                        frequency = 'day';
-                        PlotData(currentSeason,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
-                    otherwise
-                        units = '°C';
-                        frequency = 'day';
-                        PlotData(currentSeason,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',seasonsName(s)));
                 end
             end
     end
