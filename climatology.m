@@ -34,7 +34,7 @@ function [] = climatology(dirName,type,extra)
                 tmp = reshape(extra,2,[])'; 
                 yearVector = [];
                 vars = [];
-                parfor i=1:1:length(tmp(:,1))
+                for i=1:1:length(tmp(:,1))
                     switch lower(char(tmp{i,1}))
                         case 'f'
                             val = tmp{i,2};
@@ -102,7 +102,7 @@ function [] = climatology(dirName,type,extra)
     months = [31,28,31,30,31,30,31,31,30,31,30,31]; % Reference to the number of days per month
     seasonsName = {};
     monthsName = {};
-    for t=1:1:length(type)
+    parfor t=1:1:length(type)
         if strcmp(ttype,'seasonal')
             seasonsName = checkSeasons(seasonsName,type(t));
         end
@@ -184,24 +184,58 @@ function [] = climatology(dirName,type,extra)
         dlogPath = '';
     end
     for f = 3:length(dirData)
-        [member,var2Read] = existInCell(vars,var2Read);
+        [out,outD,outM,lastDecember,lastDecemberD,lastDecemberM,processing] = processFile(dirData,dlogPath,experimentName,extra,lastDecember,lastDecemberD,lastDecemberM,logPath,mlogPath,months,monthsName,out,outD,outM,path,pr,processing,seasonsName,tasdif,tasmax,tasmean,tasmin,vars,type,var2Read,yearN,yearVector,yearZero);
+    end
+    if ~isempty(out)
+        if ~exist(char(savePath),'dir')
+            mkdir(char(savePath));
+        end
+        err = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecember);
+        if ~isnan(err)
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+            fclose(fid);
+        end
+    end
+    if ~isempty(outD)
+        savePath = getNewPath(savePath,'tasdif');
+        err = saveAndPlot(outD,ttype,experimentName,'tasdif',savePath,monthsName,seasonsName,lastDecemberD);
+        if ~isnan(err)
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+            fclose(fid);
+        end
+    end
+    if ~isempty(outM)
+        savePath = getNewPath(savePath,'tasmean');
+        err = saveAndPlot(outM,ttype,experimentName,'tasmean',savePath,monthsName,seasonsName,lastDecemberM);
+        if ~isnan(err)
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+            fclose(fid);
+        end
+    end
+end
+
+function [out,outD,outM,lastDecember,lastDecemberD,lastDecemberM,processing] = processFile(dirData,dlogPath,experimentName,extra,lastDecember,lastDecemberD,lastDecemberM,logPath,mlogPath,months,monthsName,out,outD,outM,path,pr,processing,seasonsName,tasdif,tasmax,tasmean,tasmin,vars,type,var2Read,yearN,yearVector,yearZero)
+    [member,var2Read] = existInCell(vars,var2Read);
         fileT = path.concat(dirData(f).name);
         if(fileT.substring(fileT.lastIndexOf('.')+1).equalsIgnoreCase('nc')&&(member||(((tasmean||tasdif)&&strcmp(var2Read,'tasmin'))||isempty(vars))))
             try
                 yearC = str2double(fileT.substring(fileT.length-7,fileT.lastIndexOf('.')));
                 if(yearZero>0)
                     if(yearC<yearZero) 
-                        continue;
+                        return;
                      end
                 end
                 if(yearN>0)
                     if(yearC>yearN)
-                        continue;
+                        return;
                     end
                 end
                 if ~isempty(yearVector)
                     if ~ismember(yearC,yearVector)
-                        continue;
+                        return;
                     end
                 end
                 if all(yearC > 0 && ~strcmp(experimentName,'[CIGEFI]'))
@@ -383,7 +417,7 @@ function [] = climatology(dirName,type,extra)
                     fclose(fid);
                 end
                 %mailError(type,var2Read,char(experimentName),char(exception.message));
-                continue;
+                return;
             end
         else
             if isequal(dirData(f).isdir,1)
@@ -398,36 +432,6 @@ function [] = climatology(dirName,type,extra)
                 end
             end
         end
-    end
-    if ~isempty(out)
-        if ~exist(char(savePath),'dir')
-            mkdir(char(savePath));
-        end
-        err = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsName,seasonsName,lastDecember);
-        if ~isnan(err)
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
-            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
-            fclose(fid);
-        end
-    end
-    if ~isempty(outD)
-        savePath = getNewPath(savePath,'tasdif');
-        err = saveAndPlot(outD,ttype,experimentName,'tasdif',savePath,monthsName,seasonsName,lastDecemberD);
-        if ~isnan(err)
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
-            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
-            fclose(fid);
-        end
-    end
-    if ~isempty(outM)
-        savePath = getNewPath(savePath,'tasmean');
-        err = saveAndPlot(outM,ttype,experimentName,'tasmean',savePath,monthsName,seasonsName,lastDecemberM);
-        if ~isnan(err)
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
-            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
-            fclose(fid);
-        end
-    end
 end
 
 function [path] = getNewPath(oldPath,var2Read,clean)
@@ -506,11 +510,17 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
             end
             for s=1:1:length(seasonsName)
                 disp(strcat('Processing',{' '},seasonsName(s)));
-                if(s==1)
+                [isAMember,~]=existInCell(seasonsName,'Winter');
+                if(s==1)&&isAMember
                     currentSeason = squeeze(out(s,:,:));
                     if ~isempty(lastDecember)
-                        lastDecember = squeeze(lastDecember(1,:,:));
-                        currentSeason = (currentSeason+lastDecember)/2;
+                        try
+                            lastDecember = squeeze(lastDecember(1,:,:));
+                            currentSeason = (currentSeason+lastDecember)/2;
+                        catch e
+                            err = e.message;
+                            return;
+                        end
                     end
                 else
                     currentSeason = squeeze(out(s,:,:));
@@ -964,7 +974,7 @@ function [] = PlotData(data2D,label,path,name)
         %[c,h]=contourfm(latgrat,longrat,testi',p,'LineStyle','none');
         contourfm(latgrat,longrat,testi',p,'LineStyle','none');
         hi = worldhi([-90 90],[-180 180]);
-        for i=1:length(hi)
+        parfor i=1:length(hi)
             plotm(hi(i).lat,hi(i).long,'k')
         end
         cb = colorbar('southoutside');
