@@ -505,18 +505,24 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
                 end
             end
             for s=1:1:length(seasonsName)
-                disp(strcat('Processing',{' '},seasonsName(s)));
-                if(s==1)
-                    currentSeason = squeeze(out(s,:,:));
-                    if ~isempty(lastDecember)
-                        lastDecember = squeeze(lastDecember(1,:,:));
-                        currentSeason = (currentSeason+lastDecember)/2;
+                try
+                    disp(strcat('Processing',{' '},seasonsName(s)));
+                    [isAMember,~]=existInCell(seasonsName,'Winter');
+                    if(s==1)&&isAMember
+                        currentSeason = squeeze(out(s,:,:));
+                        if ~isempty(lastDecember)
+                            lastDecember = squeeze(lastDecember(1,:,:));
+                            currentSeason = (currentSeason+lastDecember)/2;
+                        end
+                    else
+                        currentSeason = squeeze(out(s,:,:));
                     end
-                else
-                    currentSeason = squeeze(out(s,:,:));
+                    fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
+                    dlmwrite(char(fileT),currentSeason);
+                catch e
+                    err = e.message;
+                    return;
                 end
-                fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
-                dlmwrite(char(fileT),currentSeason);
                 switch(var2Read)
                     case 'pr'
                         units = 'mm';
