@@ -423,9 +423,14 @@ function [] = climatology(dirName,type,extra)
         savePath = getNewPath(savePath,'tasmean');
         err = saveAndPlot(outM,ttype,experimentName,'tasmean',savePath,monthsName,seasonsName,lastDecemberM);
         if ~isnan(err)
-            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
-            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
-            fclose(fid);
+            try
+                fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+                fclose(fid);
+            catch e
+                mailError('seasonal','tasmean',char(experimentName),char(e.message));
+                disp(char(e.message));
+            end
         end
     end
 end
