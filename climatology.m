@@ -422,8 +422,8 @@ function [] = climatology(dirName,type,extra)
     if ~isempty(outM)
         savePath = getNewPath(savePath,'tasmean');
         logPath = getNewPath(logPath,'tasmean');
-        mailError('seasonal','tasmean',char(experimentName),savePath);
-        mailError('seasonal','tasmean',char(experimentName),logPath);
+        mailError('seasonal','tasmean',char(experimentName),char(savePath));
+        mailError('seasonal','tasmean',char(experimentName),char(logPath));
         err = saveAndPlot(outM,ttype,experimentName,'tasmean',savePath,monthsName,seasonsName,lastDecemberM);
         if ~isnan(err)
             try
