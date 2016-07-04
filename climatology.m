@@ -483,7 +483,7 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
                 try
                     disp(strcat('Processing',{' '},monthsName(m)));
                     currentMonth = squeeze(out(m,:,:));
-                    fileT = savePath.concat(strcat(char(experimentName),'-',monthsName(m),'.dat'));
+                    fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'-',monthsName(m),'.dat'));
                     dlmwrite(char(fileT),currentMonth);
                     switch(var2Read)
                         case 'pr'
@@ -530,7 +530,7 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
                     else
                         currentSeason = squeeze(out(s,:,:));
                     end
-                    fileT = savePath.concat(strcat(char(experimentName),'-',seasonsName(s),'.dat'));
+                    fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'-',seasonsName(s),'.dat'));
                     dlmwrite(char(fileT),currentSeason);
                     switch(var2Read)
                         case 'pr'
