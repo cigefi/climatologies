@@ -1,4 +1,4 @@
-% Function climatology
+ % Function climatology
 %
 % Prototype: climatology(dirName,type,extra)
 %            climatology(dirName,type)
@@ -217,6 +217,8 @@ function [] = climatology(dirName,type,extra)
                                 fprintf('Processing: %s - %s - tasmean\n',char(experimentName),var2Read);
                             elseif tasdif && tasmean
                                 fprintf('Processing: %s - tasdif - tasmean\n',char(experimentName));
+                            else
+                                fprintf('Processing: %s - %s\n',char(experimentName),var2Read);
                             end
                         end
                         processing = 1;
@@ -243,6 +245,10 @@ function [] = climatology(dirName,type,extra)
                                         dlogPath = getNewPath(logPath,'tasdif',1);
                                     end
                                     newYearD = readFileTemp(fileT,var2Read,yearC,dlogPath);
+                                    if tasmean
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
+                                        newYearM = readFileTemp(fileT,'tasmean',yearC,mlogPath);
+                                    end
                                 case 'tasmax'
                                     newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
                                 case 'tasmean'
@@ -250,14 +256,20 @@ function [] = climatology(dirName,type,extra)
                                         mlogPath = getNewPath(logPath,'tasmean',1);
                                     end
                                     newYearM = readFileTemp(fileT,var2Read,yearC,mlogPath);
+                                    if tasdif
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
+                                        newYearD = readFileTemp(fileT,'tasdif',yearC,dlogPath);
+                                    end
                                 case 'tasmin'
                                     if tasmin
                                         newYear = readFile(fileT,var2Read,yearC,logPath,273.15);
                                     end
                                     if tasdif
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
                                         newYearD = readFileTemp(fileT,'tasdif',yearC,dlogPath);
                                     end
                                     if tasmean
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
                                         newYearM = readFileTemp(fileT,'tasmean',yearC,mlogPath);
                                     end
                             end
@@ -285,6 +297,10 @@ function [] = climatology(dirName,type,extra)
                                         dlogPath = getNewPath(logPath,'tasdif',1);
                                     end
                                     newYearD = readFileMonthlyTemp(fileT,var2Read,yearC,dlogPath,months,monthsName);
+                                    if tasmean
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
+                                        newYearM = readFileMonthlyTemp(fileT,'tasmean',yearC,mlogPath,months,monthsName);
+                                    end
                                 case 'tasmax'
                                     newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
                                 case 'tasmean'
@@ -292,14 +308,20 @@ function [] = climatology(dirName,type,extra)
                                         mlogPath = getNewPath(logPath,'tasmean',1);
                                     end
                                     newYearM = readFileMonthlyTemp(fileT,var2Read,yearC,mlogPath,months,monthsName);
+                                    if tasdif
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
+                                        newYearM = readFileMonthlyTemp(fileT,'tasdif',yearC,dlogPath,months,monthsName);
+                                    end
                                 case 'tasmin'
                                     if tasmin
                                         newYear = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
                                     end
                                     if tasdif
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
                                         newYearM = readFileMonthlyTemp(fileT,'tasdif',yearC,dlogPath,months,monthsName);
                                     end
                                     if tasmean
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
                                         newYearM = readFileMonthlyTemp(fileT,'tasmean',yearC,mlogPath,months,monthsName);
                                     end
                             end
@@ -337,19 +359,29 @@ function [] = climatology(dirName,type,extra)
                                         dlogPath = getNewPath(logPath,'tasdif',1);
                                     end
                                     [newYearD,lastDecemberD] = readFileSeasonalTemp(fileT,var2Read,yearC,dlogPath,months,seasonsName,lastDecemberD);
+                                    if tasmean
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
+                                        [newYearM,lastDecemberM] = readFileSeasonalTemp(fileT,'tasmean',yearC,mlogPath,months,seasonsName,lastDecemberM);
+                                    end
                                 case 'tasmean'
                                     if length(mlogPath) < 1
                                         mlogPath = getNewPath(logPath,'tasmean',1);
                                     end
                                     [newYearM,lastDecemberM] = readFileSeasonalTemp(fileT,var2Read,yearC,mlogPath,months,seasonsName,lastDecemberM);
+                                    if tasdif
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
+                                        [newYearD,lastDecemberD] = readFileSeasonalTemp(fileT,'tasdif',yearC,dlogPath,months,seasonsName,lastDecemberD);
+                                    end
                                 case 'tasmin'
                                     if tasmin
                                         [newYear,lastDecember] = readFileSeasonal(fileT,var2Read,yearC,logPath,months,seasonsName,lastDecember,273.15);
                                     end
                                     if tasdif
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
                                         [newYearD,lastDecemberD] = readFileSeasonalTemp(fileT,'tasdif',yearC,dlogPath,months,seasonsName,lastDecemberD);
                                     end
                                     if tasmean
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
                                         [newYearM,lastDecemberM] = readFileSeasonalTemp(fileT,'tasmean',yearC,mlogPath,months,seasonsName,lastDecemberM);
                                     end
                             end
@@ -478,6 +510,7 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
         case 'monthly'
             if length(out(:,1,1)) ~= length(monthsName)
                 err = 'The output structure dimension does not match with the number of months';
+                return;
             end
             for m=1:1:length(out(:,1,1))
                 try
@@ -503,6 +536,7 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
         case 'seasonal'
             if length(out(:,1,1)) ~= length(seasonsName)
                 err = 'The output structure dimension does not match with the number of seasons';
+                return;
             end
             keySet =   {'Winter','Spring','Summer','Fall'};
             valueSet = [1,2,3,4];
@@ -841,7 +875,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             for i=1:1:length(seasonsName)
                 dPlot(smap(char(seasonsName(i)))) = 1;
             end
-            for s=1:1:length(seasonsName)
+            for s=1:1:length(dPlot)
                 fPos = lPos + 1;
                 if s > 1
                     init = season_map(s-1)+1;
@@ -874,6 +908,7 @@ function [out,lastDecember] = readFileSeasonalTemp(fileT,var2Read,yearC,logPath,
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
             fclose(fid);
+            disp(strcat(char(logPath),'log.txt'));
         else
             out = [];
             lastDecember = [];
@@ -983,7 +1018,7 @@ function [] = PlotData(data2D,label,path,name)
         %[c,h]=contourfm(latgrat,longrat,testi',p,'LineStyle','none');
         contourfm(latgrat,longrat,testi',p,'LineStyle','none');
         hi = worldhi([-90 90],[-180 180]);
-        for i=1:length(hi)
+        parfor i=1:length(hi)
             plotm(hi(i).lat,hi(i).long,'k')
         end
         cb = colorbar('southoutside');
