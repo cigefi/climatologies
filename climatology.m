@@ -443,8 +443,8 @@ function [] = climatology(dirName,type,extra)
         end
     end
     if ~isempty(outD)
-        savePath = getNewPath(savePath,'tasdif');
-        err = saveAndPlot(outD,ttype,experimentName,'tasdif',savePath,monthsName,seasonsName,lastDecemberD);
+        dSavePath = getNewPath(savePath,'tasdif');
+        err = saveAndPlot(outD,ttype,experimentName,'tasdif',dSavePath,monthsName,seasonsName,lastDecemberD);
         if ~isnan(err)
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
@@ -452,14 +452,14 @@ function [] = climatology(dirName,type,extra)
         end
     end
     if ~isempty(outM)
-        savePath = getNewPath(savePath,'tasmean');
-        logPath = getNewPath(logPath,'tasmean');
-        mailError('seasonal','tasmean',char(experimentName),char(savePath));
-        mailError('seasonal','tasmean',char(experimentName),char(logPath));
-        err = saveAndPlot(outM,ttype,experimentName,'tasmean',savePath,monthsName,seasonsName,lastDecemberM);
+        mSavePath = getNewPath(savePath,'tasmean');
+        mLogPath = getNewPath(logPath,'tasmean');
+        mailError('seasonal','tasmean',char(experimentName),char(mSavePath));
+        mailError('seasonal','tasmean',char(experimentName),char(mLogPath));
+        err = saveAndPlot(outM,ttype,experimentName,'tasmean',mSavePath,monthsName,seasonsName,lastDecemberM);
         if ~isnan(err)
             try
-                fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+                fid = fopen(strcat(char(mLogPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
                 fclose(fid);
             catch e
