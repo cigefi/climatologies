@@ -1,4 +1,4 @@
- % Function climatology
+% Function climatology
 %
 % Prototype: climatology(dirName,type,extra)
 %            climatology(dirName,type)
@@ -31,9 +31,7 @@ function [] = climatology(dirName,type,extra)
             type = {'yearly'};
         case 3 
             if ~mod(length(extra),2)
-                tmp = reshape(extra,2,[])'; 
-                yearVector = [];
-                vars = [];
+                tmp = reshape(extra,2,[])';
                 for i=1:1:length(tmp(:,1))
                     switch lower(char(tmp{i,1}))
                         case 'f'
@@ -58,7 +56,7 @@ function [] = climatology(dirName,type,extra)
             end
     end
     ttype = char(lower(type(1)));
-    switch ttype
+    switch ttype % Validates the type of climatology
         case 'jan'
             ttype = 'monthly';
         case 'feb'
@@ -414,7 +412,7 @@ function [] = climatology(dirName,type,extra)
                     fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
                     fclose(fid);
                 end
-                %mailError(type,var2Read,char(experimentName),char(exception.message));
+                mailError(ttype,var2Read,char(experimentName),char(exception.message));
                 continue;
             end
         else
@@ -440,6 +438,7 @@ function [] = climatology(dirName,type,extra)
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
+            mailError(ttype,var2Read,char(experimentName),err);
         end
     end
     if ~isempty(outD)
@@ -449,19 +448,21 @@ function [] = climatology(dirName,type,extra)
             fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
             fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
             fclose(fid);
+            mailError(ttype,'tasdif',char(experimentName),err);
         end
     end
     if ~isempty(outM)
         mSavePath = getNewPath(savePath,'tasmean');
         mLogPath = getNewPath(logPath,'tasmean');
-        mailError('seasonal','tasmean',char(experimentName),char(mSavePath));
-        mailError('seasonal','tasmean',char(experimentName),char(mLogPath));
+%         mailError('seasonal','tasmean',char(experimentName),char(mSavePath));
+%         mailError('seasonal','tasmean',char(experimentName),char(mLogPath));
         err = saveAndPlot(outM,ttype,experimentName,'tasmean',mSavePath,monthsName,seasonsName,lastDecemberM);
         if ~isnan(err)
             try
                 fid = fopen(strcat(char(mLogPath),'log.txt'), 'at+');
                 fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
                 fclose(fid);
+                mailError(ttype,'tasmean',char(experimentName),err);
             catch e
                 mailError('seasonal','tasmean',char(experimentName),char(e.message));
                 disp(char(e.message));
