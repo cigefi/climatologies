@@ -7,7 +7,7 @@
 % dirName = Path of the directory that contents the files and path for the
 % processed files (cell array)
 % type (Recommended) = Variable to specify the type of climatology: yearly,
-% monthly, seasonal. Default value {'yearly'}. (cell array)
+% monthly, seasonal, biweekly. Default value {'yearly'}. (cell array)
 % extra (Optional) = This param contain extra configuration options for the
 % execution. Can contain var2Read (cell array) and range of years to be
 % read or a vector of the specific years to be read. (cell array)
