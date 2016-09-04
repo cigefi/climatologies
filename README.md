@@ -1,5 +1,5 @@
 # Climatologies
-This script is capable of reading recursively a bunch of netcdf files and generate 3 types of climatologies: yearly, monthly, and seasonal.
+This script is capable of reading recursively a bunch of netcdf files and generate 4 types of climatologies: yearly, monthly, seasonal, and biweekly.
 The unique requirement for the data is to be organized in the following structure:<br/>
 [EXPERIMENT NAME]<br/>
 ------ [MONITORING DATA]<br/>
@@ -59,7 +59,7 @@ The optional parameter _var2Read_ can take one of the following forms:
 ### Monthly
 ##### Input
 - (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
-- (Optional) type: monthly
+- (Required) type: monthly
 - (Optional) extra: This param contains extra configuration options, such as, var2Read (variable to be read, use 'ncdump -h' command from bash to get the variable names) and range of years (use 'f' to specify the lowest year, 'l' to specify the top year, and 'vec' to specify a vector of year)s (cell array)
 
 ##### Output (3 to 25 files)
@@ -117,7 +117,7 @@ Then, the parameter _{'monthly'}_ can be replace by:
 ### Seasonal
 ##### Input
 - (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
-- (Optional) type: seasonal
+- (Required) type: seasonal
 - (Optional) extra: This param contains extra configuration options, such as, var2Read (variable to be read, use 'ncdump -h' command from bash to get the variable names) and range of years (use 'f' to specify the lowest year, 'l' to specify the top year, and 'vec' to specify a vector of year)s (cell array)
 
 ##### Output (3-9 files)
@@ -169,6 +169,65 @@ Then, the parameter _{'seasonal'}_ can be replace by:
 ```matlab
 ...{'spr','sum'}...
 ```
+
+### Biweekly
+##### Input
+- (Required) dirName: Path of the directory that contains the files and path to save the output files (cell array)
+- (Required) type: biweekly
+- (Optional) extra: This param contains extra configuration options, such as, var2Read (variable to be read, use 'ncdump -h' command from bash to get the variable names) and range of years (use 'f' to specify the lowest year, 'l' to specify the top year, and 'vec' to specify a vector of year)s (cell array)
+
+##### Output (5 to 49 files)
+- log file: File that contains the list of property processed .nc files and the errors
+- [Experiment-Name]-[Month]-[Month Segment].dat file: File that contains a 2-Dimensional structure with the values point by point
+- [Experiment-Name]-[Month]-[Month Segment].eps file: File that contains a plot of the data in high resolution
+
+##### Function invocation
+Reads all the .nc files from _SOURCE_PATH_ and generates biweekly climatology
+```matlab
+climatology({'SOURCE_PATH','SAVE_PATH'},{'biweekly'});
+```
+Reads all the .nc files wich contain the variable _pr_ from _SOURCE_PATH_ and generates biweekly climatology
+```matlab
+climatology({'SOURCE_PATH','SAVE_PATH'},{'biweekly'},{'var2Read',{'pr'}});
+```
+Same as above, but the lowest data to be read is from 1950
+```matlab
+climatology({'SOURCE_PATH','SAVE_PATH'},{'biweekly'},{'var2Read',{'pr'},'f',1950});
+```
+Same as above, but the data to be read is from the range 1950 to 2000
+```matlab
+climatology({'SOURCE_PATH','SAVE_PATH'},{'biweekly'},{'var2Read',{'pr'},'f',1950,'l',2000});
+```
+Same as above, but the data to be read is from the years _1956_,_1988_, and _2004_
+```matlab
+climatology({'SOURCE_PATH','SAVE_PATH'},{'biweekly'},{'var2Read',{'pr'},'vec',[1988,2004,1956]});
+```
+###### Alternative forms - parameters
+Since the latest version of the script, is possible to generate the climatologies for specific months. Using the following convention:
+```matlab
+| Month   | Param | Month     | Param |
+| -----   | ----- | ---       | ---   |
+| January | jan2   | July      | jul2   |
+| February| feb2   | August    | aug2   |
+| March   | mar2   | September | sep2   |
+| April   | apr2   | October   | oct2   |
+| May     | may2   | November  | nov2   |
+| June    | jun2   | December  | dec2   |
+```
+Then, the parameter _{'biweekly'}_ can be replace by:
+```matlab
+...{'jan2'}...
+```
+```matlab
+...{'jan2','feb2'}...
+```
+```matlab
+...{'jan2','dec2','mar2','apr2'}...
+```
+```matlab
+...{'oct2','jun2'}...
+```
+#######* The number 2 must be added in order to distinguish between monthly and biweekly climatologies
 
 #### Read saved data
 To read the data from .dat files, you can use the command:
