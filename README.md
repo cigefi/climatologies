@@ -205,8 +205,8 @@ climatology({'SOURCE_PATH','SAVE_PATH'},{'biweekly'},{'var2Read',{'pr'},'vec',[1
 ###### Alternative forms - parameters
 Since the latest version of the script, is possible to generate the climatologies for specific months. Using the following convention:
 ```matlab
-| Month   | Param | Month     | Param |
-| -----   | ----- | ---       | ---   |
+| Month   | Param  | Month     | Param  |
+| ------- | ------ | --------- | ------ |
 | January | jan2   | July      | jul2   |
 | February| feb2   | August    | aug2   |
 | March   | mar2   | September | sep2   |
@@ -227,7 +227,7 @@ Then, the parameter _{'biweekly'}_ can be replace by:
 ```matlab
 ...{'oct2','jun2'}...
 ```
-#######* The number 2 must be added in order to distinguish between monthly and biweekly climatologies
+###### * The number 2 must be added in order to distinguish between monthly and biweekly climatologies
 
 #### Read saved data
 To read the data from .dat files, you can use the command:
