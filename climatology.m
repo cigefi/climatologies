@@ -89,6 +89,30 @@ function [] = climatology(dirName,type,extra)
             ttype = 'seasonal';
         case 'fal'
             ttype = 'seasonal';
+        case 'jan2'
+            ttype = 'biweekly';
+        case 'feb2'
+            ttype = 'biweekly';
+        case 'mar2'
+            ttype = 'biweekly';
+        case 'apr2'
+            ttype = 'biweekly';
+        case 'may2'
+            ttype = 'biweekly';
+        case 'jun2'
+            ttype = 'biweekly';
+        case 'jul2'
+            ttype = 'biweekly';
+        case 'aug2'
+            ttype = 'biweekly';
+        case 'sep2'
+            ttype = 'biweekly';
+        case 'oct2'
+            ttype = 'biweekly';
+        case 'nov2'
+            ttype = 'biweekly';
+        case 'dec2'
+            ttype = 'biweekly';
     end
     
     if(yearZero > yearN) % Validates if the yearZero is higher than yearN
@@ -103,15 +127,16 @@ function [] = climatology(dirName,type,extra)
     for t=1:1:length(type)
         if strcmp(ttype,'seasonal')
             seasonsName = checkSeasons(seasonsName,type(t));
-        end
-        if strcmp(ttype,'monthly')
+        elseif strcmp(ttype,'monthly')
+            monthsName = checkMonths(monthsName,type(t));
+        elseif strcmp(ttype,'biweekly')
             monthsName = checkMonths(monthsName,type(t));
         end
     end
     if length(seasonsName) < 1 && strcmp(ttype,'seasonal')
         seasonsName = {'Winter','Spring','Summer','Fall'};
     end
-    if length(monthsName) < 1 && strcmp(ttype,'monthly')
+    if length(monthsName) < 1 && (strcmp(ttype,'monthly') || strcmp(ttype,'biweekly'))
         monthsName = {'January','February','March','April','May','June','July','August','September','October','November','December'};
     end
     
@@ -404,6 +429,66 @@ function [] = climatology(dirName,type,extra)
                                     outM = newYearM;
                                 end
                             end
+                        case 'biweekly'
+                            switch var2Read
+                                case 'pr'
+                                    newYear = readFileBiweekly(fileT,var2Read,yearC,logPath,months,monthsName,84600);
+                                case 'tasdif'
+                                    if length(dlogPath) < 1
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
+                                    end
+                                    newYearD = readFileBiweeklyTemp(fileT,var2Read,yearC,dlogPath,months,monthsName);
+                                    if tasmean
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
+                                        newYearM = readFileBiweeklyTemp(fileT,'tasmean',yearC,mlogPath,months,monthsName);
+                                    end
+                                case 'tasmax'
+                                    newYear = readBiweeklyMonthly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
+                                case 'tasmean'
+                                    if length(mlogPath) < 1
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
+                                    end
+                                    newYearM = readFileBiweeklyTemp(fileT,var2Read,yearC,mlogPath,months,monthsName);
+                                    if tasdif
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
+                                        newYearM = readFileBiweeklyTemp(fileT,'tasdif',yearC,dlogPath,months,monthsName);
+                                    end
+                                case 'tasmin'
+                                    if tasmin
+                                        newYear = readFileBiweekly(fileT,var2Read,yearC,logPath,months,monthsName,273.15);
+                                    end
+                                    if tasdif
+                                        dlogPath = getNewPath(logPath,'tasdif',1);
+                                        newYearM = readFileBiweeklyTemp(fileT,'tasdif',yearC,dlogPath,months,monthsName);
+                                    end
+                                    if tasmean
+                                        mlogPath = getNewPath(logPath,'tasmean',1);
+                                        newYearM = readFileBiweeklyTemp(fileT,'tasmean',yearC,mlogPath,months,monthsName);
+                                    end
+                            end
+                            if ~isempty(newYear)
+                                if ~isempty(out)
+                                    out = (out + newYear)/2;
+                                else
+                                    out = newYear;
+                                end
+                            end
+                            
+                            if ~isempty(newYearD)
+                                if ~isempty(outD)
+                                    outD = (outD + newYearD)/2;
+                                else
+                                    outD = newYearD;
+                                end
+                            end
+                            
+                            if ~isempty(newYearM)
+                                if ~isempty(outM)
+                                    outM = (outM + newYearM)/2;
+                                else
+                                    outM = newYearM;
+                                end
+                            end
                     end
                 end
             catch exception
@@ -582,6 +667,38 @@ function [err] = saveAndPlot(out,ttype,experimentName,var2Read,savePath,monthsNa
                     err = e.message;
                 end
             end
+        case 'biweekly'
+            if length(out(:,1,1)) ~= length(monthsName)*2
+                err = 'The output structure dimension does not match with the number of months';
+                return;
+            end
+            monthsec = 1;
+            for m=1:1:length(out(:,1,1))
+                try
+                    disp(strcat('Processing',{' '},monthsName(m),'-',num2str(monthsec)));
+                    currentMonth = squeeze(out(m,:,:));
+                    fileT = savePath.concat(strcat(char(experimentName),'-',var2Read,'-',monthsName(m),'-',num2str(monthsec),'.dat'));
+                    dlmwrite(char(fileT),currentMonth);
+                    if monthsec < 2
+                        monthsec = 2;
+                    else
+                        monthsec = 1;
+                    end
+                    switch(var2Read)
+                        case 'pr'
+                            units = 'mm';
+                            frequency = 'day';
+                            PlotData(currentMonth,strcat('Precipitation (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                        otherwise
+                            units = '°C';
+                            frequency = 'day';
+                            PlotData(currentMonth,strcat('Temperature (',units,'/',frequency,')'),char(savePath),strcat(char(experimentName),'-',monthsName(m)));
+                    end
+                catch e
+                    mailError('biweekly',var2Read,char(experimentName),e.message);
+                    err = e.message;
+                end
+            end
     end
 end
 
@@ -683,6 +800,70 @@ function [out] = readFileMonthly(fileT,var2Read,yearC,logPath,months,monthsName,
     end
 end
 
+function [out] = readFileBiweekly(fileT,var2Read,yearC,logPath,months,monthsName,scale)
+    try
+        [data,err] = readNC(fileT,var2Read);
+        if ~isnan(err)
+            out = [];
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+            fclose(fid);
+            mailError('biweekly',var2Read,'',char(err));
+            return;
+        end
+        switch var2Read
+            case 'pr'
+                data = scale.*data;
+            case 'tasmin'
+                data = data - scale;
+            case 'tasmax'
+                data = data - scale;
+        end
+        lPos = 0;
+        out = [];
+        keySet = {'January','February','March','April','May','June','July','August','September','October','November','December'};
+        valueSet = [1,2,3,4,5,6,7,8,9,10,11,12];
+        mmap = containers.Map(keySet,valueSet);
+        dPlot = nan(1,12);
+        for i=1:1:length(monthsName)
+            dPlot(mmap(char(monthsName(i)))) = 1;
+        end
+        days = length(data(:,1,1));
+        for m=1:1:length(dPlot)
+            fPos = lPos + 1;
+            if(leapyear(yearC)&& m==2 && days==366)
+                lPos = months(m) + fPos; % Leap year
+            else
+                lPos = months(m) + fPos - 1;
+            end
+            if ~isnan(dPlot(m))
+                lPos = lPos - months(m) + 15;
+                out = cat(1,out,nanmean(data(fPos:lPos,:,:),1)); % 1st 2 weeks
+                fPos = lPos + 1;
+                lPos = lPos - 15 + months(m);
+                out = cat(1,out,nanmean(data(fPos:lPos,:,:),1)); % 2nd 2 weeks
+            end
+            %out = cat(1,out,nanmean(data(fPos:lPos,:,:),1));
+            %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
+        end
+        disp(strcat('Data saved: ',{' '},num2str(yearC)));
+        try
+            clear data;
+        catch
+            disp('Error, can not delete var data');
+        end
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+        fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
+        fclose(fid);
+    catch exception
+        out = [];
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+        fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
+        fclose(fid);
+        mailError('monthly',var2Read,'',char(exception.message));
+    end
+end
+
 function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsName)
     try
         scale = 273.15;
@@ -728,6 +909,100 @@ function [out] = readFileMonthlyTemp(fileT,var2Read,yearC,logPath,months,monthsN
                 if ~isnan(dPlot(m))
                     tMin = mind(fPos:lPos,:,:);
                     tMax = maxd(fPos:lPos,:,:);
+                    if strcmp(var2Read,'tasdif')
+                        data = tMax - tMin;
+                    else
+                        data = (tMin+tMax)/2;
+                        data = data - scale;
+                    end
+                    out = cat(1,out,nanmean(data,1));
+                end
+                %disp(strcat('Data saved: ',monthsName(m),{' - '},num2str(yearC)));
+            end
+            disp(strcat('Data saved: ',{' '},num2str(yearC),{' - '},var2Read));
+            varlist = {'mind','maxd','data'};
+            clear(varlist{:});
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[SAVED][%s] %s\n\n',char(datetime('now')),char(fileT));
+            fclose(fid);
+        else
+            out = [];
+            fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+            fprintf(fid, '[ERROR][%s] %s does not exist\n\n',char(datetime('now')),char(fileT2));
+            fclose(fid);
+        end
+    catch exception
+        out = [];
+        fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+        switch(exception.identifier)
+            case 'MATLAB:Java:GenericException'
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),'The param var2Read does not exist into the .nc file');
+            otherwise
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(exception.message));
+        end
+        fclose(fid);
+        mailError('monthly',var2Read,'',char(exception.message));
+    end
+end
+
+function [out] = readFileBiweeklyTemp(fileT,var2Read,yearC,logPath,months,monthsName)
+    try
+        scale = 273.15;
+        fileT2 = fileT.substring(0,fileT.lastIndexOf(strcat('/','tasmin')));
+        fileT2 = fileT2.concat('/tasmax_day/');
+        fileT2 = fileT2.concat(fileT.substring(fileT.lastIndexOf('day/')+4));
+        if(exist(char(fileT2),'file'))           
+            [mind,err] = readNC(fileT,'tasmin');
+            if ~isnan(err)
+                out = [];
+                fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+                fclose(fid);
+                %mailError('monthly',var2Read,'',char(err));
+                return;
+            end            
+            [maxd,err] = readNC(fileT2,'tasmax');
+            if ~isnan(err)
+                out = [];
+                fid = fopen(strcat(char(logPath),'log.txt'), 'at+');
+                fprintf(fid, '[ERROR][%s] %s\n %s\n\n',char(datetime('now')),char(fileT),char(err));
+                fclose(fid);
+                return;
+            end
+            lPos = 0;
+            out = [];
+            daysMin = length(mind(:,1,1));
+            daysMax = length(maxd(:,1,1));
+            keySet = {'January','February','March','April','May','June','July','August','September','October','November','December'};
+            valueSet = [1,2,3,4,5,6,7,8,9,10,11,12];
+            mmap = containers.Map(keySet,valueSet);
+            dPlot = nan(1,12);
+            for i=1:1:length(monthsName)
+                dPlot(mmap(char(monthsName(i)))) = 1;
+            end
+            for m=1:1:length(monthsName)
+                fPos = lPos + 1;
+                if(leapyear(yearC)&& m==2 && daysMin==366 && daysMax==366)
+                    lPos = months(m) + fPos; % Leap year
+                else
+                    lPos = months(m) + fPos -1;
+                end
+                
+                if ~isnan(dPlot(m))
+                    lPos = lPos - months(m) + 15;
+                    tMin = mind(fPos:lPos,:,:); % 1st 2 weeks
+                    tMax = maxd(fPos:lPos,:,:); % 1st 2 weeks
+                    if strcmp(var2Read,'tasdif')
+                        data = tMax - tMin;
+                    else
+                        data = (tMin+tMax)/2;
+                        data = data - scale;
+                    end
+                    out = cat(1,out,nanmean(data,1));
+                    fPos = lPos + 1;
+                    lPos = lPos - 15 + months(m);
+                    tMin = mind(fPos:lPos,:,:); % 2nd 2 weeks
+                    tMax = maxd(fPos:lPos,:,:); % 2nd 2 weeks
                     if strcmp(var2Read,'tasdif')
                         data = tMax - tMin;
                     else
@@ -1070,7 +1345,11 @@ end
 
 function [months] = checkMonths(monthsName,month)
     tmp = {};
-    switch char(lower(month))
+    key = char(lower(month));
+    if length(key)>3
+        key =  key(1:3);
+    end
+    switch key
         case 'jan'
             tmp = {'January'};
         case 'feb'
